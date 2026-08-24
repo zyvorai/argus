@@ -27,6 +27,8 @@ Hands-on, step-by-step guides. Follow them in order the first time; each later t
 
 Deployment: [**Remote deploy**](../remote-deploy.md) — `deploy-remote.sh` puts the agent + dashboard on any host (bare metal, container, or k3s) in one command.
 
+**Argus Enterprise SSO:** [**Enterprise SSO / OIDC (Keycloak)**](../enterprise-sso-oidc.md) — demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), Helm Keycloak, bring-your-own IdP, or local username/password.
+
 Reference documentation lives alongside these tutorials:
 
 - [Architecture](../architecture.md) — how the pipeline works internally
@@ -35,3 +37,4 @@ Reference documentation lives alongside these tutorials:
 - [Troubleshooting](../troubleshooting.md) — common errors and fixes
 - [MCP server (chat-ops)](../mcp-server.md) — trigger and poll QA jobs from any MCP-capable chat agent (e.g. Hermes Agent)
 - [DevOps runbooks](../devops/README.md) — CI gates, target policy, on-call triage
+- [Enterprise SSO / OIDC](../enterprise-sso-oidc.md) — Keycloak + demo username/password for Argus Enterprise

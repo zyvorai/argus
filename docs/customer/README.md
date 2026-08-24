@@ -12,6 +12,7 @@
 | Multi-step jobs (flow, HAR, API…) | [Common workflows](workflows.md) |
 | Look up any surface | [Complete page index](PAGE_INDEX.md) |
 | Deploy, auth, ports, k3s | [Admin basics](admin-basics.md) |
+| Enterprise SSO / Keycloak demo logins | [Enterprise SSO / OIDC](../enterprise-sso-oidc.md) |
 | Browse capabilities by theme | [Feature Guide](../zyvor-argus-customer-feature-guide.md) |
 
 ## Printable PDFs

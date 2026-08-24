@@ -21,6 +21,11 @@ curl -s http://175.110.122.71:30080/health
 - Override with `DASHBOARD_USER` / `DASHBOARD_PASSWORD` or host file `.argus-auth`.
 - `GET /health` stays open for probes.
 
+**Argus Enterprise (Watchfloor) SSO** uses Keycloak / OIDC instead of
+`DASHBOARD_PASSWORD`. Seeded demo accounts after a default Keycloak install:
+`demo` / `demo` and `ssouser` / `Sso@321`. Full setup:
+[Enterprise SSO / OIDC](../enterprise-sso-oidc.md).
+
 ## Key environment
 
 | Variable | Purpose |

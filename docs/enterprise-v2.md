@@ -256,3 +256,11 @@ kubectl apply -f kubernetes/enterprise/network-policy.yaml
 ```
 
 Pod restart is deliberately excluded from default RBAC. Apply `optional-pod-restart-rbac.yaml` only when required.
+
+## SSO / OIDC (Argus Enterprise Watchfloor)
+
+This overlay document covers the community Enterprise v2 security/durability
+layer (service tokens, engagements, target policy). Interactive SSO for the
+Argus Enterprise Watchfloor product — Keycloak, any OIDC IdP, demo accounts
+(`demo`/`demo`, `ssouser`/`Sso@321`), and local username/password — is in
+**[enterprise-sso-oidc.md](enterprise-sso-oidc.md)**.
