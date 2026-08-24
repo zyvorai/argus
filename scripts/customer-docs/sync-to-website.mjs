@@ -39,6 +39,7 @@ const TOP_LEVEL_POSITION = {
   'test-zyvor-dev.md': 4,
   'workflows.md': 5,
   'admin-basics.md': 6,
+  'enterprise-sso.md': 7,
   'page-index.md': 8,
 }
 

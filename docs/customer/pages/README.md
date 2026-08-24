@@ -40,7 +40,7 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [Pods](overview/dashboard-pods.md) | Pod cards with phase, restarts, and click-through logs; optional cluster events toggle. |
 | [Workloads](overview/dashboard-workloads.md) | Deployment and CronJob strip for the argus namespace (when kube access is available). |
 | [Mission Control](overview/dashboard.md) | Live Mission Control console — status hero, workloads, pods, action cards, schedules, findings, and QA run history. |
-| [Login](overview/login.md) | Session login gate for Mission Control when DASHBOARD_PASSWORD is configured. |
+| [Login](overview/login.md) | Mission Control `DASHBOARD_PASSWORD` login gate; Argus Enterprise uses Keycloak/OIDC with demo accounts `demo`/`demo` and `ssouser`/`Sso@321` (see the Enterprise SSO chapter in this manual). |
 
 ## Pipeline
 

@@ -35,6 +35,10 @@ argus serve --port 8080
 
 When `DASHBOARD_PASSWORD` is set, sign in at `/login` (defaults often `admin` / `Admin@321` on lab hosts — override via env).
 
+**Argus Enterprise (Watchfloor)** uses Keycloak / OIDC instead. After a default
+install, smoke-test with `demo` / `demo` or `ssouser` / `Sso@321` — full guide:
+[Enterprise SSO / OIDC](enterprise-sso.md).
+
 ## 4. Orient yourself
 
 1. **Boot splash → hero** — pods, replicas, last QA run, pass rate, next smoke; signal field behind the hero.
@@ -74,4 +78,5 @@ argus test run --source local --spec path/to/spec.md
 - [Test zyvor.dev](test-zyvor-dev.md)
 - [Common workflows](workflows.md)
 - [Admin basics](admin-basics.md)
+- [Enterprise SSO / OIDC](enterprise-sso.md)
 - [Page-by-page guides](pages/README.md)

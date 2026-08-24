@@ -41,5 +41,6 @@ Full runbook: [06 — Pipeline patterns](https://github.com/hypersdk/zyvor-argus
 ## Related
 
 - [Admin Basics](admin-basics.md)
+- [Enterprise SSO / OIDC](enterprise-sso.md)
 - [Getting Started](getting-started.md)
 - [Using the Dashboard](using-the-dashboard.md)

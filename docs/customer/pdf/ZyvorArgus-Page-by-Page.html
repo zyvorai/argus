@@ -22,9 +22,9 @@ th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:to
 hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </style></head><body>
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
-<h1>ZyAI<span>QA</span>Agent</h1>
+<h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Page-by-Page Product Manual</div>
-<div class="badge">2026-08-16</div>
+<div class="badge">2026-08-24</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><h2>Page-by-page guides</h2>
 <p>Each guide follows: Purpose → When to use it → How to get there → What you can do → Related pages.</p>
@@ -134,7 +134,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 <tr>
 <td><a href="overview/login.md">Login</a></td>
-<td>Session login gate for Mission Control when DASHBOARD_PASSWORD is configured.</td>
+<td>Mission Control <code>DASHBOARD_PASSWORD</code> login gate; Argus Enterprise uses Keycloak/OIDC with demo accounts <code>demo</code>/<code>demo</code> and <code>ssouser</code>/<code>Sso@321</code> (see the Enterprise SSO chapter in this manual).</td>
 </tr>
 </tbody></table>
 <h3>Pipeline</h3>
@@ -793,29 +793,51 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Login</h2>
 <h3>Purpose</h3>
-<p>Session login gate for Mission Control when DASHBOARD_PASSWORD is configured.</p>
+<p>Mission Control <code>DASHBOARD_PASSWORD</code> login gate; Argus Enterprise uses Keycloak/OIDC with demo accounts <code>demo</code>/<code>demo</code> and <code>ssouser</code>/<code>Sso@321</code> (see the Enterprise SSO chapter in this manual).</p>
+<p>For <strong>Argus Enterprise</strong> (Watchfloor) full setup steps, open <a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a> — that product does not use <code>DASHBOARD_PASSWORD</code>.</p>
 <h3>When to use it</h3>
 <ul>
-<li>Open this card when the job matches the purpose above</li>
-<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
-<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+<li>You opened <code>/dashboard</code> and were redirected to <code>/login</code></li>
+<li>You need to confirm Mission Control auth before running cards that read
+cluster logs or artifacts</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if
+you are unsure where to start</li>
 </ul>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/login</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Login</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: open <code>/dashboard</code> when auth is enabled (redirect), or go directly to <code>/login</code></li>
 </ul>
 <h3>What you can do</h3>
+<h4>Mission Control (community)</h4>
 <ol>
-<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
-<li>Fill the card fields for <strong>Login</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
-<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
-<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+<li>Ensure <code>DASHBOARD_PASSWORD</code> (and optional <code>DASHBOARD_USER</code>, default <code>admin</code>) is set.</li>
+<li>Open <code>/login</code>, enter username + password (lab defaults are often
+<code>admin</code> / <code>Admin@321</code> — rotate for anything exposed).</li>
+<li>Optional: check <strong>Remember me</strong> for a longer session (30 days vs 12 h).</li>
+<li>After success you land on <code>/dashboard</code>. <code>/health</code> and <code>/webhook/github</code> stay open.</li>
 </ol>
-<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h4>Argus Enterprise (Watchfloor)</h4>
+<ol>
+<li>Claim the fresh install with the one-time setup token from app logs.</li>
+<li>On the login screen, choose the SSO / Keycloak provider (or the local
+email/password form if local auth is enabled).</li>
+<li>Demo accounts after a default Keycloak install:<ul>
+<li><code>demo</code> / <code>demo</code></li>
+<li><code>ssouser</code> / <code>Sso@321</code></li>
+</ul>
+</li>
+<li>Verify with <code>scripts/test-login.sh https://argus.example.com demo demo</code>.</li>
+</ol>
+<p>Full steps (Helm, BYO OIDC, local auth, troubleshooting):
+<a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
+<p>If Mission Control login fails, hit <code>GET /health</code>, confirm <code>argus serve</code> is up,
+and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>Related pages</h3>
 <ul>
 <li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../admin-basics.md">Admin basics</a></li>
+<li><a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a></li>
 <li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
 <li><a href="../overview/dashboard.md">Mission Control</a></li>
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
@@ -1543,7 +1565,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Zyvor Argus — Complete page index</h2>
 <p>Every Mission Control surface and action card.</p>
-<p><em>Generated: 2026-08-16 · 42 routes</em></p>
+<p><em>42 routes</em></p>
 <p>Regenerate: <code>node scripts/customer-docs/generate-page-index.mjs</code></p>
 <h3>Overview</h3>
 <table>
@@ -1564,7 +1586,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tr>
 <td>Login</td>
 <td><code>/login</code></td>
-<td>Session login gate for Mission Control when DASHBOARD_PASSWORD is configured.</td>
+<td>Mission Control DASHBOARD_PASSWORD gate; Argus Enterprise uses Keycloak SSO (demo/demo) — see customer/enterprise-sso.md.</td>
 <td><a href="pages/overview/login.md">Open</a></td>
 </tr>
 <tr>

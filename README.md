@@ -152,7 +152,7 @@ See [**Writing Tests & GitHub Integration**](docs/test-authoring.md) for the ful
 |-------|-------------|
 | [**Customer docs**](docs/customer/README.md) | Mission Control page-by-page manual · PDFs · `sync-to-website.mjs` |
 | [**Enterprise v2**](docs/enterprise-v2.md) | Fail-closed security, SSRF allowlists, durable SQLite jobs, `/api/v2`, RBAC |
-| [**Enterprise SSO / OIDC**](docs/enterprise-sso-oidc.md) | Keycloak (or any OIDC IdP), demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), local username/password |
+| [**Enterprise SSO / OIDC**](docs/enterprise-sso-oidc.md) | Keycloak (or any OIDC IdP), demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), local username/password — also in the [customer manual](docs/customer/enterprise-sso.md) |
 | [**Tutorials**](docs/tutorials/README.md) | Getting started, spec-to-test, NL tests, GitHub, coverage, regression, autofix, notifications, CI/CD, dashboard, E2E flow tests |
 | [**External CI/CD integration**](docs/tutorials/15-external-cicd-integration.md) | Drop argus into *any* project's pipeline via the reusable [GitHub Action](action.yml), or GitLab/CircleCI/Jenkins/Azure [templates](templates/ci/README.md) |
 | [**MCP server (chat-ops)**](docs/mcp-server.md) | `argus-mcp` — trigger and poll QA jobs from any MCP-capable chat agent (e.g. Hermes Agent) over Telegram/Discord/Slack/CLI |
@@ -367,7 +367,7 @@ Zyvor Argus community edition is Apache-2.0, self-hostable, and fully featured o
 | **AI actions** | Direct LLM/heuristic execution | Every LLM/heuristic action routed through a deterministic safety gateway |
 | **Support** | [GitHub Issues](https://github.com/hypersdk/zyvor-argus/issues) | SLA, [sales@zyvor.dev](mailto:sales@zyvor.dev) |
 
-**Argus Enterprise (Watchfloor) SSO:** configure Keycloak or any OIDC provider, use the seeded demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), or fall back to local username/password for a test lab — see **[Enterprise SSO / OIDC](docs/enterprise-sso-oidc.md)**.
+**Argus Enterprise (Watchfloor) SSO:** configure Keycloak or any OIDC provider, use the seeded demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), or fall back to local username/password for a test lab — see **[Enterprise SSO / OIDC](docs/enterprise-sso-oidc.md)** and the **[customer manual chapter](docs/customer/enterprise-sso.md)**.
 
 Looking for enterprise support, managed deployments, or a commercial relationship with Zyvor? Visit **[zyvor.dev](https://zyvor.dev)**.
 

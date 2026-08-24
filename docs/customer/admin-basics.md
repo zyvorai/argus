@@ -7,6 +7,8 @@
 | **30080** | Mission Control (lab / k3s NodePort) | Persisted by `deploy-remote.sh` |
 | **8080** | Local `argus serve --port 8080` | Dev default |
 | **443 / TLS** | `argus serve --tls` | When terminating TLS in-process |
+| **8090** | Argus Enterprise (Watchfloor) | Customer package / Helm Service |
+| **30180** | Bundled Keycloak NodePort (typical lab) | Only when Enterprise uses NodePort SSO |
 
 ```bash
 curl -s http://127.0.0.1:8080/health
@@ -14,17 +16,32 @@ curl -s http://127.0.0.1:8080/health
 curl -s http://175.110.122.71:30080/health
 ```
 
-## Auth
+## Auth — Mission Control (community)
 
 - When `DASHBOARD_PASSWORD` is set, `/dashboard` and `/api/dashboard/*` require a session from `/login`.
 - Lab defaults are often **`admin` / `Admin@321`** — rotate for anything exposed.
 - Override with `DASHBOARD_USER` / `DASHBOARD_PASSWORD` or host file `.argus-auth`.
 - `GET /health` stays open for probes.
 
-**Argus Enterprise (Watchfloor) SSO** uses Keycloak / OIDC instead of
-`DASHBOARD_PASSWORD`. Seeded demo accounts after a default Keycloak install:
-`demo` / `demo` and `ssouser` / `Sso@321`. Full setup:
-[Enterprise SSO / OIDC](../enterprise-sso-oidc.md).
+## Auth — Argus Enterprise (SSO / OIDC)
+
+Argus Enterprise (Watchfloor) does **not** use `DASHBOARD_PASSWORD`. It uses
+OIDC (bundled Keycloak or your IdP) and optionally local username/password.
+
+**Demo accounts** after a default Keycloak install (`keycloak.createTestUsers=true`):
+
+| Username | Password | Notes |
+|----------|----------|-------|
+| `demo` | `demo` | Quick manual login |
+| `ssouser` | `Sso@321` | Default for `scripts/test-login.sh` |
+
+These are smoke-test only — turn them off for production. Full install
+options (Helm, BYO OIDC, local auth, manual Docker, troubleshooting):
+**[Enterprise SSO / OIDC](enterprise-sso.md)**.
+
+```bash
+scripts/test-login.sh https://argus.example.com demo demo
+```
 
 ## Key environment
 
@@ -55,13 +72,19 @@ If k3s already binds **:30080** as the `argus-webhook` NodePort, prefer `--k3s` 
 
 Logs: `journalctl -u argus -f` or `kubectl logs deploy/argus-webhook`.
 
+For Argus Enterprise Helm / Keycloak deploy steps, see
+[Enterprise SSO / OIDC](enterprise-sso.md).
+
 ## Security notes
 
-- Always set `DASHBOARD_PASSWORD` before exposing pod logs publicly.
-- Treat webhook secrets and LLM keys as production secrets.
-- Support: [GitHub issues](https://github.com/hypersdk/zyvor-argus/issues).
+- Always set `DASHBOARD_PASSWORD` before exposing Mission Control pod logs publicly.
+- For Enterprise, disable Keycloak demo users (`demo` / `ssouser`) outside eval labs.
+- Treat webhook secrets, OIDC client secrets, and LLM keys as production secrets.
+- Support: [GitHub issues](https://github.com/hypersdk/zyvor-argus/issues) · [sales@zyvor.dev](mailto:sales@zyvor.dev) for Enterprise.
 
 ## Related
 
 - [Getting Started](getting-started.md)
 - [Using the Dashboard](using-the-dashboard.md)
+- [Enterprise SSO / OIDC](enterprise-sso.md)
+- [Login (Mission Control)](pages/overview/login.md)

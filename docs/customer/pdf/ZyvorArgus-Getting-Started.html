@@ -22,9 +22,9 @@ th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:to
 hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </style></head><body>
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
-<h1>ZyAI<span>QA</span>Agent</h1>
+<h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Getting Started</div>
-<div class="badge">2026-08-16</div>
+<div class="badge">2026-08-24</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><h2>What you need</h2>
 <table>
@@ -66,6 +66,9 @@ make install           # argus CLI + Playwright browsers
 # → http://localhost:8080/dashboard
 </code></pre>
 <p>When <code>DASHBOARD_PASSWORD</code> is set, sign in at <code>/login</code> (defaults often <code>admin</code> / <code>Admin@321</code> on lab hosts — override via env).</p>
+<p><strong>Argus Enterprise (Watchfloor)</strong> uses Keycloak / OIDC instead. After a default
+install, smoke-test with <code>demo</code> / <code>demo</code> or <code>ssouser</code> / <code>Sso@321</code> — full guide:
+<a href="enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
 <h2>4. Orient yourself</h2>
 <ol>
 <li><strong>Boot splash → hero</strong> — pods, replicas, last QA run, pass rate, next smoke; signal field behind the hero.</li>
@@ -93,6 +96,7 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 <li><a href="test-zyvor-dev.md">Test zyvor.dev</a></li>
 <li><a href="workflows.md">Common workflows</a></li>
 <li><a href="admin-basics.md">Admin basics</a></li>
+<li><a href="enterprise-sso.md">Enterprise SSO / OIDC</a></li>
 <li><a href="pages/README.md">Page-by-page guides</a></li>
 </ul>
 <hr>

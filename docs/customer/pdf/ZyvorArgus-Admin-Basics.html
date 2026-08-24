@@ -22,9 +22,9 @@ th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:to
 hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </style></head><body>
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
-<h1>ZyAI<span>QA</span>Agent</h1>
+<h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Admin Basics</div>
-<div class="badge">2026-08-16</div>
+<div class="badge">2026-08-24</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><h2>Ports &amp; URLs</h2>
 <table>
@@ -50,18 +50,56 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td><code>argus serve --tls</code></td>
 <td>When terminating TLS in-process</td>
 </tr>
+<tr>
+<td><strong>8090</strong></td>
+<td>Argus Enterprise (Watchfloor)</td>
+<td>Customer package / Helm Service</td>
+</tr>
+<tr>
+<td><strong>30180</strong></td>
+<td>Bundled Keycloak NodePort (typical lab)</td>
+<td>Only when Enterprise uses NodePort SSO</td>
+</tr>
 </tbody></table>
 <pre><code class="language-bash">curl -s http://127.0.0.1:8080/health
 # remote lab example:
 curl -s http://175.110.122.71:30080/health
 </code></pre>
-<h2>Auth</h2>
+<h2>Auth — Mission Control (community)</h2>
 <ul>
 <li>When <code>DASHBOARD_PASSWORD</code> is set, <code>/dashboard</code> and <code>/api/dashboard/*</code> require a session from <code>/login</code>.</li>
 <li>Lab defaults are often <strong><code>admin</code> / <code>Admin@321</code></strong> — rotate for anything exposed.</li>
 <li>Override with <code>DASHBOARD_USER</code> / <code>DASHBOARD_PASSWORD</code> or host file <code>.argus-auth</code>.</li>
 <li><code>GET /health</code> stays open for probes.</li>
 </ul>
+<h2>Auth — Argus Enterprise (SSO / OIDC)</h2>
+<p>Argus Enterprise (Watchfloor) does <strong>not</strong> use <code>DASHBOARD_PASSWORD</code>. It uses
+OIDC (bundled Keycloak or your IdP) and optionally local username/password.</p>
+<p><strong>Demo accounts</strong> after a default Keycloak install (<code>keycloak.createTestUsers=true</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Username</th>
+<th>Password</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>demo</code></td>
+<td><code>demo</code></td>
+<td>Quick manual login</td>
+</tr>
+<tr>
+<td><code>ssouser</code></td>
+<td><code>Sso@321</code></td>
+<td>Default for <code>scripts/test-login.sh</code></td>
+</tr>
+</tbody></table>
+<p>These are smoke-test only — turn them off for production. Full install
+options (Helm, BYO OIDC, local auth, manual Docker, troubleshooting):
+<strong><a href="enterprise-sso.md">Enterprise SSO / OIDC</a></strong>.</p>
+<pre><code class="language-bash">scripts/test-login.sh https://argus.example.com demo demo
+</code></pre>
 <h2>Key environment</h2>
 <table>
 <thead>
@@ -115,22 +153,212 @@ curl -s http://175.110.122.71:30080/health
 <td>HMAC for <code>POST /webhook/github</code></td>
 </tr>
 </tbody></table>
-<p>Canonical list: repo <a href="../../.env.example"><code>.env.example</code></a> and <a href="../configuration.md"><code>docs/configuration.md</code></a>.</p>
+<p>Canonical list: repo <a href="https://github.com/hypersdk/zyvor-argus/blob/main/.env.example"><code>.env.example</code></a> and <a href="https://github.com/hypersdk/zyvor-argus/blob/main/docs/configuration.md"><code>docs/configuration.md</code></a>.</p>
 <h2>Deploy sketch</h2>
 <pre><code class="language-bash">./scripts/deploy-remote.sh &lt;host&gt; &lt;user&gt; --quick --service   # systemd (needs free port)
 ./scripts/deploy-remote.sh &lt;host&gt; &lt;user&gt; --k3s               # preferred when :30080 is NodePort
 </code></pre>
 <p>If k3s already binds <strong>:30080</strong> as the <code>argus-webhook</code> NodePort, prefer <code>--k3s</code> — bare systemd cannot steal that port.</p>
 <p>Logs: <code>journalctl -u argus -f</code> or <code>kubectl logs deploy/argus-webhook</code>.</p>
+<p>For Argus Enterprise Helm / Keycloak deploy steps, see
+<a href="enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
 <h2>Security notes</h2>
 <ul>
-<li>Always set <code>DASHBOARD_PASSWORD</code> before exposing pod logs publicly.</li>
-<li>Treat webhook secrets and LLM keys as production secrets.</li>
-<li>Support: <a href="https://github.com/hypersdk/zyvor-argus/issues">GitHub issues</a>.</li>
+<li>Always set <code>DASHBOARD_PASSWORD</code> before exposing Mission Control pod logs publicly.</li>
+<li>For Enterprise, disable Keycloak demo users (<code>demo</code> / <code>ssouser</code>) outside eval labs.</li>
+<li>Treat webhook secrets, OIDC client secrets, and LLM keys as production secrets.</li>
+<li>Support: <a href="https://github.com/hypersdk/zyvor-argus/issues">GitHub issues</a> · <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a> for Enterprise.</li>
 </ul>
 <h2>Related</h2>
 <ul>
 <li><a href="getting-started.md">Getting Started</a></li>
 <li><a href="using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="enterprise-sso.md">Enterprise SSO / OIDC</a></li>
+<li><a href="pages/overview/login.md">Login (Mission Control)</a></li>
+</ul>
+<hr>
+<p>How to sign into <strong>Argus Enterprise</strong> (Watchfloor) after install: bundled
+Keycloak, your own OIDC provider, or a local username/password for a test lab.</p>
+<p>This chapter is for the <strong>Argus Enterprise</strong> customer package (Helm chart +
+scripts). Community Mission Control (<code>argus serve</code>) still uses
+<code>DASHBOARD_PASSWORD</code> — see <a href="admin-basics.md">Admin basics</a>.</p>
+<h2>Demo accounts (smoke-test only)</h2>
+<p>After a default install with bundled Keycloak and test users enabled:</p>
+<table>
+<thead>
+<tr>
+<th>Username</th>
+<th>Password</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>demo</code></td>
+<td><code>demo</code></td>
+<td>Quick manual login check</td>
+</tr>
+<tr>
+<td><code>ssouser</code></td>
+<td><code>Sso@321</code></td>
+<td>Scripted / <code>test-login.sh</code> smoke test</td>
+</tr>
+</tbody></table>
+<p><strong>These are not production accounts.</strong> Disable them for a real customer
+environment (<code>keycloak.createTestUsers: false</code> in Helm, or delete the users
+in Keycloak after you verify login).</p>
+<pre><code class="language-bash">scripts/test-login.sh https://argus.example.com demo demo
+# or
+scripts/test-login.sh https://argus.example.com ssouser &#39;Sso@321&#39;
+</code></pre>
+<h2>Option A — Helm with bundled Keycloak (recommended)</h2>
+<pre><code class="language-bash"># Load the image from the customer package first (see that package&#39;s INSTALL.md), then:
+helm install argus charts/argus-enterprise-*.tgz \
+  --set appUrl=https://argus.example.com \
+  --set keycloak.externalUrl=https://sso.example.com \
+  --set keycloak.ingress.enabled=true \
+  --set keycloak.ingress.className=&lt;your-ingress-class&gt; \
+  --set keycloak.ingress.host=sso.example.com
+</code></pre>
+<p>What this does:</p>
+<ul>
+<li>Deploys the app, Postgres, and Keycloak.</li>
+<li>A post-install Job creates the <code>argus</code> realm, the <code>argus-enterprise</code> OIDC
+client, and (by default) the <code>demo</code> / <code>ssouser</code> test users above.</li>
+<li>Secrets (Postgres password, Keycloak admin password, OIDC client secret)
+are generated once and kept stable across <code>helm upgrade</code>.</li>
+</ul>
+<p>Required values (no safe default):</p>
+<ul>
+<li><code>appUrl</code> — browser-reachable URL of the app</li>
+<li><code>keycloak.externalUrl</code> — browser-reachable URL of Keycloak</li>
+</ul>
+<p>Keycloak must be reachable from browsers via <strong>Ingress</strong> (<code>keycloak.ingress.*</code>)
+or a <strong>NodePort</strong> (<code>keycloak.nodePort</code>). The chart fails install if neither
+is set.</p>
+<p>After pods are ready:</p>
+<ol>
+<li>Read the one-time owner setup token from app logs:
+<code>kubectl logs -n &lt;ns&gt; deploy/argus | grep -A3 -i &quot;one-time&quot;</code></li>
+<li>Open <code>appUrl</code>, claim ownership with your email + that token.</li>
+<li>On the login screen, pick the SSO / Keycloak provider and sign in with
+<code>demo</code> / <code>demo</code> (or <code>ssouser</code> / <code>Sso@321</code>) to confirm OIDC.</li>
+</ol>
+<p>Turn off test users for production:</p>
+<pre><code class="language-bash">helm upgrade argus charts/argus-enterprise-*.tgz \
+  --reuse-values \
+  --set keycloak.createTestUsers=false
+</code></pre>
+<p>(Also delete any already-created <code>demo</code> / <code>ssouser</code> users in the Keycloak
+admin console if they remain.)</p>
+<h2>Option B — Bring your own OIDC provider</h2>
+<p>Okta, Azure AD, Google Workspace, an existing Keycloak, or any standards-
+compliant OIDC IdP:</p>
+<pre><code class="language-bash">helm install argus charts/argus-enterprise-*.tgz \
+  --set appUrl=https://argus.example.com \
+  --set keycloak.enabled=false \
+  --set oidc.issuer=https://login.example.com/realms/your-realm \
+  --set oidc.clientId=argus-enterprise \
+  --set oidc.clientSecret=&lt;secret&gt;
+</code></pre>
+<p>Register this redirect URI on your IdP:</p>
+<pre><code class="language-text">https://argus.example.com/api/enterprise/auth/callback/default
+</code></pre>
+<p>Demo Keycloak users do <strong>not</strong> apply here — use accounts from your IdP.</p>
+<h2>Option C — Local username/password (test lab, no IdP)</h2>
+<p>When you have nowhere to run Keycloak and no external IdP:</p>
+<pre><code class="language-bash">helm install argus charts/argus-enterprise-*.tgz \
+  --set appUrl=https://argus.example.com \
+  --set keycloak.enabled=false \
+  --set localAuth.enabled=true
+</code></pre>
+<ol>
+<li>Claim the deployment with email + setup token <strong>and</strong> a password
+(the claim form shows a password field when local auth is on).</li>
+<li>That password becomes the owner&#39;s login.</li>
+<li>Owners can add more local accounts later via <code>POST /admin/local-accounts</code>.</li>
+</ol>
+<p>Local auth and SSO can run together: the login screen shows both when both
+are configured. Prefer real SSO for any production deployment.</p>
+<h2>Option D — Manual / plain Docker (no Helm)</h2>
+<p>From the Enterprise package:</p>
+<ol>
+<li><p><strong>Deploy Keycloak</strong> (skip if you already have an OIDC provider):</p>
+<pre><code class="language-bash">kubectl create namespace argus-enterprise
+kubectl create secret generic argus-keycloak-admin -n argus-enterprise \
+  --from-literal=password=&quot;$(openssl rand -hex 20)&quot;
+kubectl apply -f k8s/keycloak-theme-configmap.yaml
+kubectl apply -f k8s/sso-keycloak.yaml
+</code></pre>
+</li>
+<li><p><strong>Create a client secret</strong> and provision realm + test users:</p>
+<pre><code class="language-bash">CLIENT_SECRET=&quot;$(openssl rand -hex 32)&quot;
+KEYCLOAK_ADMIN_PASSWORD=&quot;&lt;password from step 1&gt;&quot; \
+  scripts/keycloak-bootstrap.sh &lt;k8s-host&gt; &lt;ssh-user&gt; &quot;$CLIENT_SECRET&quot; http://&lt;app-host&gt;:8090
+</code></pre>
+<p>This creates <code>ssouser</code>/<code>Sso@321</code> and <code>demo</code>/<code>demo</code>. Re-run after any
+Keycloak pod restart if you use the ephemeral <code>start-dev</code> manifest
+(<code>k8s/sso-keycloak.yaml</code>) — a restart wipes the realm.</p>
+</li>
+<li><p><strong>Deploy the app</strong> wired to that client:</p>
+<pre><code class="language-bash">DEPLOY_OIDC_ISSUER=&quot;http://&lt;keycloak-host&gt;:30180/realms/argus&quot; \
+DEPLOY_OIDC_CLIENT_ID=&quot;argus-enterprise&quot; \
+DEPLOY_OIDC_CLIENT_SECRET=&quot;$CLIENT_SECRET&quot; \
+DEPLOY_EXTRA_ENV=&quot;ARGUS_ENTERPRISE_DB_URL=postgresql+psycopg://user:pass@host/db,ARGUS_ENTERPRISE_SESSION_SECRET=$(openssl rand -hex 32)&quot; \
+  scripts/deploy-remote.sh &lt;app-host&gt; &lt;ssh-user&gt;
+</code></pre>
+</li>
+<li><p><strong>Claim</strong> via the one-time token in <code>docker logs</code>, then log in with
+<code>demo</code> / <code>demo</code>.</p>
+</li>
+</ol>
+<p>Keep the same <code>$CLIENT_SECRET</code> for Keycloak and the app. If they drift,
+login fails with a generic OAuth error — re-run bootstrap with the same
+secret.</p>
+<p>For local auth only (no Keycloak):</p>
+<pre><code class="language-bash">DEPLOY_EXTRA_ENV=ARGUS_ENTERPRISE_LOCAL_AUTH_ENABLED=true \
+  scripts/deploy-remote.sh &lt;app-host&gt; &lt;ssh-user&gt;
+</code></pre>
+<h2>Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SSO button missing</td>
+<td>No IdP registered / OIDC env not set</td>
+<td>Check Helm <code>oidc.*</code> or <code>DEPLOY_OIDC_*</code>; claim as owner and register an IdP if using the admin API</td>
+</tr>
+<tr>
+<td>Login loops / generic OAuth error</td>
+<td>Client secret mismatch</td>
+<td>Re-run <code>keycloak-bootstrap.sh</code> with the <strong>same</strong> secret the app has</td>
+</tr>
+<tr>
+<td>SSO worked, then broke after Keycloak restart</td>
+<td>Ephemeral Keycloak storage wiped the realm</td>
+<td>Re-run <code>keycloak-bootstrap.sh</code> (or let the Helm post-upgrade Job re-provision)</td>
+</tr>
+<tr>
+<td>User created but can&#39;t finish login</td>
+<td>Keycloak <code>VERIFY_PROFILE</code> wants first/last name</td>
+<td>Use <code>keycloak-bootstrap.sh</code> / the Helm Job (they set names); or fill profile in Keycloak</td>
+</tr>
+<tr>
+<td>Need a login with no IdP</td>
+<td>Local auth off</td>
+<td><code>--set localAuth.enabled=true</code> or <code>ARGUS_ENTERPRISE_LOCAL_AUTH_ENABLED=true</code></td>
+</tr>
+</tbody></table>
+<h2>Related</h2>
+<ul>
+<li><a href="admin-basics.md">Admin basics</a> — Mission Control <code>DASHBOARD_PASSWORD</code> auth</li>
+<li><a href="getting-started.md">Getting Started</a></li>
+<li><a href="pages/overview/login.md">Login (Mission Control)</a></li>
+<li>Engineering mirror (same content, repo docs tree): <a href="../enterprise-sso-oidc.md"><code>../enterprise-sso-oidc.md</code></a></li>
+<li>Sales / managed deploys: <a href="https://zyvor.dev">zyvor.dev</a> · <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a></li>
 </ul>
 </main></body></html>

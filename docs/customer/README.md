@@ -12,7 +12,7 @@
 | Multi-step jobs (flow, HAR, API…) | [Common workflows](workflows.md) |
 | Look up any surface | [Complete page index](PAGE_INDEX.md) |
 | Deploy, auth, ports, k3s | [Admin basics](admin-basics.md) |
-| Enterprise SSO / Keycloak demo logins | [Enterprise SSO / OIDC](../enterprise-sso-oidc.md) |
+| Enterprise SSO / Keycloak demo logins | [Enterprise SSO / OIDC](enterprise-sso.md) |
 | Browse capabilities by theme | [Feature Guide](../zyvor-argus-customer-feature-guide.md) |
 
 ## Printable PDFs
@@ -28,7 +28,7 @@ Output lands in [`pdf/`](pdf/):
 | `ZyvorArgus-Customer-README.pdf` | This overview |
 | `ZyvorArgus-Getting-Started.pdf` | Access, Mission Control basics, workflows |
 | `ZyvorArgus-Page-by-Page.pdf` | Complete manual — every dashboard surface |
-| `ZyvorArgus-Admin-Basics.pdf` | Deploy, auth, TLS, ports |
+| `ZyvorArgus-Admin-Basics.pdf` | Deploy, auth, TLS, ports, Enterprise SSO / Keycloak |
 
 The build regenerates indexes first. Check links with `node scripts/customer-docs/check-links.mjs`.
 
@@ -54,7 +54,8 @@ node scripts/customer-docs/sync-to-website.mjs ../hypersdk-web
 2. **Using the dashboard** — hero, actions grid, live job panel, ⌘K, schedules.
 3. **Page-by-page** — a guide for every Mission Control surface and action card.
 4. **Page index** — every surface with a one-line purpose and guide link.
-5. **Admin basics** — remote deploy, ports, login, k3s vs systemd.
+5. **Admin basics** — remote deploy, ports, Mission Control login, k3s vs systemd.
+6. **Enterprise SSO** — Keycloak / OIDC, demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), local username/password for Argus Enterprise.
 
 Deep engineering docs live under [`../`](../) (architecture, tutorials, configuration) and are out of scope for this customer package.
 
@@ -71,6 +72,7 @@ Deep engineering docs live under [`../`](../) (architecture, tutorials, configur
 | API / auth / live data | Actions → 🔌 / 🔐 / 📡 |
 | Continuous monitors | Schedules panel |
 | What's broken | Findings panel |
+| Enterprise SSO / demo logins | [Enterprise SSO / OIDC](enterprise-sso.md) (`demo`/`demo`) |
 
 ---
 

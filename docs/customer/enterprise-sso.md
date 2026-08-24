@@ -1,24 +1,15 @@
-# Argus Enterprise — SSO / OIDC (Keycloak) & demo logins
+# Enterprise SSO / OIDC (Keycloak)
 
-How to sign into **Argus Enterprise** (Watchfloor) after install: bundled Keycloak,
-your own OIDC provider, or a local username/password for a test lab.
+How to sign into **Argus Enterprise** (Watchfloor) after install: bundled
+Keycloak, your own OIDC provider, or a local username/password for a test lab.
 
-**Customer manual chapter (preferred for operators):**
-[`docs/customer/enterprise-sso.md`](customer/enterprise-sso.md) — same content,
-shipped in the printable Admin Basics PDF and the website manual.
-
-This page is the engineering-docs mirror. Keep both in sync when the install
-flow changes.
-
-This guide applies to the **Argus Enterprise** customer package (Helm chart +
-scripts), not community Mission Control (`argus serve` / `DASHBOARD_PASSWORD`).
-If you only have the community repo, you need the Enterprise install package
-from your Zyvor contact.
+This chapter is for the **Argus Enterprise** customer package (Helm chart +
+scripts). Community Mission Control (`argus serve`) still uses
+`DASHBOARD_PASSWORD` — see [Admin basics](admin-basics.md).
 
 ## Demo accounts (smoke-test only)
 
-After a default install with bundled Keycloak and test users enabled, these
-accounts exist so you can prove SSO works:
+After a default install with bundled Keycloak and test users enabled:
 
 | Username | Password | Purpose |
 |----------|----------|---------|
@@ -29,8 +20,6 @@ accounts exist so you can prove SSO works:
 environment (`keycloak.createTestUsers: false` in Helm, or delete the users
 in Keycloak after you verify login).
 
-Verify a full browser-shaped login round trip:
-
 ```bash
 scripts/test-login.sh https://argus.example.com demo demo
 # or
@@ -40,7 +29,7 @@ scripts/test-login.sh https://argus.example.com ssouser 'Sso@321'
 ## Option A — Helm with bundled Keycloak (recommended)
 
 ```bash
-# Load the image from the customer package first (see INSTALL.md), then:
+# Load the image from the customer package first (see that package's INSTALL.md), then:
 helm install argus charts/argus-enterprise-*.tgz \
   --set appUrl=https://argus.example.com \
   --set keycloak.externalUrl=https://sso.example.com \
@@ -128,7 +117,7 @@ are configured. Prefer real SSO for any production deployment.
 
 ## Option D — Manual / plain Docker (no Helm)
 
-From the Enterprise package (or the `argus-enterprise` source tree):
+From the Enterprise package:
 
 1. **Deploy Keycloak** (skip if you already have an OIDC provider):
 
@@ -188,8 +177,8 @@ DEPLOY_EXTRA_ENV=ARGUS_ENTERPRISE_LOCAL_AUTH_ENABLED=true \
 
 ## Related
 
-- Customer manual: [`customer/enterprise-sso.md`](customer/enterprise-sso.md)
-- Enterprise package `INSTALL.md` — image load + Helm quick start
-- Enterprise package `README-manual-deploy.md` — Docker / SSH path
-- Community Enterprise v2 overlay (API tokens, engagements): [`enterprise-v2.md`](enterprise-v2.md)
+- [Admin basics](admin-basics.md) — Mission Control `DASHBOARD_PASSWORD` auth
+- [Getting Started](getting-started.md)
+- [Login (Mission Control)](pages/overview/login.md)
+- Engineering mirror (same content, repo docs tree): [`../enterprise-sso-oidc.md`](../enterprise-sso-oidc.md)
 - Sales / managed deploys: [zyvor.dev](https://zyvor.dev) · [sales@zyvor.dev](mailto:sales@zyvor.dev)

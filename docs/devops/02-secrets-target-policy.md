@@ -15,12 +15,14 @@
 | QA user password for flows | `--password` / auth-test | CI secret; rotate; never in specs committed to git |
 | `DASHBOARD_PASSWORD` | Mission Control login | Host secret / k8s Secret |
 | Bearer JWT for `api-test` | API contract | Short-lived token preferred |
+| OIDC client secret / Keycloak admin | Argus Enterprise SSO | Helm stableSecret / vault — see [`docs/customer/enterprise-sso.md`](../customer/enterprise-sso.md) |
 
 **Rules**
 
 - Never commit `.env` with real keys to a product repo for the Action (it will not be read anyway — see runbook 01).  
 - Prefer OIDC → short-lived cloud tokens over long-lived PATs when possible.  
 - Separate **read** GitHub token (fetch specs) from **write** token (PR comments) if your org requires it.
+- Argus Enterprise demo Keycloak users (`demo`/`demo`, `ssouser`/`Sso@321`) are for smoke tests only — disable `keycloak.createTestUsers` outside eval labs ([Enterprise SSO](../customer/enterprise-sso.md)).
 
 ---
 

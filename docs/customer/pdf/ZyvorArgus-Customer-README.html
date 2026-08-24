@@ -22,9 +22,9 @@ th,td{border:1px solid #e5e7eb;padding:6px 8px;text-align:left;vertical-align:to
 hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </style></head><body>
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
-<h1>ZyAI<span>QA</span>Agent</h1>
+<h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Customer Documentation Overview</div>
-<div class="badge">2026-08-16</div>
+<div class="badge">2026-08-24</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><p><strong>Zyvor Argus</strong> (CLI: <code>argus</code>) is the autonomous AI QA agent for Zyvor products — LangGraph specs→Playwright, <strong>Mission Control</strong> (flows, HAR, codegen, API/auth/realtime, vitals, probes), and post-deploy audits. This package is for QA engineers, SREs, and platform operators — not people hacking on the agent source tree.</p>
 <table>
@@ -67,6 +67,10 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td><a href="admin-basics.md">Admin basics</a></td>
 </tr>
 <tr>
+<td>Enterprise SSO / Keycloak demo logins</td>
+<td><a href="enterprise-sso.md">Enterprise SSO / OIDC</a></td>
+</tr>
+<tr>
 <td>Browse capabilities by theme</td>
 <td><a href="../zyvor-argus-customer-feature-guide.md">Feature Guide</a></td>
 </tr>
@@ -96,7 +100,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 <tr>
 <td><code>ZyvorArgus-Admin-Basics.pdf</code></td>
-<td>Deploy, auth, TLS, ports</td>
+<td>Deploy, auth, TLS, ports, Enterprise SSO / Keycloak</td>
 </tr>
 </tbody></table>
 <p>The build regenerates indexes first. Check links with <code>node scripts/customer-docs/check-links.mjs</code>.</p>
@@ -116,7 +120,8 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><strong>Using the dashboard</strong> — hero, actions grid, live job panel, ⌘K, schedules.</li>
 <li><strong>Page-by-page</strong> — a guide for every Mission Control surface and action card.</li>
 <li><strong>Page index</strong> — every surface with a one-line purpose and guide link.</li>
-<li><strong>Admin basics</strong> — remote deploy, ports, login, k3s vs systemd.</li>
+<li><strong>Admin basics</strong> — remote deploy, ports, Mission Control login, k3s vs systemd.</li>
+<li><strong>Enterprise SSO</strong> — Keycloak / OIDC, demo logins (<code>demo</code>/<code>demo</code>, <code>ssouser</code>/<code>Sso@321</code>), local username/password for Argus Enterprise.</li>
 </ol>
 <p>Deep engineering docs live under <a href="../"><code>../</code></a> (architecture, tutorials, configuration) and are out of scope for this customer package.</p>
 <h2>Support surfaces (quick map)</h2>
@@ -162,6 +167,10 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tr>
 <td>What&#39;s broken</td>
 <td>Findings panel</td>
+</tr>
+<tr>
+<td>Enterprise SSO / demo logins</td>
+<td><a href="enterprise-sso.md">Enterprise SSO / OIDC</a> (<code>demo</code>/<code>demo</code>)</td>
 </tr>
 </tbody></table>
 <hr>

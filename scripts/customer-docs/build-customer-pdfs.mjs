@@ -172,7 +172,7 @@ const books = [
       join(CUSTOMER, 'workflows.md'),
     ],
   },
-  { id: `${PDF_PREFIX}-Admin-Basics`, title: 'Admin Basics', sources: [join(CUSTOMER, 'admin-basics.md')] },
+  { id: `${PDF_PREFIX}-Admin-Basics`, title: 'Admin Basics', sources: [join(CUSTOMER, 'admin-basics.md'), join(CUSTOMER, 'enterprise-sso.md')] },
   {
     id: `${PDF_PREFIX}-Page-by-Page`,
     title: 'Page-by-Page Product Manual',
