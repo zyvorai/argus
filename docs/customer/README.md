@@ -4,6 +4,7 @@
 
 | You want to… | Open |
 |--------------|------|
+| **Which product? Community vs Watchfloor** | [Which product](which-product.md) |
 | Install and first smoke | [Getting Started](getting-started.md) |
 | Learn Mission Control | [Using the Dashboard](using-the-dashboard.md) |
 | Test zyvor.dev (video + HAR) | [Test zyvor.dev](test-zyvor-dev.md) |
@@ -50,7 +51,7 @@ node scripts/customer-docs/sync-to-website.mjs ../hypersdk-web
 
 ## How this manual is organized
 
-1. **Getting started** — install, `.env`, first smoke, open the dashboard.
+1. **Getting started** — which product (Community vs Watchfloor), install, first smoke.
 2. **Using the dashboard** — hero, actions grid, live job panel, ⌘K, schedules.
 3. **Page-by-page** — a guide for every Mission Control surface and action card.
 4. **Page index** — every surface with a one-line purpose and guide link.

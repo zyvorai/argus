@@ -1,5 +1,9 @@
 # Getting Started with Zyvor Argus
 
+**Wrong product?** If you need multi-target Watchfloor SSO / RBAC / billing, that is
+**Argus Enterprise**, not this Mission Control path — see [Which product](which-product.md).
+This page is for **Community** Zyvor Argus (CLI + Mission Control).
+
 ## What you need
 
 | Requirement | Notes |
@@ -74,6 +78,7 @@ argus test run --source local --spec path/to/spec.md
 
 ## Related
 
+- [Which product](which-product.md) — Community vs Watchfloor vs Enterprise v2 overlay
 - [Using the Dashboard](using-the-dashboard.md)
 - [Test zyvor.dev](test-zyvor-dev.md)
 - [Common workflows](workflows.md)

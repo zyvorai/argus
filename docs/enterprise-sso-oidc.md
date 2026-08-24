@@ -189,6 +189,7 @@ DEPLOY_EXTRA_ENV=ARGUS_ENTERPRISE_LOCAL_AUTH_ENABLED=true \
 ## Related
 
 - Customer manual: [`customer/enterprise-sso.md`](customer/enterprise-sso.md)
+- Product map (Community vs Watchfloor vs overlay): [`customer/which-product.md`](customer/which-product.md)
 - Enterprise package `INSTALL.md` — image load + Helm quick start
 - Enterprise package `README-manual-deploy.md` — Docker / SSH path
 - Community Enterprise v2 overlay (API tokens, engagements): [`enterprise-v2.md`](enterprise-v2.md)

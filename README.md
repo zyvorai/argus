@@ -12,6 +12,16 @@
 
 [zyvor.dev/docs](https://zyvor.dev/docs?utm_source=github&utm_medium=zyvor-argus) · [Blog](https://zyvor.dev/blog?utm_source=github&utm_medium=zyvor-argus)
 
+## Which product am I looking at?
+
+| You want… | Product | Where |
+|-----------|---------|--------|
+| **QA agent + Mission Control** for one app (free, Apache-2.0) | **Zyvor Argus (this repo)** | Keep reading → [Quick Start](#quick-start) |
+| Hardening *inside* one `argus serve` (durable jobs, SSRF policy, service tokens) | **Enterprise v2 overlay** | [`docs/enterprise-v2.md`](docs/enterprise-v2.md) — still this OSS repo |
+| Multi-target **Watchfloor** (SSO, RBAC, unified findings, billing) in front of one or more `argus serve` targets | **Argus Enterprise** | Separate commercial product — trial package on [OSS releases `v1.1.0-ent-trial`](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial); SSO/demo logins: [`docs/customer/enterprise-sso.md`](docs/customer/enterprise-sso.md); source: private `argus-enterprise` |
+
+**Most people who clone this repo want Community.** Install below, open Mission Control, run a smoke. Argus Enterprise is *not* a fork of this tree — it is a separate control plane that talks to `argus serve` over `/api/v2`.
+
 [![Zyvor Argus · Mission Control — KT Walkthrough](https://i.ytimg.com/vi/I985Uz8vZHk/maxresdefault.jpg)](https://youtu.be/I985Uz8vZHk)
 
 **Full KT walkthrough (YouTube):** sign-in → the autonomous pipeline with a live Smoke test run → visual regression & quality → journeys (flow/HAR/codegen/AI test) → API/performance/realtime checks → network & security probes → security testing (misconfig scan, CVE lookup, LLM red-team, sandboxed exploit verification) → command palette → schedules & run history → Ask Zyvor — [watch](https://youtu.be/I985Uz8vZHk)
@@ -19,6 +29,7 @@
 ## Table of contents
 
 - [Feature Guide](#feature-guide)
+- [Which product am I looking at?](#which-product-am-i-looking-at)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Documentation](#documentation)
@@ -356,20 +367,22 @@ See [`ROADMAP.md`](ROADMAP.md) for exactly what's open — genuinely deferred wo
 
 ## Enterprise & support
 
-Zyvor Argus community edition is Apache-2.0, self-hostable, and fully featured out of the box. Enterprise v2 is a security/durability overlay you install on top of it — not a paywalled fork.
+Three different things share the word “enterprise” — pick the row that matches what you need:
 
-| | Community (this repo) | Enterprise v2 ([docs/enterprise-v2.md](docs/enterprise-v2.md)) |
-|---|---|---|
-| **Job queue** | In-memory scheduler | Durable SQLite-backed queue with idempotency keys |
-| **Webhooks** | Standard GitHub webhook handling | Signature-verified `/api/v2` router, replay-rejecting delivery IDs |
-| **Secrets** | Standard env-based config | Recursive secret redaction, `$secret` references, hashed service tokens |
-| **Security testing** | Standard probes | Fail-closed SSRF target policy, signed/admin-authorized security engagements, RBAC (viewer/operator/admin) |
-| **AI actions** | Direct LLM/heuristic execution | Every LLM/heuristic action routed through a deterministic safety gateway |
-| **Support** | [GitHub Issues](https://github.com/hypersdk/zyvor-argus/issues) | SLA, [sales@zyvor.dev](mailto:sales@zyvor.dev) |
+| | **Community (this repo)** | **Enterprise v2 overlay** | **Argus Enterprise (Watchfloor)** |
+|---|---|---|---|
+| **What it is** | Free OSS QA agent + Mission Control | Optional hardening *inside* one `argus serve` | Separate multi-target control plane |
+| **Repo / package** | [`hypersdk/zyvor-argus`](https://github.com/hypersdk/zyvor-argus) | Same repo — [`docs/enterprise-v2.md`](docs/enterprise-v2.md) | Private source; [trial release](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial) |
+| **UI** | Mission Control (`argus serve` → `/dashboard`) | Same Mission Control | Watchfloor (SSO, target bar, cross-target findings) |
+| **Identity** | Optional `DASHBOARD_PASSWORD` / API tokens | Hashed service tokens + RBAC scopes | OIDC / Keycloak (`demo`/`demo`) or local username/password |
+| **When to use** | One team, one (or few) targets | Production hardening of a single deploy | Org-wide governance across many targets |
+| **Support** | [GitHub Issues](https://github.com/hypersdk/zyvor-argus/issues) | Same | [sales@zyvor.dev](mailto:sales@zyvor.dev) |
 
-**Argus Enterprise (Watchfloor) SSO:** configure Keycloak or any OIDC provider, use the seeded demo logins (`demo`/`demo`, `ssouser`/`Sso@321`), or fall back to local username/password for a test lab — see **[Enterprise SSO / OIDC](docs/enterprise-sso-oidc.md)** and the **[customer manual chapter](docs/customer/enterprise-sso.md)**.
+**Community get started:** [Quick Start](#quick-start) → customer manual [`docs/customer/getting-started.md`](docs/customer/getting-started.md).
 
-Looking for enterprise support, managed deployments, or a commercial relationship with Zyvor? Visit **[zyvor.dev](https://zyvor.dev)**.
+**Watchfloor get started:** install the trial package → claim owner → sign in (`demo`/`demo` or local auth) → register an OSS `argus serve` target → run a job from Watchfloor. Full SSO: [`docs/customer/enterprise-sso.md`](docs/customer/enterprise-sso.md).
+
+Looking for a commercial relationship? Visit **[zyvor.dev](https://zyvor.dev)**.
 
 ## License
 
