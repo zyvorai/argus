@@ -10,14 +10,16 @@ Short map so Community and Enterprise customers do not mix up three different th
 
 ## Community path (most readers)
 
+0. Toolchain if needed — [Install prerequisites](install-prerequisites.md) (§1–2)
 1. Install / `argus serve` — [Getting Started](getting-started.md)
 2. Sign in if `DASHBOARD_PASSWORD` is set (`admin` / lab password) — [Admin basics](admin-basics.md)
 3. Run **Smoke** or a **Flow** — [Using the Dashboard](using-the-dashboard.md)
 
 ## Watchfloor path (Argus Enterprise)
 
-1. Run **Community** `argus serve` somewhere (Enterprise proxies to it; it does not replace it).
-2. Install Watchfloor (Helm or customer tarball `INSTALL.md`).
+0. **Install other packages** — Docker/Helm, Community Argus, Bearer token — [Install prerequisites](install-prerequisites.md) (full order)
+1. Run **Community** `argus serve` (from step 0).
+2. Install Watchfloor (Helm or customer tarball `INSTALL.md` / `PREREQUISITES.md`).
 3. Claim owner with the one-time token from logs.
 4. Sign in — demo SSO `demo`/`demo` or `ssouser`/`Sso@321`, or local username/password — [Enterprise SSO](enterprise-sso.md).
 5. **Add a target** (OSS API URL + app URL + token) → run smoke from Watchfloor.

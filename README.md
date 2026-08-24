@@ -378,9 +378,9 @@ Three different things share the word “enterprise” — pick the row that mat
 | **When to use** | One team, one (or few) targets | Production hardening of a single deploy | Org-wide governance across many targets |
 | **Support** | [GitHub Issues](https://github.com/hypersdk/zyvor-argus/issues) | Same | [sales@zyvor.dev](mailto:sales@zyvor.dev) |
 
-**Community get started:** [Quick Start](#quick-start) → customer manual [`docs/customer/getting-started.md`](docs/customer/getting-started.md).
+**Community get started:** install toolchain if needed ([install-prerequisites.md](docs/customer/install-prerequisites.md)) → [Quick Start](#quick-start) → customer manual [`docs/customer/getting-started.md`](docs/customer/getting-started.md).
 
-**Watchfloor get started:** install the trial package → claim owner → sign in (`demo`/`demo` or local auth) → register an OSS `argus serve` target → run a job from Watchfloor. Full SSO: [`docs/customer/enterprise-sso.md`](docs/customer/enterprise-sso.md).
+**Watchfloor get started:** [install-prerequisites.md](docs/customer/install-prerequisites.md) (Docker/Helm + Community + token) → trial package → claim → sign in (`demo`/`demo`) → register target → smoke. SSO: [`docs/customer/enterprise-sso.md`](docs/customer/enterprise-sso.md).
 
 Looking for a commercial relationship? Visit **[zyvor.dev](https://zyvor.dev)**.
 

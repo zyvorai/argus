@@ -35,13 +35,14 @@ if (!existsSync(join(SITE, 'docusaurus.config.ts'))) {
 const TOP_LEVEL_POSITION = {
   'index.md': 1,
   'which-product.md': 2,
-  'getting-started.md': 3,
-  'using-the-dashboard.md': 4,
-  'test-zyvor-dev.md': 5,
-  'workflows.md': 6,
-  'admin-basics.md': 7,
-  'enterprise-sso.md': 8,
-  'page-index.md': 9,
+  'install-prerequisites.md': 3,
+  'getting-started.md': 4,
+  'using-the-dashboard.md': 5,
+  'test-zyvor-dev.md': 6,
+  'workflows.md': 7,
+  'admin-basics.md': 8,
+  'enterprise-sso.md': 9,
+  'page-index.md': 10,
 }
 
 const REPO_ONLY = new RegExp(

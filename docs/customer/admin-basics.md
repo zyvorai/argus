@@ -85,6 +85,7 @@ For Argus Enterprise Helm / Keycloak deploy steps, see
 ## Related
 
 - [Getting Started](getting-started.md)
+- [Install prerequisites](install-prerequisites.md)
 - [Using the Dashboard](using-the-dashboard.md)
 - [Enterprise SSO / OIDC](enterprise-sso.md)
 - [Login (Mission Control)](pages/overview/login.md)

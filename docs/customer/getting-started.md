@@ -4,6 +4,9 @@
 **Argus Enterprise**, not this Mission Control path — see [Which product](which-product.md).
 This page is for **Community** Zyvor Argus (CLI + Mission Control).
 
+**Missing Docker / Node / Helm?** Install companion packages first:
+[Install prerequisites](install-prerequisites.md).
+
 ## What you need
 
 | Requirement | Notes |

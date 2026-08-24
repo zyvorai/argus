@@ -177,6 +177,8 @@ DEPLOY_EXTRA_ENV=ARGUS_ENTERPRISE_LOCAL_AUTH_ENABLED=true \
 
 ## Related
 
+- [Which product](which-product.md) — Community vs Watchfloor
+- [Install prerequisites](install-prerequisites.md) — Docker/Helm/Community/token first
 - [Admin basics](admin-basics.md) — Mission Control `DASHBOARD_PASSWORD` auth
 - [Getting Started](getting-started.md)
 - [Login (Mission Control)](pages/overview/login.md)
