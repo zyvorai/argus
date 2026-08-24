@@ -163,15 +163,21 @@ Roles: `viewer` | `operator` | `admin` (admin needed to create engagements).
 
 ### Download trial / customer package
 
-Public eval build (published on the OSS repo’s releases):
+Public eval builds are published on the OSS repo’s releases (tag shape
+`v*-trial`). The archive **must include a signed `trial.token`** (Ed25519 JWT).
 
 - [v1.1.0-ent-trial](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial)
 
 ```bash
-# Example — use the asset names from that release page
+# Example — use the asset names from the latest Enterprise trial release
 tar xzf argus-enterprise-*.tar.gz && cd argus-enterprise-*
+ls -l trial.token
 # Read GETTING-STARTED.md then INSTALL.md
+# Keep trial.token, or: export ARGUS_TRIAL_TOKEN="$(cat trial.token)"
 ```
+
+After expiry email **sales@zyvor.dev** for a renewed JWT (see `LICENSING.md` /
+`AFTER-TRIAL.md` in the package).
 
 ### Helm (typical)
 
@@ -184,7 +190,8 @@ helm install argus charts/argus-enterprise-*.tgz \
   --set keycloak.externalUrl=https://sso.example.com \
   --set keycloak.ingress.enabled=true \
   --set keycloak.ingress.className=nginx \
-  --set keycloak.ingress.host=sso.example.com
+  --set keycloak.ingress.host=sso.example.com \
+  --set-file license.token=./trial.token
 ```
 
 No IdP? `--set keycloak.enabled=false --set localAuth.enabled=true`.

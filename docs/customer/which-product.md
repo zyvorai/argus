@@ -6,7 +6,7 @@ Short map so Community and Enterprise customers do not mix up three different th
 |-----------|-----|------------|
 | Free QA agent + **Mission Control** for one app | **Zyvor Argus (Community)** — this customer manual’s default path | [Getting Started](getting-started.md) |
 | Stronger security *inside* one `argus serve` (durable queue, SSRF allowlist, service tokens) | **Enterprise v2 overlay** (still Community repo) | [Enterprise v2](../enterprise-v2.md) |
-| Org **Watchfloor**: SSO, multi-target RBAC, unified findings, billing | **Argus Enterprise** (separate product) | [Enterprise SSO / OIDC](enterprise-sso.md) + trial package on [OSS releases](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial) |
+| Org **Watchfloor**: SSO, multi-target RBAC, unified findings, billing | **Argus Enterprise** (separate product) | [Enterprise SSO / OIDC](enterprise-sso.md) + trial package on [OSS releases](https://github.com/hypersdk/zyvor-argus/releases) (must include signed `trial.token`) |
 
 ## Community path (most readers)
 
