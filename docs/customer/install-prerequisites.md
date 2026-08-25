@@ -166,7 +166,7 @@ Roles: `viewer` | `operator` | `admin` (admin needed to create engagements).
 Public eval builds are published on the OSS repo’s releases (tag shape
 `v*-trial`). The archive **must include a signed `trial.token`** (Ed25519 JWT).
 
-- [v1.1.0-ent-trial](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial)
+- [v1.1.1-ent-trial](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.1-ent-trial)
 
 ```bash
 # Example — use the asset names from the latest Enterprise trial release

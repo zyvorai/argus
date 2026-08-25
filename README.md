@@ -18,7 +18,7 @@
 |-----------|---------|--------|
 | **QA agent + Mission Control** for one app (free, Apache-2.0) | **Zyvor Argus (this repo)** | Keep reading → [Quick Start](#quick-start) |
 | Hardening *inside* one `argus serve` (durable jobs, SSRF policy, service tokens) | **Enterprise v2 overlay** | [`docs/enterprise-v2.md`](docs/enterprise-v2.md) — still this OSS repo |
-| Multi-target **Watchfloor** (SSO, RBAC, unified findings, billing) in front of one or more `argus serve` targets | **Argus Enterprise** | Separate commercial product — trial package on [OSS releases `v1.1.0-ent-trial`](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial); SSO/demo logins: [`docs/customer/enterprise-sso.md`](docs/customer/enterprise-sso.md); source: private `argus-enterprise` |
+| Multi-target **Watchfloor** (SSO, RBAC, unified findings, billing) in front of one or more `argus serve` targets | **Argus Enterprise** | Separate commercial product — trial package on [OSS releases `v1.1.1-ent-trial`](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.1-ent-trial); SSO/demo logins: [`docs/customer/enterprise-sso.md`](docs/customer/enterprise-sso.md); source: private `argus-enterprise` |
 
 **Most people who clone this repo want Community.** Install below, open Mission Control, run a smoke. Argus Enterprise is *not* a fork of this tree — it is a separate control plane that talks to `argus serve` over `/api/v2`.
 
@@ -372,7 +372,7 @@ Three different things share the word “enterprise” — pick the row that mat
 | | **Community (this repo)** | **Enterprise v2 overlay** | **Argus Enterprise (Watchfloor)** |
 |---|---|---|---|
 | **What it is** | Free OSS QA agent + Mission Control | Optional hardening *inside* one `argus serve` | Separate multi-target control plane |
-| **Repo / package** | [`hypersdk/zyvor-argus`](https://github.com/hypersdk/zyvor-argus) | Same repo — [`docs/enterprise-v2.md`](docs/enterprise-v2.md) | Private source; [trial release](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.0-ent-trial) |
+| **Repo / package** | [`hypersdk/zyvor-argus`](https://github.com/hypersdk/zyvor-argus) | Same repo — [`docs/enterprise-v2.md`](docs/enterprise-v2.md) | Private source; [trial release](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.1-ent-trial) |
 | **UI** | Mission Control (`argus serve` → `/dashboard`) | Same Mission Control | Watchfloor (SSO, target bar, cross-target findings) |
 | **Identity** | Optional `DASHBOARD_PASSWORD` / API tokens | Hashed service tokens + RBAC scopes | OIDC / Keycloak (`demo`/`demo`) or local username/password |
 | **When to use** | One team, one (or few) targets | Production hardening of a single deploy | Org-wide governance across many targets |
