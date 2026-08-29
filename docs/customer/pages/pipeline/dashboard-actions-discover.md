@@ -15,7 +15,7 @@ Scan repo code/docs for untested routes and pages, then propose coverage.
 - Surface: `/dashboard/actions/discover`
 - UI: Mission Control → **Pipeline** → **Discover coverage** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Discover coverage**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

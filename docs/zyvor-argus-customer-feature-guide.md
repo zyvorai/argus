@@ -213,11 +213,11 @@ _Wires into GitHub, your chat tools, your LLM of choice, and your cluster._
 
 1. **Install** — Copy `.env.example` to `.env` and run `make install` (needs Python 3.9+ and Node.js 20+).
 2. **Run a smoke test** — `argus test exec --grep @smoke` against your target (try `ZYVOR_BASE_URL=https://zyvor.dev`) — no LLM key required.
-3. **Watch / re-record a journey** — open the [YouTube Mission Control demo](https://youtu.be/ys7SvKKqf9w) (thumbnail preview on [GitHub README](https://github.com/hypersdk/zyvor-argus)), then `argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --video` — see [Test zyvor.dev](customer/test-zyvor-dev.md).
+3. **Watch / re-record a journey** — open the [YouTube Mission Control demo](https://youtu.be/ys7SvKKqf9w) (thumbnail preview on [GitHub README](https://github.com/zyvorai/zyvor-argus)), then `argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --video` — see [Test zyvor.dev](customer/test-zyvor-dev.md).
 4. **Open Mission Control** — `argus serve` then browse to `/dashboard` (boot splash + signal field + ⌘K) to run any of the 20+ actions live. Optional: enable [Ask Zyvor](tutorials/14-ask-zyvor-knowledge.md).
 5. **Wire up GitHub** — Set `ZYVOR_PRODUCT_REPO`, authenticate `gh`, then `argus test run --source github --spec docs/specs/my-feature.md`.
 6. **Add an LLM (optional)** — Set `LLM_PROVIDER` and the matching API key to unlock AI generation, analysis, and natural-language tests.
-7. **Pull the container** — `docker pull ghcr.io/hypersdk/zyvor-argus:v0.8.0` — see [Releases](releases.md).
+7. **Pull the container** — `docker pull ghcr.io/zyvorai/zyvor-argus:v0.8.0` — see [Releases](releases.md).
 
 > **Good to know:** Many features are opt-in behind flags (regression, autofix, coverage expansion, V8 coverage, multi-browser, Rust diff) and are off by default. Without an LLM key the agent still runs but uses rule-based fallbacks for parsing, generation, analysis, and summaries; only `argus test create` strictly requires an LLM. API validation checks HTTP statuses and OpenAPI schemas rather than full business logic. The Mission Control dashboard reads pod logs, so it is intentionally not exposed through the ingress and should be protected with a password. Kubernetes panels require a reachable cluster; without one they show an offline state while everything else keeps working. Multi-browser and load testing are best-effort in-pod and capped to avoid resource exhaustion.
 

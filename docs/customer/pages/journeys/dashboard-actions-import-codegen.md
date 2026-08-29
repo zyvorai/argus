@@ -14,13 +14,17 @@ Paste Playwright codegen JS/TS and convert it into Zyvor Argus flow steps (optio
 - Surface: `/dashboard/actions/import-codegen`
 - UI: Mission Control → **Journeys** → **Import codegen**
 
-## What you can do
+## Operate from the console (UX)
 
 1. Paste codegen output (`page.goto`, `getByRole().click`, `fill`, …).
 2. Optionally tick **run as flow** and provide the app URL.
 3. Click **📥 Import** — inspect emitted steps; run if requested.
 4. CLI: `argus test import-codegen script.js [--run --url …]`.
 5. Local headed record alternative: `npm run record-flow -- <url> out.flow.json`.
+
+
+5. **Empty / fail:** Check health, auth, and domain dependencies.
+6. **Success:** Live data loads; mutations complete without error toasts.
 
 ## Related pages
 

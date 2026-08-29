@@ -8,7 +8,7 @@ of the setup is configuration, not hunting for missing tools.
 
 ```text
 1. Toolchain          Docker (or Podman) · kubectl · Helm · (Python/Node if building from source)
-2. Community Argus    ghcr.io/hypersdk/zyvor-argus  OR  git clone + make install
+2. Community Argus    ghcr.io/zyvorai/zyvor-argus  OR  git clone + make install
 3. OSS service token  so Watchfloor (or CI) can call /api/v2
 4. Watchfloor         only if you need Argus Enterprise — customer package / Helm
 5. Sign in & use      claim → SSO/demo login → register target → smoke
@@ -73,7 +73,7 @@ Watchfloor does **not** replace this. Every Enterprise target is an `argus serve
 ### Option A — Container (fastest)
 
 ```bash
-docker pull ghcr.io/hypersdk/zyvor-argus:latest
+docker pull ghcr.io/zyvorai/zyvor-argus:latest
 # pin a release if you prefer, e.g. :v0.8.0
 
 mkdir -p ~/argus-target && cd ~/argus-target
@@ -87,7 +87,7 @@ docker run -d --name argus-serve \
   -p 8080:8080 \
   --env-file .env \
   -v "$(pwd)/reports:/app/reports" \
-  ghcr.io/hypersdk/zyvor-argus:latest \
+  ghcr.io/zyvorai/zyvor-argus:latest \
   serve --port 8080 --host 0.0.0.0
 
 curl -s http://127.0.0.1:8080/health
@@ -100,7 +100,7 @@ More: [docs/releases.md](../releases.md) · remote/k3s: [docs/remote-deploy.md](
 ### Option B — From source
 
 ```bash
-git clone https://github.com/hypersdk/zyvor-argus.git
+git clone https://github.com/zyvorai/zyvor-argus.git
 cd zyvor-argus
 cp .env.example .env          # set ZYVOR_BASE_URL at minimum
 make install                  # CLI + Playwright browsers
@@ -166,7 +166,7 @@ Roles: `viewer` | `operator` | `admin` (admin needed to create engagements).
 Public eval builds are published on the OSS repo’s releases (tag shape
 `v*-trial`). The archive **must include a signed `trial.token`** (Ed25519 JWT).
 
-- [v1.1.1-ent-trial](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.1-ent-trial)
+- [v1.1.1-ent-trial](https://github.com/zyvorai/zyvor-argus/releases/tag/v1.1.1-ent-trial)
 
 ```bash
 # Example — use the asset names from the latest Enterprise trial release
@@ -236,5 +236,14 @@ Then run **Smoke** from Watchfloor. Success = job in Activity / Runs.
 | No SSO button | Keycloak/OIDC not enabled — [enterprise-sso.md](enterprise-sso.md) |
 | `make install` fails on browsers | Node 20+; re-run `npx playwright install` |
 
-Support: Community [GitHub Issues](https://github.com/hypersdk/zyvor-argus/issues) ·
+Support: Community [GitHub Issues](https://github.com/zyvorai/zyvor-argus/issues) ·
 Watchfloor **sales@zyvor.dev**
+
+## Operate from the console (UX)
+
+1. Open this route from the nav or command palette and wait for live API data.
+2. Use filters/search when present; drill into a row for detail.
+3. For mutating actions: confirm role gates and impact before applying.
+4. **Empty / fail:** Check service health, auth, and that required CRDs/backends for this domain are installed.
+5. **Success:** Live data loads; created/updated objects appear without error toasts.
+

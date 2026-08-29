@@ -15,7 +15,7 @@ Chains exploit-PoC steps via an LLM planner to confirm a multi-step escalation p
 - Surface: `/dashboard/actions/attack-chain`
 - UI: Mission Control → **Security** → **Attack chain** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Attack chain**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

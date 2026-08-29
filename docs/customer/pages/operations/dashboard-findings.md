@@ -15,7 +15,7 @@ Collected issues from API, auth, live-data, vitals, and audit jobs with export/c
 - Surface: `/dashboard/findings`
 - UI: Mission Control → **Operations** → **Findings** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Findings**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

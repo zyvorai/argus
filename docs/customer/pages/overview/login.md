@@ -19,7 +19,7 @@ For **Argus Enterprise** (Watchfloor) full setup steps, open [Enterprise SSO / O
 - Surface: `/login`
 - UI: open `/dashboard` when auth is enabled (redirect), or go directly to `/login`
 
-## What you can do
+## Operate from the console (UX)
 
 ### Mission Control (community)
 
@@ -44,6 +44,10 @@ Full steps (Helm, BYO OIDC, local auth, troubleshooting):
 
 If Mission Control login fails, hit `GET /health`, confirm `argus serve` is up,
 and re-check env from [.env.example](../../../../.env.example).
+
+
+5. **Empty / fail:** Check health, auth, and domain dependencies.
+6. **Success:** Live data loads; mutations complete without error toasts.
 
 ## Related pages
 

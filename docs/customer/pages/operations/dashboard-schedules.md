@@ -15,7 +15,7 @@ Turn smoke, audit, ping, TLS, flow, route sweep, API, realtime, or vitals into a
 - Surface: `/dashboard/schedules`
 - UI: Mission Control → **Operations** → **Schedules** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Schedules**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

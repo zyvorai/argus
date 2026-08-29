@@ -37,7 +37,7 @@ The build regenerates indexes first. Check links with `node scripts/customer-doc
 Publish to the product site:
 
 ```bash
-node scripts/customer-docs/sync-to-website.mjs ../hypersdk-web
+node scripts/customer-docs/sync-to-website.mjs ../zyvorai-web
 ```
 
 ## Product at a glance

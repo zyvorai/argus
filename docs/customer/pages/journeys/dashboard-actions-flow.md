@@ -15,7 +15,7 @@ Multi-step user journey (English or step DSL) with optional login/session, video
 - Surface: `/dashboard/actions/flow`
 - UI: Mission Control → **Journeys** → **Flow test** (or ⌘K → “Flow”)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Enter the app URL and either English (“go to products, click Schedule Demo, assert contact”) or one step per line.
 2. Optional: login user/password, reuse a saved session file, pick browser / device / throttle.
@@ -27,6 +27,10 @@ Multi-step user journey (English or step DSL) with optional login/session, video
 `goto`, `click`, `hover`, `fill`, `select`, `upload`, `download`, `dialog`, `iframe`, `drag`, `press`, `clock`, `wait`, `wait until`, `assert`, `assert url`, `assert api`, `assert aria`, `assert not`, `assert count`, `assert value`.
 
 CLI equivalent: `argus flow run <url> --steps file`.
+
+
+5. **Empty / fail:** Check health, auth, and domain dependencies.
+6. **Success:** Live data loads; mutations complete without error toasts.
 
 ## Related pages
 

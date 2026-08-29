@@ -13,7 +13,7 @@
 ```bash
 curl -s http://127.0.0.1:8080/health
 # remote lab example:
-curl -s http://175.110.122.71:30080/health
+curl -s http://<host>:30080/health
 ```
 
 ## Auth — Mission Control (community)
@@ -59,7 +59,7 @@ scripts/test-login.sh https://argus.example.com demo demo
 | `ENABLE_AUTOFIX` / `ENABLE_AUTOFIX_APPLY` | Self-healing suggestions / apply |
 | `GITHUB_WEBHOOK_SECRET` | HMAC for `POST /webhook/github` |
 
-Canonical list: repo [`.env.example`](https://github.com/hypersdk/zyvor-argus/blob/main/.env.example) and [`docs/configuration.md`](https://github.com/hypersdk/zyvor-argus/blob/main/docs/configuration.md).
+Canonical list: repo [`.env.example`](https://github.com/zyvorai/zyvor-argus/blob/main/.env.example) and [`docs/configuration.md`](https://github.com/zyvorai/zyvor-argus/blob/main/docs/configuration.md).
 
 ## Deploy sketch
 
@@ -80,7 +80,7 @@ For Argus Enterprise Helm / Keycloak deploy steps, see
 - Always set `DASHBOARD_PASSWORD` before exposing Mission Control pod logs publicly.
 - For Enterprise, disable Keycloak demo users (`demo` / `ssouser`) outside eval labs.
 - Treat webhook secrets, OIDC client secrets, and LLM keys as production secrets.
-- Support: [GitHub issues](https://github.com/hypersdk/zyvor-argus/issues) · [sales@zyvor.dev](mailto:sales@zyvor.dev) for Enterprise.
+- Support: [GitHub issues](https://github.com/zyvorai/zyvor-argus/issues) · [sales@zyvor.dev](mailto:sales@zyvor.dev) for Enterprise.
 
 ## Related
 
@@ -89,3 +89,12 @@ For Argus Enterprise Helm / Keycloak deploy steps, see
 - [Using the Dashboard](using-the-dashboard.md)
 - [Enterprise SSO / OIDC](enterprise-sso.md)
 - [Login (Mission Control)](pages/overview/login.md)
+
+## Operate from the console (UX)
+
+1. Open this route from the nav or command palette and wait for live API data.
+2. Use filters/search when present; drill into a row for detail.
+3. For mutating actions: confirm role gates and impact before applying.
+4. **Empty / fail:** Check service health, auth, and that required CRDs/backends for this domain are installed.
+5. **Success:** Live data loads; created/updated objects appear without error toasts.
+

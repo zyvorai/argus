@@ -15,7 +15,7 @@ Generate Playwright tests from a product spec (local path or GitHub).
 - Surface: `/dashboard/actions/generate`
 - UI: Mission Control → **Pipeline** → **Generate tests** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Generate tests**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

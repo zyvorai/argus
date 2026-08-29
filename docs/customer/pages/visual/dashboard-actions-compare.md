@@ -15,7 +15,7 @@ Side-by-side visual diff of two URLs (e.g. staging vs production).
 - Surface: `/dashboard/actions/compare`
 - UI: Mission Control → **Visual** → **Compare URLs** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Compare URLs**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

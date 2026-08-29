@@ -6,7 +6,7 @@ Short map so Community and Enterprise customers do not mix up three different th
 |-----------|-----|------------|
 | Free QA agent + **Mission Control** for one app | **Zyvor Argus (Community)** — this customer manual’s default path | [Getting Started](getting-started.md) |
 | Stronger security *inside* one `argus serve` (durable queue, SSRF allowlist, service tokens) | **Enterprise v2 overlay** (still Community repo) | [Enterprise v2](../enterprise-v2.md) |
-| Org **Watchfloor**: SSO, multi-target RBAC, unified findings, billing | **Argus Enterprise** (separate product) | [Enterprise SSO / OIDC](enterprise-sso.md) + trial package on [OSS releases](https://github.com/hypersdk/zyvor-argus/releases) (must include signed `trial.token`) |
+| Org **Watchfloor**: SSO, multi-target RBAC, unified findings, billing | **Argus Enterprise** (separate product) | [Enterprise SSO / OIDC](enterprise-sso.md) + trial package on [OSS releases](https://github.com/zyvorai/zyvor-argus/releases) (must include signed `trial.token`) |
 
 ## Community path (most readers)
 
@@ -29,3 +29,12 @@ Short map so Community and Enterprise customers do not mix up three different th
 “Enterprise v2” in the OSS docs is **not** Watchfloor. Watchfloor is the separate commercial control plane. You can run both: harden each OSS target with the overlay, *and* put Watchfloor in front.
 
 Sales: [sales@zyvor.dev](mailto:sales@zyvor.dev) · [zyvor.dev](https://zyvor.dev)
+
+## Operate from the console (UX)
+
+1. Open this route from the nav or command palette and wait for live API data.
+2. Use filters/search when present; drill into a row for detail.
+3. For mutating actions: confirm role gates and impact before applying.
+4. **Empty / fail:** Check service health, auth, and that required CRDs/backends for this domain are installed.
+5. **Success:** Live data loads; created/updated objects appear without error toasts.
+

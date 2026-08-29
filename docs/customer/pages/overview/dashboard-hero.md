@@ -15,7 +15,7 @@ Cluster/app health banner with pods, replicas, last QA run, pass rate, and next 
 - Surface: `/dashboard/hero`
 - UI: Mission Control → **Overview** → **Hero status** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Hero status**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

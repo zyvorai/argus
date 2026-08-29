@@ -15,12 +15,16 @@ Record a HAR while browsing routes, or replay the UI against a captured HAR (off
 - Surface: `/dashboard/actions/har`
 - UI: Mission Control → **Journeys** → **HAR record / replay**
 
-## What you can do
+## Operate from the console (UX)
 
 1. **Record** — set mode `record`, enter URL + routes (`/`, `/pricing`, …). HAR path can auto-generate.
 2. **Replay** — set mode `replay`, point at the HAR file, optional expect-text, optional “allow missing routes”.
 3. Click **📼 Run** and review the live log.
 4. CLI: `argus api har-replay <url> --mode record|replay --har out.har`.
+
+
+5. **Empty / fail:** Check health, auth, and domain dependencies.
+6. **Success:** Live data loads; mutations complete without error toasts.
 
 ## Related pages
 

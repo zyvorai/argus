@@ -37,7 +37,7 @@ argus serve --port 8080
 ```
 
 1. ▶ **Smoke**
-2. 🎬 **Flow test** — URL `https://zyvor.dev`, paste [`zyvor-dev-demo.steps`](https://github.com/hypersdk/zyvor-argus/blob/main/docs/assets/zyvor-dev-demo.steps), **record video** on
+2. 🎬 **Flow test** — URL `https://zyvor.dev`, paste [`zyvor-dev-demo.steps`](https://github.com/zyvorai/zyvor-argus/blob/main/docs/assets/zyvor-dev-demo.steps), **record video** on
 3. 📼 **HAR** — optional record `/` then replay
 
 ### UX cues
@@ -56,3 +56,12 @@ argus serve --port 8080
 - [Using the Dashboard](using-the-dashboard.md)
 - [Flow test](pages/journeys/dashboard-actions-flow.md)
 - [Common workflows](workflows.md)
+
+## Operate from the console (UX)
+
+1. Open this route from the nav or command palette and wait for live API data.
+2. Use filters/search when present; drill into a row for detail.
+3. For mutating actions: confirm role gates and impact before applying.
+4. **Empty / fail:** Check service health, auth, and that required CRDs/backends for this domain are installed.
+5. **Success:** Live data loads; created/updated objects appear without error toasts.
+

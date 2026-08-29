@@ -15,7 +15,7 @@ Certificate and DNS health for a hostname.
 - Surface: `/dashboard/actions/tls`
 - UI: Mission Control → **Probes** → **TLS check** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **TLS check**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

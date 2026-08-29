@@ -15,7 +15,7 @@ Crawl an arbitrary site and validate every discovered page.
 - Surface: `/dashboard/actions/crawl`
 - UI: Mission Control → **Quality** → **Crawl & test** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Crawl & test**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).

@@ -15,7 +15,7 @@ Simple concurrency load test for latency under pressure.
 - Surface: `/dashboard/actions/loadtest`
 - UI: Mission Control → **Probes** → **Load test** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
 
-## What you can do
+## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
 2. Fill the card fields for **Load test**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).
