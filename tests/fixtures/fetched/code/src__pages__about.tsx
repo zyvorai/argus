@@ -76,7 +76,7 @@ export default function About(): ReactNode {
   return (
     <ProductPage
       title="About Us"
-      description="Learn about Zyvor AI Labs — HyperSDK Platform: Kubernetes-native VM migration, lifecycle management, and enterprise infrastructure portability."
+      description="Learn about Zyvor — HyperSDK Platform: Kubernetes-native VM migration, lifecycle management, and enterprise infrastructure portability."
     >
       <MarketingHero pageId="about" />
 
@@ -114,7 +114,7 @@ export default function About(): ReactNode {
               margin: 0,
             }}
           >
-            Zyvor AI Labs was born from a simple observation: enterprise VM migration was still painfully manual. After
+            Zyvor was born from a simple observation: enterprise VM migration was still painfully manual. After
             years of building enterprise infrastructure tools, our team set out to create the migration platform we
             always wished existed &mdash; one that handles the entire lifecycle from discovery to deployment. The
             customer-facing platform is <em>Zeus OS</em>; <em>HyperSDK Platform</em> is the migration engine inside it.
@@ -137,7 +137,7 @@ export default function About(): ReactNode {
         <SectionHeader
           eyebrow="Corporate registration"
           title="India (MCA)"
-          subtitle="Legal entity behind the Zyvor AI Labs brand. Current company particulars can be confirmed on the Ministry of Corporate Affairs website."
+          subtitle="Legal entity behind the Zyvor brand. Current company particulars can be confirmed on the Ministry of Corporate Affairs website."
         />
         <div
           className={styles.featureCard}
@@ -326,7 +326,7 @@ export default function About(): ReactNode {
         <SectionHeader
           eyebrow="Leadership"
           title="Co-Founders & engineering leadership"
-          subtitle="Zyvor AI Labs builds HyperSDK Platform — portable virtualization and Kubernetes-native operations without vendor lock-in."
+          subtitle="Zyvor builds HyperSDK Platform — portable virtualization and Kubernetes-native operations without vendor lock-in."
         />
         <div
           className={styles.featureCard}
@@ -356,7 +356,7 @@ export default function About(): ReactNode {
               letterSpacing: '0.02em',
             }}
           >
-            Founder &amp; CEO at Zyvor AI Labs
+            Founder &amp; CEO at Zyvor
           </p>
           <p
             style={{
@@ -368,7 +368,7 @@ export default function About(): ReactNode {
           >
             Susant Sahani is Founder &amp; CEO of{' '}
             <a href="https://zyvor.dev" target="_blank" rel="noopener noreferrer">
-              <strong style={{color: 'var(--hs-text-heading)'}}>Zyvor AI Labs</strong>
+              <strong style={{color: 'var(--hs-text-heading)'}}>Zyvor</strong>
             </a>{' '}
             and architect of <strong style={{color: 'var(--hs-text-heading)'}}>HyperSDK Platform</strong> — focused on
             infrastructure portability, VMware modernization, and Kubernetes-native virtualization.
@@ -525,7 +525,7 @@ export default function About(): ReactNode {
               letterSpacing: '0.02em',
             }}
           >
-            Co-Founder at Zyvor AI Labs
+            Co-Founder at Zyvor
           </p>
           <p
             style={{
@@ -537,7 +537,7 @@ export default function About(): ReactNode {
           >
             Amit Kumar is Co-Founder of{' '}
             <a href="https://zyvor.dev" target="_blank" rel="noopener noreferrer">
-              <strong style={{color: 'var(--hs-text-heading)'}}>Zyvor AI Labs</strong>
+              <strong style={{color: 'var(--hs-text-heading)'}}>Zyvor</strong>
             </a>
             , where he is focused on building next-generation AI and infrastructure platforms that empower developers
             and enterprises worldwide.

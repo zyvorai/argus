@@ -236,7 +236,7 @@ export default function Pay(): ReactNode {
                 amount={paise}
                 currency="INR"
                 productName={product || 'Payment'}
-                description={desc || product || 'Zyvor AI Labs'}
+                description={desc || product || 'Zyvor'}
                 customerName={name}
                 customerEmail={email}
                 onSuccess={handleSuccess}

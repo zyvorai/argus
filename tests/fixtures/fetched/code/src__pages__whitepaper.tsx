@@ -222,7 +222,7 @@ export default function Whitepaper(): ReactNode {
                 <p style={{color: 'var(--hs-text-muted)', fontSize: '1rem', lineHeight: 1.7}}>
                   {status === 'done_no_mail'
                     ? `We saved your request. Email delivery failed — contact ${EMAIL_INFO} for the VMware Exit Guide.${mailHint ? ` ${mailHint}` : ''}`
-                    : 'Our team will send the VMware Exit Guide within one business day. Check your inbox for a reply from Zyvor AI Labs.'}
+                    : 'Our team will send the VMware Exit Guide within one business day. Check your inbox for a reply from Zyvor.'}
                 </p>
               </div>
             ) : (

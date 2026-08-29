@@ -11,7 +11,7 @@ export default function Privacy(): ReactNode {
   return (
     <ProductPage
       title="Privacy Policy"
-      description="Zyvor AI Labs Privacy Policy — how we collect, use, and protect your data when you use the HyperSDK Platform."
+      description="Zyvor Privacy Policy — how we collect, use, and protect your data when you use the HyperSDK Platform."
     >
       <MarketingHero pageId="privacy" />
 
@@ -50,7 +50,7 @@ export default function Privacy(): ReactNode {
               [
                 {
                   title: '1. Introduction',
-                  content: `Zyvor AI Labs ("we", "us", or "our") is the trade name of ${LEGAL_ENTITY_INDIA.legalName}, a company incorporated in India under the Companies Act, 2013 (CIN ${LEGAL_ENTITY_INDIA.cin}). We are committed to protecting the privacy of our users, customers, and website visitors. This Privacy Policy describes how we collect, use, disclose, and safeguard your information when you visit our website, use the HyperSDK Platform, or interact with our services.`,
+                  content: `Zyvor ("we", "us", or "our") is the trade name of ${LEGAL_ENTITY_INDIA.legalName}, a company incorporated in India under the Companies Act, 2013 (CIN ${LEGAL_ENTITY_INDIA.cin}). We are committed to protecting the privacy of our users, customers, and website visitors. This Privacy Policy describes how we collect, use, disclose, and safeguard your information when you visit our website, use the HyperSDK Platform, or interact with our services.`,
                 },
                 {
                   title: '2. Information We Collect',

@@ -25,7 +25,7 @@ export default function SLA(): ReactNode {
   return (
     <ProductPage
       title="Service Level Agreement"
-      description="HyperSDK Platform SLA — uptime commitments, response times, and credit policies for every tier from Zyvor AI Labs."
+      description="HyperSDK Platform SLA — uptime commitments, response times, and credit policies for every tier from Zyvor."
     >
       <MarketingHero pageId="sla" />
 
@@ -148,7 +148,7 @@ export default function SLA(): ReactNode {
         <SectionHeader
           eyebrow="Credits"
           title="Downtime Credit Policy"
-          subtitle="If Zyvor AI Labs fails to meet the uptime commitment for the HyperSDK Platform for your tier, you may request service credits applied to future invoices."
+          subtitle="If Zyvor fails to meet the uptime commitment for the HyperSDK Platform for your tier, you may request service credits applied to future invoices."
         />
         <div style={{overflowX: 'auto', margin: '0 auto 3rem', maxWidth: 900}}>
           <table
@@ -190,7 +190,7 @@ export default function SLA(): ReactNode {
               month.
             </li>
             <li>Include the dates and times of observed downtime.</li>
-            <li>Zyvor AI Labs will validate the claim against internal monitoring data within 5 business days.</li>
+            <li>Zyvor will validate the claim against internal monitoring data within 5 business days.</li>
             <li>Approved credits are applied to your next invoice and do not expire for 12 months.</li>
           </ol>
           <h3>Exclusions</h3>
@@ -198,7 +198,7 @@ export default function SLA(): ReactNode {
           <ul>
             <li>Scheduled maintenance communicated at least 72 hours in advance.</li>
             <li>
-              Downtime caused by factors outside Zyvor AI Labs&apos; control (force majeure, network provider outages,
+              Downtime caused by factors outside Zyvor&apos; control (force majeure, network provider outages,
               DNS issues).
             </li>
             <li>Issues resulting from customer misconfigurations or unauthorized modifications.</li>

@@ -52,7 +52,7 @@ test.describe('Zyvor Navigation & CTAs', () => {
       await footerContent.scrollIntoViewIfNeeded();
       await expect(footerContent).toBeAttached();
     } else {
-      await expect(page.getByText(/subscribe|Zyvor AI Labs|contact/i).first()).toBeAttached();
+      await expect(page.getByText(/subscribe|Zyvor|contact/i).first()).toBeAttached();
     }
   });
 });

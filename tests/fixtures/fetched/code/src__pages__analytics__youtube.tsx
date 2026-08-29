@@ -81,7 +81,7 @@ export default function YouTubeAnalyticsPage(): ReactNode {
   return (
     <ProductPage
       title="YouTube Growth"
-      description="Public channel stats for Zyvor AI Labs on YouTube — subscribers, views, latest demos, and migration content performance."
+      description="Public channel stats for Zyvor on YouTube — subscribers, views, latest demos, and migration content performance."
     >
       <PageHero
         variant="split"

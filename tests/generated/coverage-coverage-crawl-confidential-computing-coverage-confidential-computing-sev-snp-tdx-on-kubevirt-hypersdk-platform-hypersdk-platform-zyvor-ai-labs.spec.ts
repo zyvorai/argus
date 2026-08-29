@@ -5,8 +5,8 @@ import { test, expect } from '../../playwright/fixtures/base';
 import { waitForPageReady } from '../../playwright/utils/helpers';
 
 
-test.describe('Coverage: Confidential Computing — SEV-SNP & TDX on KubeVirt | HyperSDK Platform | HyperSDK Platform · Zyvor AI Labs', () => {
-  test('Coverage: Confidential Computing — SEV-SNP & TDX on KubeVirt | HyperSDK Platform | HyperSDK Platform · Zyvor AI Labs', async ({ page, consoleLogs }) => {
+test.describe('Coverage: Confidential Computing — SEV-SNP & TDX on KubeVirt | HyperSDK Platform | HyperSDK Platform · Zyvor', () => {
+  test('Coverage: Confidential Computing — SEV-SNP & TDX on KubeVirt | HyperSDK Platform | HyperSDK Platform · Zyvor', async ({ page, consoleLogs }) => {
 
 
 

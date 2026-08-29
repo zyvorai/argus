@@ -282,7 +282,7 @@ export default function Contact(): ReactNode {
   return (
     <ProductPage
       title="Contact Us"
-      description="Reach Zyvor AI Labs — schedule a demo, pricing, or talk to a HyperSDK Platform expert."
+      description="Reach Zyvor — schedule a demo, pricing, or talk to a HyperSDK Platform expert."
     >
       <MarketingHero pageId={config.heroPageId} />
 

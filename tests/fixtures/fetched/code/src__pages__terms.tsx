@@ -11,7 +11,7 @@ export default function Terms(): ReactNode {
   return (
     <ProductPage
       title="Terms of Service"
-      description="Terms of Service for the HyperSDK Platform — the legal agreement governing use of our platform and services from Zyvor AI Labs."
+      description="Terms of Service for the HyperSDK Platform — the legal agreement governing use of our platform and services from Zyvor."
     >
       <MarketingHero pageId="terms" />
 
@@ -123,10 +123,10 @@ export default function Terms(): ReactNode {
 
           <h2>2. License Grant</h2>
           <p>
-            Subject to your compliance with these Terms and payment of applicable fees, Zyvor AI Labs grants you a
+            Subject to your compliance with these Terms and payment of applicable fees, Zyvor grants you a
             limited, non-exclusive, non-transferable, revocable license to access and use the Services solely for your
             internal business operations. You may not sublicense, resell, or distribute the Services or any component
-            thereof without prior written consent from Zyvor AI Labs.
+            thereof without prior written consent from Zyvor.
           </p>
           <p>
             Self-hosted software, containers, and customer bundles are governed by the{' '}
@@ -134,7 +134,7 @@ export default function Terms(): ReactNode {
           </p>
           <p>
             All intellectual property rights in and to the Services, including but not limited to software, APIs,
-            documentation, dashboards, and trademarks, remain the exclusive property of Zyvor AI Labs.
+            documentation, dashboards, and trademarks, remain the exclusive property of Zyvor.
           </p>
 
           <h2>3. Acceptable Use</h2>
@@ -153,18 +153,18 @@ export default function Terms(): ReactNode {
           <h2>4. Data and Privacy</h2>
           <p>
             You retain ownership of all data you upload or process through the Services (&quot;Customer Data&quot;).
-            Zyvor AI Labs will not access, use, or disclose Customer Data except as necessary to provide the Services,
+            Zyvor will not access, use, or disclose Customer Data except as necessary to provide the Services,
             comply with applicable law, or as otherwise permitted by your agreement with us.
           </p>
           <p>
-            Zyvor AI Labs implements industry-standard security measures to protect Customer Data, including encryption
+            Zyvor implements industry-standard security measures to protect Customer Data, including encryption
             at rest and in transit, role-based access controls, and regular security audits. For full details, please
             refer to our <a href="/privacy">Privacy Policy</a> and <a href="/docs/security">Security Documentation</a>.
           </p>
 
           <h2>5. Service Availability and Support</h2>
           <p>
-            Zyvor AI Labs strives to maintain high availability of the Services. Specific uptime commitments and support
+            Zyvor strives to maintain high availability of the Services. Specific uptime commitments and support
             response times are governed by your <a href="/sla">Service Level Agreement (SLA)</a> tier. Scheduled
             maintenance windows will be communicated in advance and are excluded from uptime calculations.
           </p>
@@ -172,26 +172,26 @@ export default function Terms(): ReactNode {
           <h2>6. Fees and Payment</h2>
           <p>
             Fees for the Services are set forth in your order form or subscription agreement. All fees are
-            non-refundable except as expressly stated in these Terms or your SLA. Zyvor AI Labs reserves the right to
+            non-refundable except as expressly stated in these Terms or your SLA. Zyvor reserves the right to
             modify pricing with 30 days&apos; prior written notice. Overdue invoices may incur a late fee of 1.5% per
             month or the maximum rate permitted by law, whichever is lower.
           </p>
 
           <h2>7. Limitation of Liability</h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ZYVOR AI LABS SHALL NOT BE LIABLE FOR ANY INDIRECT,
+            TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ZYVOR SHALL NOT BE LIABLE FOR ANY INDIRECT,
             INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE, DATA, OR BUSINESS
             OPPORTUNITY ARISING OUT OF OR RELATED TO THESE TERMS OR THE SERVICES, REGARDLESS OF THE THEORY OF LIABILITY.
           </p>
           <p>
-            ZYVOR AI LABS&apos;S TOTAL AGGREGATE LIABILITY UNDER THESE TERMS SHALL NOT EXCEED ONE HUNDRED PERCENT (100%)
-            OF THE FEES PAID BY YOU TO ZYVOR AI LABS IN THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE
+            ZYVOR&apos;S TOTAL AGGREGATE LIABILITY UNDER THESE TERMS SHALL NOT EXCEED ONE HUNDRED PERCENT (100%)
+            OF THE FEES PAID BY YOU TO ZYVOR IN THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE
             CLAIM.
           </p>
 
           <h2>8. Indemnification</h2>
           <p>
-            You agree to indemnify, defend, and hold harmless Zyvor AI Labs and its officers, directors, employees, and
+            You agree to indemnify, defend, and hold harmless Zyvor and its officers, directors, employees, and
             agents from any claims, damages, losses, or expenses (including reasonable attorneys&apos; fees) arising
             from your use of the Services, your violation of these Terms, or your infringement of any third-party
             rights.
@@ -199,10 +199,10 @@ export default function Terms(): ReactNode {
 
           <h2>9. Termination</h2>
           <p>
-            Either party may terminate these Terms with 30 days&apos; written notice. Zyvor AI Labs may suspend or
+            Either party may terminate these Terms with 30 days&apos; written notice. Zyvor may suspend or
             terminate your access immediately if you breach these Terms or if required by law. Upon termination, your
             license to use the Services ceases immediately. You may request export of your Customer Data within 30 days
-            of termination, after which Zyvor AI Labs may delete it.
+            of termination, after which Zyvor may delete it.
           </p>
 
           <h2>10. Governing Law and Dispute Resolution</h2>
@@ -214,7 +214,7 @@ export default function Terms(): ReactNode {
 
           <h2>11. Changes to These Terms</h2>
           <p>
-            Zyvor AI Labs reserves the right to update these Terms at any time. Material changes will be communicated
+            Zyvor reserves the right to update these Terms at any time. Material changes will be communicated
             via email or a prominent notice on the platform at least 30 days prior to taking effect. Continued use of
             the Services after such changes constitutes acceptance of the revised Terms.
           </p>
