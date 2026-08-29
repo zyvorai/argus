@@ -37,11 +37,11 @@ Dashboard auth is on by default. Credentials default to **`admin` / `Admin@321`*
 ## Examples
 
 ```bash
-./scripts/deploy-remote.sh 10.0.0.5 sus                 # full bare-host + dashboard
-./scripts/deploy-remote.sh 10.0.0.5 sus --quick --service   # fast redeploy, systemd service
-./scripts/deploy-remote.sh 10.0.0.5 sus --container --podman # container via Podman
-./scripts/deploy-remote.sh 10.0.0.5 sus --k3s               # k3s + pods + NodePort
-./scripts/deploy-remote.sh 10.0.0.5 sus --service --port 8090  # serve on a free port
+./scripts/deploy-remote.sh 10.0.0.5 operator                 # full bare-host + dashboard
+./scripts/deploy-remote.sh 10.0.0.5 operator --quick --service   # fast redeploy, systemd service
+./scripts/deploy-remote.sh 10.0.0.5 operator --container --podman # container via Podman
+./scripts/deploy-remote.sh 10.0.0.5 operator --k3s               # k3s + pods + NodePort
+./scripts/deploy-remote.sh 10.0.0.5 operator --service --port 8090  # serve on a free port
 ```
 
 Then open `http://<host>:<port>/dashboard` (or `kubectl port-forward` for k3s) and sign in.
