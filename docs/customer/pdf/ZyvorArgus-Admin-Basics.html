@@ -63,7 +63,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tbody></table>
 <pre><code class="language-bash">curl -s http://127.0.0.1:8080/health
 # remote lab example:
-curl -s http://175.110.122.71:30080/health
+curl -s http://&lt;host&gt;:30080/health
 </code></pre>
 <h2>Auth — Mission Control (community)</h2>
 <ul>
@@ -177,6 +177,14 @@ options (Helm, BYO OIDC, local auth, manual Docker, troubleshooting):
 <li><a href="enterprise-sso.md">Enterprise SSO / OIDC</a></li>
 <li><a href="pages/overview/login.md">Login (Mission Control)</a></li>
 </ul>
+<h2>Operate from the console (UX)</h2>
+<ol>
+<li>Open this route from the nav or command palette and wait for live API data.</li>
+<li>Use filters/search when present; drill into a row for detail.</li>
+<li>For mutating actions: confirm role gates and impact before applying.</li>
+<li><strong>Empty / fail:</strong> Check service health, auth, and that required CRDs/backends for this domain are installed.</li>
+<li><strong>Success:</strong> Live data loads; created/updated objects appear without error toasts.</li>
+</ol>
 <hr>
 <p>How to sign into <strong>Argus Enterprise</strong> (Watchfloor) after install: bundled
 Keycloak, your own OIDC provider, or a local username/password for a test lab.</p>
@@ -364,4 +372,12 @@ secret.</p>
 <li>Engineering mirror (same content, repo docs tree): <a href="../enterprise-sso-oidc.md"><code>../enterprise-sso-oidc.md</code></a></li>
 <li>Sales / managed deploys: <a href="https://zyvor.dev">zyvor.dev</a> · <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a></li>
 </ul>
+<h2>Operate from the console (UX)</h2>
+<ol>
+<li>Open this route from the nav or command palette and wait for live API data.</li>
+<li>Use filters/search when present; drill into a row for detail.</li>
+<li>For mutating actions: confirm role gates and impact before applying.</li>
+<li><strong>Empty / fail:</strong> Check service health, auth, and that required CRDs/backends for this domain are installed.</li>
+<li><strong>Success:</strong> Live data loads; created/updated objects appear without error toasts.</li>
+</ol>
 </main></body></html>

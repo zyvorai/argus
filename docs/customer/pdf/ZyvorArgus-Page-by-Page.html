@@ -295,7 +295,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/api-contract</code></li>
 <li>UI: Mission Control → <strong>API</strong> → <strong>API contract</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>API contract</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -325,7 +325,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/auth</code></li>
 <li>UI: Mission Control → <strong>API</strong> → <strong>Auth &amp; session</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Auth &amp; session</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -355,7 +355,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/realtime</code></li>
 <li>UI: Mission Control → <strong>API</strong> → <strong>Live data</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Live data</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -385,7 +385,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/ai-test</code></li>
 <li>UI: Mission Control → <strong>Journeys</strong> → <strong>AI test</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>AI test</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -415,7 +415,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/flow</code></li>
 <li>UI: Mission Control → <strong>Journeys</strong> → <strong>Flow test</strong> (or ⌘K → “Flow”)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Enter the app URL and either English (“go to products, click Schedule Demo, assert contact”) or one step per line.</li>
 <li>Optional: login user/password, reuse a saved session file, pick browser / device / throttle.</li>
@@ -425,6 +425,10 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h4>Step language (excerpt)</h4>
 <p><code>goto</code>, <code>click</code>, <code>hover</code>, <code>fill</code>, <code>select</code>, <code>upload</code>, <code>download</code>, <code>dialog</code>, <code>iframe</code>, <code>drag</code>, <code>press</code>, <code>clock</code>, <code>wait</code>, <code>wait until</code>, <code>assert</code>, <code>assert url</code>, <code>assert api</code>, <code>assert aria</code>, <code>assert not</code>, <code>assert count</code>, <code>assert value</code>.</p>
 <p>CLI equivalent: <code>argus flow run &lt;url&gt; --steps file</code>.</p>
+<ol start="5">
+<li><strong>Empty / fail:</strong> Check health, auth, and domain dependencies.</li>
+<li><strong>Success:</strong> Live data loads; mutations complete without error toasts.</li>
+</ol>
 <h3>Related pages</h3>
 <ul>
 <li><a href="dashboard-actions-har.md">HAR record / replay</a></li>
@@ -448,12 +452,20 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/har</code></li>
 <li>UI: Mission Control → <strong>Journeys</strong> → <strong>HAR record / replay</strong></li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
-<li><strong>Record</strong> — set mode <code>record</code>, enter URL + routes (<code>/</code>, <code>/pricing</code>, …). HAR path can auto-generate.</li>
-<li><strong>Replay</strong> — set mode <code>replay</code>, point at the HAR file, optional expect-text, optional “allow missing routes”.</li>
-<li>Click <strong>📼 Run</strong> and review the live log.</li>
-<li>CLI: <code>argus api har-replay &lt;url&gt; --mode record|replay --har out.har</code>.</li>
+<li><p><strong>Record</strong> — set mode <code>record</code>, enter URL + routes (<code>/</code>, <code>/pricing</code>, …). HAR path can auto-generate.</p>
+</li>
+<li><p><strong>Replay</strong> — set mode <code>replay</code>, point at the HAR file, optional expect-text, optional “allow missing routes”.</p>
+</li>
+<li><p>Click <strong>📼 Run</strong> and review the live log.</p>
+</li>
+<li><p>CLI: <code>argus api har-replay &lt;url&gt; --mode record|replay --har out.har</code>.</p>
+</li>
+<li><p><strong>Empty / fail:</strong> Check health, auth, and domain dependencies.</p>
+</li>
+<li><p><strong>Success:</strong> Live data loads; mutations complete without error toasts.</p>
+</li>
 </ol>
 <h3>Related pages</h3>
 <ul>
@@ -476,13 +488,22 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/actions/import-codegen</code></li>
 <li>UI: Mission Control → <strong>Journeys</strong> → <strong>Import codegen</strong></li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
-<li>Paste codegen output (<code>page.goto</code>, <code>getByRole().click</code>, <code>fill</code>, …).</li>
-<li>Optionally tick <strong>run as flow</strong> and provide the app URL.</li>
-<li>Click <strong>📥 Import</strong> — inspect emitted steps; run if requested.</li>
-<li>CLI: <code>argus test import-codegen script.js [--run --url …]</code>.</li>
-<li>Local headed record alternative: <code>npm run record-flow -- &lt;url&gt; out.flow.json</code>.</li>
+<li><p>Paste codegen output (<code>page.goto</code>, <code>getByRole().click</code>, <code>fill</code>, …).</p>
+</li>
+<li><p>Optionally tick <strong>run as flow</strong> and provide the app URL.</p>
+</li>
+<li><p>Click <strong>📥 Import</strong> — inspect emitted steps; run if requested.</p>
+</li>
+<li><p>CLI: <code>argus test import-codegen script.js [--run --url …]</code>.</p>
+</li>
+<li><p>Local headed record alternative: <code>npm run record-flow -- &lt;url&gt; out.flow.json</code>.</p>
+</li>
+<li><p><strong>Empty / fail:</strong> Check health, auth, and domain dependencies.</p>
+</li>
+<li><p><strong>Success:</strong> Live data loads; mutations complete without error toasts.</p>
+</li>
 </ol>
 <h3>Related pages</h3>
 <ul>
@@ -505,7 +526,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/findings</code></li>
 <li>UI: Mission Control → <strong>Operations</strong> → <strong>Findings</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Findings</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -535,7 +556,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/runs</code></li>
 <li>UI: Mission Control → <strong>Operations</strong> → <strong>QA Runs</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>QA Runs</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -565,7 +586,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/schedules</code></li>
 <li>UI: Mission Control → <strong>Operations</strong> → <strong>Schedules</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Schedules</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -595,7 +616,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/videos</code></li>
 <li>UI: Mission Control → <strong>Operations</strong> → <strong>Videos</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Videos</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -625,7 +646,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/command-palette</code></li>
 <li>UI: Mission Control → <strong>Overview</strong> → <strong>Command palette</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Command palette</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -655,7 +676,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/hero</code></li>
 <li>UI: Mission Control → <strong>Overview</strong> → <strong>Hero status</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Hero status</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -685,7 +706,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/job-live</code></li>
 <li>UI: Mission Control → <strong>Overview</strong> → <strong>Live job panel</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Live job panel</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -715,7 +736,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/pods</code></li>
 <li>UI: Mission Control → <strong>Overview</strong> → <strong>Pods</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Pods</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -745,7 +766,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard/workloads</code></li>
 <li>UI: Mission Control → <strong>Overview</strong> → <strong>Workloads</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Workloads</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -775,7 +796,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li>Surface: <code>/dashboard</code></li>
 <li>UI: Mission Control → <strong>Overview</strong> → <strong>Mission Control</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Mission Control</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -808,7 +829,7 @@ you are unsure where to start</li>
 <li>Surface: <code>/login</code></li>
 <li>UI: open <code>/dashboard</code> when auth is enabled (redirect), or go directly to <code>/login</code></li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <h4>Mission Control (community)</h4>
 <ol>
 <li>Ensure <code>DASHBOARD_PASSWORD</code> (and optional <code>DASHBOARD_USER</code>, default <code>admin</code>) is set.</li>
@@ -833,6 +854,10 @@ email/password form if local auth is enabled).</li>
 <a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
 <p>If Mission Control login fails, hit <code>GET /health</code>, confirm <code>argus serve</code> is up,
 and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<ol start="5">
+<li><strong>Empty / fail:</strong> Check health, auth, and domain dependencies.</li>
+<li><strong>Success:</strong> Live data loads; mutations complete without error toasts.</li>
+</ol>
 <h3>Related pages</h3>
 <ul>
 <li><a href="../../getting-started.md">Getting Started</a></li>
@@ -857,7 +882,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/create</code></li>
 <li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Create from English</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Create from English</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -887,7 +912,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/discover</code></li>
 <li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Discover coverage</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Discover coverage</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -917,7 +942,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/generate</code></li>
 <li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Generate tests</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Generate tests</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -947,7 +972,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/run-tests</code></li>
 <li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Run tests</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Run tests</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -977,7 +1002,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/loadtest</code></li>
 <li>UI: Mission Control → <strong>Probes</strong> → <strong>Load test</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Load test</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1007,7 +1032,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/ping</code></li>
 <li>UI: Mission Control → <strong>Probes</strong> → <strong>Uptime ping</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Uptime ping</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1037,7 +1062,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/probes</code></li>
 <li>UI: Mission Control → <strong>Probes</strong> → <strong>Probes</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Probes</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1067,7 +1092,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/tls</code></li>
 <li>UI: Mission Control → <strong>Probes</strong> → <strong>TLS check</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>TLS check</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1097,7 +1122,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/audit</code></li>
 <li>UI: Mission Control → <strong>Quality</strong> → <strong>Site audit</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Site audit</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1127,7 +1152,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/crawl</code></li>
 <li>UI: Mission Control → <strong>Quality</strong> → <strong>Crawl &amp; test</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Crawl &amp; test</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1157,7 +1182,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/flaky</code></li>
 <li>UI: Mission Control → <strong>Quality</strong> → <strong>Flaky check</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Flaky check</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1187,7 +1212,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/vitals</code></li>
 <li>UI: Mission Control → <strong>Quality</strong> → <strong>Web Vitals</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Web Vitals</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1217,7 +1242,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/attack-chain</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>Attack chain</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Attack chain</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1247,7 +1272,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/cloud-pentest</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>Cloud pentest</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Cloud pentest</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1277,7 +1302,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/cve-lookup</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>CVE lookup</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>CVE lookup</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1307,7 +1332,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/exploit-poc</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>Exploit PoC</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Exploit PoC</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1337,7 +1362,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/host-pentest</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>Host pentest</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Host pentest</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1367,7 +1392,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/llm-redteam</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>LLM red-team</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>LLM red-team</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1397,7 +1422,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/misconfig-scan</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>Misconfig scan</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Misconfig scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1427,7 +1452,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/security-engagements</code></li>
 <li>UI: Mission Control → <strong>Security</strong> → <strong>Security engagements</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Security engagements</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1457,7 +1482,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/compare</code></li>
 <li>UI: Mission Control → <strong>Visual</strong> → <strong>Compare URLs</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Compare URLs</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1487,7 +1512,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/regression</code></li>
 <li>UI: Mission Control → <strong>Visual</strong> → <strong>Visual regression</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Visual regression</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1517,7 +1542,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/route-sweep</code></li>
 <li>UI: Mission Control → <strong>Visual</strong> → <strong>Route sweep</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Route sweep</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
@@ -1547,7 +1572,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <li>Surface: <code>/dashboard/actions/screenshot</code></li>
 <li>UI: Mission Control → <strong>Visual</strong> → <strong>Screenshot</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
 </ul>
-<h3>What you can do</h3>
+<h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Screenshot</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>

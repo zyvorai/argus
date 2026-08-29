@@ -1,6 +1,6 @@
 # Page-by-page guides
 
-Each guide follows: Purpose → When to use it → How to get there → Operate from the console (UX) → Related pages.
+Each guide follows: Purpose → When to use it → How to get there → What you can do → Related pages.
 
 Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 
