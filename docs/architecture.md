@@ -37,7 +37,7 @@ Three languages, three roles:
 
 | Layer | Language | Location | Role |
 |-------|----------|----------|------|
-| Orchestrator + agents | Python | `orchestrator/`, `agents/`, `github/` | Pipeline control, LLM calls, parsing, reporting |
+| Orchestrator + agents | Python | `orchestrator/`, `agents/`, `github_integration/` | Pipeline control, LLM calls, parsing, reporting |
 | Test execution | TypeScript | `playwright/`, `tests/` | Browser automation, fixtures, artifact capture |
 | Screenshot diff (optional) | Rust | `rust/` | Fast pixel diffing (`zyvor-diff` binary) |
 

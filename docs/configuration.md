@@ -83,13 +83,14 @@ Browser log analysis (console errors, network failures) is **always on** and nee
 | `ENABLE_LLM_REPORT` | `true` | LLM plain-English report summary (stub fallback) |
 | `ENABLE_PDF_REPORT` | `true` | Render `reports/qa-summary.pdf` via headless Chromium |
 | `SLACK_WEBHOOK_URL` | — | Slack incoming webhook (block-formatted message) |
+| `SLACK_SIGNING_SECRET` | — | Signs/verifies inbound Slack slash-command requests at `POST /webhook/slack/command` (`/zyvor run <kind>` / `/zyvor status <job_id>`). Requests are rejected outright without it — no unsigned fallback. See [Tutorial 16](tutorials/16-slack-gateway.md). |
 | `TEAMS_WEBHOOK_URL` | — | Microsoft Teams webhook (MessageCard) |
 | `SMTP_HOST` | — | SMTP server; enables email when set together with `NOTIFY_EMAIL_TO` |
 | `SMTP_PORT` | `587` | SMTP port (STARTTLS is used when user+password are set) |
 | `SMTP_USER` / `SMTP_PASSWORD` | — | SMTP credentials; also used as From address |
 | `NOTIFY_EMAIL_TO` | — | Recipient address (PDF report attached when available) |
 
-Consumed by: `orchestrator/nodes/analyze.py`, `orchestrator/nodes/report.py`, `agents/reporter/*`.
+Consumed by: `orchestrator/nodes/analyze.py`, `orchestrator/nodes/report.py`, `agents/reporter/*`, `orchestrator/security/slack.py`.
 
 ---
 
@@ -100,8 +101,9 @@ Consumed by: `orchestrator/nodes/analyze.py`, `orchestrator/nodes/report.py`, `a
 | `ENABLE_AUTOFIX` | `false` | Suggest selector repairs after failures |
 | `ENABLE_AUTOFIX_APPLY` | `false` | Actually patch spec files and re-run failed tests |
 | `AUTOFIX_MAX_RETRIES` | `2` | Max apply→re-execute loops per run |
+| `SKILLS_PATH` | `.zyvor-argus/skills.json` | Skill store — confirmed autofix repairs are recorded here and reused on future runs before falling back to an LLM suggestion |
 
-Consumed by: `orchestrator/graph.py`, `orchestrator/nodes/autofix.py`, `orchestrator/nodes/apply_autofix.py`.
+Consumed by: `orchestrator/graph.py`, `orchestrator/nodes/autofix.py`, `orchestrator/nodes/apply_autofix.py`, `orchestrator/nodes/learn_skills.py`, `agents/skills/store.py`.
 
 ---
 
