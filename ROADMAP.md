@@ -175,7 +175,7 @@ Deliberately not built yet, and not stubbed:
   route + Watchfloor panel, matching the pattern already used for
   engagement-policy and artifacts.
 
-## ~~Observability: tracing~~ — done (within-process; cross-replica propagation still open)
+## ~~Observability: tracing~~ — done (within-process and cross-replica)
 
 `orchestrator/observability/metrics.py`'s Prometheus counters/gauges are now
 joined by `orchestrator/observability/tracing.py`, opt-in via
@@ -204,13 +204,30 @@ through `DurableJobService` end to end (enqueue → worker claims → executes
 `tests/unit/test_tracing.py` (no-op-when-disabled path, plus real span
 emission/error-status assertions against an `InMemorySpanExporter`).
 
-**Deliberately not done, named rather than silently skipped**: trace context
-does not yet propagate across the enqueue → claim boundary when those
-happen on different replicas — would need a persisted `traceparent` column
-on the `jobs` table (mirrored into both `MissionControlStore` and
-`PostgresStore`), so an `enqueue()` span and its later `job.execute` span
-show up as one linked trace instead of two independent ones. Real, bounded
-follow-on work, not part of this pass.
+**Cross-replica propagation — done.** `jobs.trace_context` (schema v4, both
+`MissionControlStore` and `PostgresStore`, `ALTER TABLE`-on-migrate for
+existing databases) persists a serialized W3C `traceparent`.
+`orchestrator/observability/tracing.py` gained two pieces:
+`current_traceparent()` serializes the active span's context, and
+`start_span(..., trace_context=...)` extracts a `traceparent` string back
+into a parent context — `None`/omitted behaves exactly as before (parented
+to whatever's locally active, or a new root span). `DurableJobService.enqueue()`
+now wraps the call in a `job.enqueue` span, captures its `current_traceparent()`,
+and passes it to `store.enqueue_job(trace_context=...)`; `_worker_loop` reads
+it back off the claimed row and passes it as `job.execute`'s `trace_context`
+— so a job enqueued on one replica and claimed on another links into one
+trace instead of two independent ones.
+
+**Live-verified**, not just unit-tested with a mocked SDK: ran the real
+enqueue → persist → claim → execute sequence against both a real SQLite
+`MissionControlStore` and a real local Postgres 14 instance, confirming
+`job.execute`'s span shares `job.enqueue`'s `trace_id` and has its
+`span_id` as `parent_id` in both cases — and separately ran the full
+`DurableJobService.enqueue()` → worker-thread-claims → executes path
+end to end (not the store methods in isolation) with the same assertion.
+New tests: `tests/unit/test_tracing.py` (context-propagation cases),
+`tests/unit/test_persistence_store.py`/`test_postgres_store.py`
+(`trace_context` round-trips through enqueue/claim/get).
 
 ## ~~Horizontal scale: Postgres-backed store~~ — done
 

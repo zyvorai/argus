@@ -26,7 +26,7 @@ import time
 from typing import Any
 
 from orchestrator.observability.metrics import inc, set_gauge
-from orchestrator.observability.tracing import set_span_error, start_span
+from orchestrator.observability.tracing import current_traceparent, set_span_error, start_span
 from orchestrator.persistence.store import MissionControlStore, get_store
 from orchestrator.security.secrets import is_secret_ref, resolve_secret_refs
 
@@ -73,13 +73,18 @@ class DurableJobService:
 
         # Validate shape immediately, substituting harmless placeholders for refs.
         jobs._validate(kind, _validation_view(params))
-        job = self.store.enqueue_job(
-            kind,
-            params,
-            requested_by=requested_by,
-            idempotency_key=idempotency_key,
-            priority=priority,
-        )
+        with start_span("job.enqueue", job_kind=kind) as span:
+            trace_context = current_traceparent() if span else None
+            job = self.store.enqueue_job(
+                kind,
+                params,
+                requested_by=requested_by,
+                idempotency_key=idempotency_key,
+                priority=priority,
+                trace_context=trace_context,
+            )
+            if span:
+                span.set_attribute("job.id", job["id"])
         self.store.audit(
             "job.enqueue", actor=requested_by, resource_type="job", resource_id=job["id"],
             detail={"kind": kind, "params": params},
@@ -100,7 +105,9 @@ class DurableJobService:
             job_id = job["id"]
             kind = job["kind"]
             started_at = time.monotonic()
-            with start_span("job.execute", job_id=job_id, job_kind=kind) as span:
+            with start_span(
+                "job.execute", trace_context=job.get("trace_context"), job_id=job_id, job_kind=kind
+            ) as span:
                 try:
                     params = resolve_secret_refs(job["params"])
                     started, _ = jobs.trigger(kind, params)

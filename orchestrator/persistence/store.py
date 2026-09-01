@@ -35,7 +35,7 @@ from typing import Any, Iterator
 from orchestrator.security.redaction import redact
 from orchestrator.security.secrets import assert_persistable
 
-_SCHEMA_VERSION = 3
+_SCHEMA_VERSION = 4
 
 DEFAULT_MAX_JOB_ATTEMPTS = 3
 
@@ -106,7 +106,8 @@ class MissionControlStore:
                     result_json TEXT,
                     error TEXT,
                     cancel_requested INTEGER NOT NULL DEFAULT 0,
-                    attempt INTEGER NOT NULL DEFAULT 0
+                    attempt INTEGER NOT NULL DEFAULT 0,
+                    trace_context TEXT
                 );
                 CREATE UNIQUE INDEX IF NOT EXISTS jobs_idempotency_uq
                     ON jobs(idempotency_key) WHERE idempotency_key IS NOT NULL;
@@ -224,6 +225,11 @@ class MissionControlStore:
             existing_columns = {row["name"] for row in conn.execute("PRAGMA table_info(findings)")}
             if "category" not in existing_columns:
                 conn.execute("ALTER TABLE findings ADD COLUMN category TEXT NOT NULL DEFAULT ''")
+            # Same story for jobs.trace_context, added in schema v4 (cross-replica
+            # trace propagation -- see orchestrator/observability/tracing.py).
+            existing_job_columns = {row["name"] for row in conn.execute("PRAGMA table_info(jobs)")}
+            if "trace_context" not in existing_job_columns:
+                conn.execute("ALTER TABLE jobs ADD COLUMN trace_context TEXT")
             conn.execute("UPDATE schema_meta SET version=?", (_SCHEMA_VERSION,))
 
     # Jobs -----------------------------------------------------------------
@@ -235,6 +241,7 @@ class MissionControlStore:
         requested_by: str = "",
         priority: int = 100,
         idempotency_key: str | None = None,
+        trace_context: str | None = None,
     ) -> dict[str, Any]:
         assert_persistable(params)
         now = _iso()
@@ -243,9 +250,9 @@ class MissionControlStore:
             try:
                 conn.execute(
                     """INSERT INTO jobs
-                    (id, kind, params_json, status, priority, idempotency_key, requested_by, queued_at)
-                    VALUES (?, ?, ?, 'queued', ?, ?, ?, ?)""",
-                    (job_id, kind, _json(params), int(priority), idempotency_key, requested_by, now),
+                    (id, kind, params_json, status, priority, idempotency_key, requested_by, queued_at, trace_context)
+                    VALUES (?, ?, ?, 'queued', ?, ?, ?, ?, ?)""",
+                    (job_id, kind, _json(params), int(priority), idempotency_key, requested_by, now, trace_context),
                 )
             except sqlite3.IntegrityError:
                 if not idempotency_key:
@@ -375,6 +382,7 @@ class MissionControlStore:
             "error": redact(row["error"]),
             "cancel_requested": bool(row["cancel_requested"]),
             "attempt": row["attempt"],
+            "trace_context": row["trace_context"],
         }
 
     # Schedules ------------------------------------------------------------

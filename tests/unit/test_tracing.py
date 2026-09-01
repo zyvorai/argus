@@ -19,7 +19,7 @@ from __future__ import annotations
 import pytest
 
 import orchestrator.observability.tracing as tracing_module
-from orchestrator.observability.tracing import set_span_error, start_span, tracing_enabled
+from orchestrator.observability.tracing import current_traceparent, set_span_error, start_span, tracing_enabled
 
 
 def test_disabled_by_default(monkeypatch):
@@ -88,3 +88,91 @@ def test_set_span_error_marks_status_and_attribute(monkeypatch):
     finished = exporter.get_finished_spans()[0]
     assert finished.status.status_code == StatusCode.ERROR
     assert finished.attributes["error"] is True
+
+
+def test_current_traceparent_is_none_when_disabled(monkeypatch):
+    monkeypatch.setenv("ZYVOR_OTEL_ENABLED", "false")
+    monkeypatch.setattr(tracing_module, "_tracer", None)
+    assert current_traceparent() is None
+
+
+def test_current_traceparent_is_none_outside_any_span(monkeypatch):
+    pytest.importorskip("opentelemetry")
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+
+    monkeypatch.setenv("ZYVOR_OTEL_ENABLED", "true")
+    monkeypatch.setattr(tracing_module, "_tracer", trace.get_tracer("test", tracer_provider=TracerProvider()))
+
+    assert current_traceparent() is None
+
+
+def test_current_traceparent_serializes_the_active_span(monkeypatch):
+    pytest.importorskip("opentelemetry")
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+
+    monkeypatch.setenv("ZYVOR_OTEL_ENABLED", "true")
+    monkeypatch.setattr(tracing_module, "_tracer", trace.get_tracer("test", tracer_provider=provider))
+
+    with start_span("job.enqueue"):
+        traceparent = current_traceparent()
+
+    assert traceparent is not None
+    finished = exporter.get_finished_spans()[0]
+    assert f"{finished.context.trace_id:032x}" in traceparent
+    assert f"{finished.context.span_id:016x}" in traceparent
+
+
+def test_start_span_links_to_a_remote_trace_context(monkeypatch):
+    """The cross-replica case: a `traceparent` captured from one span (as if
+    read back off a claimed job row) makes a later, independently-started
+    span a child of it rather than a new root -- the mechanism that links
+    `job.enqueue` and `job.execute` across replicas."""
+    pytest.importorskip("opentelemetry")
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+
+    monkeypatch.setenv("ZYVOR_OTEL_ENABLED", "true")
+    monkeypatch.setattr(tracing_module, "_tracer", trace.get_tracer("test", tracer_provider=provider))
+
+    with start_span("job.enqueue") as enqueue_span:
+        traceparent = current_traceparent()
+
+    with start_span("job.execute", trace_context=traceparent) as execute_span:
+        assert execute_span.get_span_context().trace_id == enqueue_span.get_span_context().trace_id
+
+    spans = {s.name: s for s in exporter.get_finished_spans()}
+    assert spans["job.execute"].parent.span_id == spans["job.enqueue"].context.span_id
+
+
+def test_start_span_ignores_falsy_trace_context(monkeypatch):
+    """None/empty trace_context behaves exactly like the parameter being
+    omitted -- a fresh root span, not an error."""
+    pytest.importorskip("opentelemetry")
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+    from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+    exporter = InMemorySpanExporter()
+    provider = TracerProvider()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+
+    monkeypatch.setenv("ZYVOR_OTEL_ENABLED", "true")
+    monkeypatch.setattr(tracing_module, "_tracer", trace.get_tracer("test", tracer_provider=provider))
+
+    with start_span("job.execute", trace_context=None) as span:
+        assert span.parent is None

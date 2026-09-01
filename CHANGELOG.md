@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **Cross-replica trace propagation** — `jobs.trace_context` (schema v4, `MissionControlStore` + `PostgresStore`) persists a serialized `traceparent` at enqueue time; `orchestrator/observability/tracing.py` gained `current_traceparent()` and a `start_span(..., trace_context=...)` parent-context extraction so a job's `job.enqueue` and `job.execute` spans link into one trace even when enqueue and claim happen on different replicas, closing the gap `ROADMAP.md` had named as open follow-on work. Live-verified against a real SQLite store, a real local Postgres 14 instance, and the full `DurableJobService.enqueue()` → worker-claim → execute path — all three confirm `job.execute`'s span shares `job.enqueue`'s trace and is parented to it, not just unit-tested with a mocked SDK. New/extended: `tests/unit/test_tracing.py`, `tests/unit/test_persistence_store.py`, `tests/unit/test_postgres_store.py`.
+
 ## [0.9.1](https://github.com/zyvorai/argus/releases/tag/v0.9.1) — 2026-09-02
 
 ### Changed

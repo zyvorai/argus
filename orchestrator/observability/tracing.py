@@ -26,13 +26,12 @@ Exporter: OTLP/HTTP to OTEL_EXPORTER_OTLP_ENDPOINT if set, otherwise spans
 print to stdout via OpenTelemetry's own ConsoleSpanExporter -- genuine SDK
 behavior, not a stub, useful for local debugging without a collector.
 
-Scope note (see ROADMAP.md): this instruments spans *within* a single
-process (one span per claimed job in the worker loop, one span per LangGraph
-pipeline node) but does not yet propagate trace context across the
-enqueue -> claim boundary when those happen on different replicas (would
-need a persisted `traceparent` column on the `jobs` table plus the same
-change mirrored into PostgresStore) -- named as real follow-on work, not
-silently skipped.
+Cross-replica propagation: `current_traceparent()` serializes the active
+span's context as a W3C `traceparent` string, persisted on the `jobs` row
+(both MissionControlStore and PostgresStore) at enqueue time; `start_span`'s
+`trace_context` argument extracts it back out when the worker claims the
+job, so `job.enqueue` and `job.execute` link into one trace even when they
+run on different replicas -- instead of two independent ones.
 """
 
 from __future__ import annotations
@@ -88,16 +87,47 @@ def _get_tracer() -> Any:
         return _tracer
 
 
+def current_traceparent() -> str | None:
+    """Serializes the active span's context as a W3C `traceparent` string, for
+    persisting alongside a job so `job.execute` -- possibly claimed on a
+    different replica -- can link into the same trace as the `job.enqueue`
+    span that created it. None when tracing is disabled/unavailable, or when
+    called outside any active span (nothing valid to serialize)."""
+    tracer = _get_tracer()
+    if not tracer:
+        return None
+    from opentelemetry import trace
+    from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+
+    if not trace.get_current_span().get_span_context().is_valid:
+        return None
+    carrier: dict[str, str] = {}
+    TraceContextTextMapPropagator().inject(carrier)
+    return carrier.get("traceparent")
+
+
 @contextmanager
-def start_span(name: str, **attributes: Any) -> Iterator[Any]:
+def start_span(name: str, *, trace_context: str | None = None, **attributes: Any) -> Iterator[Any]:
     """`with start_span("job.execute", job_id=..., job_kind=...) as span:` --
     `span` is None when tracing is disabled/unavailable; callers that want to
-    set additional attributes conditionally should guard with `if span:`."""
+    set additional attributes conditionally should guard with `if span:`.
+
+    `trace_context` -- a `traceparent` string from `current_traceparent()`,
+    e.g. read back off a claimed job row -- makes the new span a child of
+    that remote context instead of whatever's locally active, the mechanism
+    that links a `job.execute` span to its `job.enqueue` span across
+    replicas. Omitted or None: behaves exactly as before, parented to
+    whatever's currently active in this process (or a new root span)."""
     tracer = _get_tracer()
     if not tracer:
         yield None
         return
-    with tracer.start_as_current_span(name) as span:
+    parent_context = None
+    if trace_context:
+        from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+
+        parent_context = TraceContextTextMapPropagator().extract({"traceparent": trace_context})
+    with tracer.start_as_current_span(name, context=parent_context) as span:
         for key, value in attributes.items():
             if value is not None:
                 span.set_attribute(key, value)

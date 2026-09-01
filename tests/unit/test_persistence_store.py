@@ -50,6 +50,29 @@ def test_idempotency(tmp_path):
     assert first["id"] == second["id"]
 
 
+def test_trace_context_round_trips_through_enqueue_and_claim(tmp_path):
+    """Cross-replica trace propagation: a traceparent persisted at enqueue
+    time (as if captured from an active job.enqueue span) survives a claim
+    on what could be a different process/replica, so DurableJobService can
+    parent the job.execute span on it."""
+    store = MissionControlStore(tmp_path / "state.db")
+    traceparent = "00-30957595af83ba0d07f0a11ce2733726-097cdd883f795456-01"
+    job = store.enqueue_job("smoke", {}, trace_context=traceparent)
+    assert job["trace_context"] == traceparent
+
+    claimed = store.claim_job()
+    assert claimed and claimed["trace_context"] == traceparent
+
+    fetched = store.get_job(job["id"])
+    assert fetched and fetched["trace_context"] == traceparent
+
+
+def test_trace_context_defaults_to_none(tmp_path):
+    store = MissionControlStore(tmp_path / "state.db")
+    job = store.enqueue_job("smoke", {})
+    assert job["trace_context"] is None
+
+
 def test_schedule_persists_and_redacts(tmp_path):
     store = MissionControlStore(tmp_path / "state.db")
     schedule = store.add_schedule(

@@ -72,6 +72,19 @@ def test_job_lifecycle(store):
     assert finished["result"] == {"passed": 1}
 
 
+def test_trace_context_round_trips_through_enqueue_and_claim(store):
+    """Same cross-replica trace propagation contract as MissionControlStore
+    (tests/unit/test_persistence_store.py) -- PostgresStore is a drop-in, so
+    a traceparent persisted at enqueue time must survive a claim exactly the
+    same way."""
+    traceparent = "00-30957595af83ba0d07f0a11ce2733726-097cdd883f795456-01"
+    job = store.enqueue_job("smoke", {}, trace_context=traceparent)
+    assert job["trace_context"] == traceparent
+
+    claimed = store.claim_job()
+    assert claimed["trace_context"] == traceparent
+
+
 def test_enqueue_job_idempotency_key_returns_existing_row(store):
     first = store.enqueue_job("smoke", {"url": "https://x.com"}, idempotency_key="k1")
     second = store.enqueue_job("smoke", {"url": "https://x.com"}, idempotency_key="k1")

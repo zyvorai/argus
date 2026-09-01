@@ -103,7 +103,7 @@ def test_enqueue_substitutes_secret_placeholder_for_validation_only(monkeypatch)
     fake_validate.assert_called_once_with("audit", {"token": "secret-reference-placeholder"})
     # ...but the store persists the real (still-a-reference, never-resolved) params.
     fake_store.enqueue_job.assert_called_once_with(
-        "audit", raw_params, requested_by="", idempotency_key=None, priority=100
+        "audit", raw_params, requested_by="", idempotency_key=None, priority=100, trace_context=None
     )
 
 

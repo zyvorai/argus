@@ -54,7 +54,7 @@ except ImportError as exc:  # pragma: no cover - exercised only without the post
 _SCHEMA_STATEMENTS = [
     """CREATE TABLE IF NOT EXISTS schema_meta (version INTEGER NOT NULL)""",
     """INSERT INTO schema_meta(version)
-       SELECT 3 WHERE NOT EXISTS (SELECT 1 FROM schema_meta)""",
+       SELECT 4 WHERE NOT EXISTS (SELECT 1 FROM schema_meta)""",
     """CREATE TABLE IF NOT EXISTS jobs (
         id TEXT PRIMARY KEY,
         kind TEXT NOT NULL,
@@ -70,8 +70,13 @@ _SCHEMA_STATEMENTS = [
         result_json TEXT,
         error TEXT,
         cancel_requested INTEGER NOT NULL DEFAULT 0,
-        attempt INTEGER NOT NULL DEFAULT 0
+        attempt INTEGER NOT NULL DEFAULT 0,
+        trace_context TEXT
     )""",
+    # Added in schema v4: `ALTER ... IF NOT EXISTS` so it's a no-op against a
+    # jobs table already created (without the column) by an older version --
+    # same story as SQLite's PRAGMA table_info(jobs) check in store.py.
+    """ALTER TABLE jobs ADD COLUMN IF NOT EXISTS trace_context TEXT""",
     """CREATE UNIQUE INDEX IF NOT EXISTS jobs_idempotency_uq
         ON jobs(idempotency_key) WHERE idempotency_key IS NOT NULL""",
     """CREATE INDEX IF NOT EXISTS jobs_status_priority_idx ON jobs(status, priority, queued_at)""",
@@ -196,7 +201,7 @@ class PostgresStore:
         with self._migration_lock, self.connect() as conn:
             for statement in _SCHEMA_STATEMENTS:
                 conn.execute(statement)
-            conn.execute("UPDATE schema_meta SET version=3")
+            conn.execute("UPDATE schema_meta SET version=4")
 
     # Jobs -----------------------------------------------------------------
     def enqueue_job(
@@ -207,6 +212,7 @@ class PostgresStore:
         requested_by: str = "",
         priority: int = 100,
         idempotency_key: str | None = None,
+        trace_context: str | None = None,
     ) -> dict[str, Any]:
         assert_persistable(params)
         now = _iso()
@@ -215,9 +221,9 @@ class PostgresStore:
             try:
                 row = conn.execute(
                     """INSERT INTO jobs
-                    (id, kind, params_json, status, priority, idempotency_key, requested_by, queued_at)
-                    VALUES (%s, %s, %s, 'queued', %s, %s, %s, %s) RETURNING *""",
-                    (job_id, kind, _json(params), int(priority), idempotency_key, requested_by, now),
+                    (id, kind, params_json, status, priority, idempotency_key, requested_by, queued_at, trace_context)
+                    VALUES (%s, %s, %s, 'queued', %s, %s, %s, %s, %s) RETURNING *""",
+                    (job_id, kind, _json(params), int(priority), idempotency_key, requested_by, now, trace_context),
                 ).fetchone()
             except psycopg.errors.UniqueViolation:
                 if not idempotency_key:
@@ -353,6 +359,7 @@ class PostgresStore:
             "error": redact(row["error"]),
             "cancel_requested": bool(row["cancel_requested"]),
             "attempt": row["attempt"],
+            "trace_context": row["trace_context"],
         }
 
     # Schedules ------------------------------------------------------------
