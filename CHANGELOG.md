@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.1](https://github.com/zyvorai/argus/releases/tag/v0.9.1) — 2026-09-02
+
+### Changed
+- **Docs & version pins** — CI templates, `action.yml`, K8s enterprise manifest, devops runbooks, and customer docs updated to **v0.9.1** / `zyvorai/argus` URLs; `releases.md` rewritten with current cut-release steps.
+
 ## [0.9.0](https://github.com/zyvorai/argus/releases/tag/v0.9.0) — 2026-09-01
 
 ### Changed

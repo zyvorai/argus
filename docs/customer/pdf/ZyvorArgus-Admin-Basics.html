@@ -153,7 +153,7 @@ options (Helm, BYO OIDC, local auth, manual Docker, troubleshooting):
 <td>HMAC for <code>POST /webhook/github</code></td>
 </tr>
 </tbody></table>
-<p>Canonical list: repo <a href="https://github.com/zyvorai/zyvor-argus/blob/main/.env.example"><code>.env.example</code></a> and <a href="https://github.com/zyvorai/zyvor-argus/blob/main/docs/configuration.md"><code>docs/configuration.md</code></a>.</p>
+<p>Canonical list: repo <a href="https://github.com/zyvorai/argus/blob/main/.env.example"><code>.env.example</code></a> and <a href="https://github.com/zyvorai/argus/blob/main/docs/configuration.md"><code>docs/configuration.md</code></a>.</p>
 <h2>Deploy sketch</h2>
 <pre><code class="language-bash">./scripts/deploy-remote.sh &lt;host&gt; &lt;user&gt; --quick --service   # systemd (needs free port)
 ./scripts/deploy-remote.sh &lt;host&gt; &lt;user&gt; --k3s               # preferred when :30080 is NodePort
@@ -167,7 +167,7 @@ options (Helm, BYO OIDC, local auth, manual Docker, troubleshooting):
 <li>Always set <code>DASHBOARD_PASSWORD</code> before exposing Mission Control pod logs publicly.</li>
 <li>For Enterprise, disable Keycloak demo users (<code>demo</code> / <code>ssouser</code>) outside eval labs.</li>
 <li>Treat webhook secrets, OIDC client secrets, and LLM keys as production secrets.</li>
-<li>Support: <a href="https://github.com/zyvorai/zyvor-argus/issues">GitHub issues</a> · <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a> for Enterprise.</li>
+<li>Support: <a href="https://github.com/zyvorai/argus/issues">GitHub issues</a> · <a href="mailto:sales@zyvor.dev">sales@zyvor.dev</a> for Enterprise.</li>
 </ul>
 <h2>Related</h2>
 <ul>

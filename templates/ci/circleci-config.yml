@@ -1,6 +1,6 @@
 # Copy into your own repo as .circleci/config.yml (or merge the job/workflow in).
 # Full env var / exit-code / summary.json contract:
-# https://github.com/hypersdk/zyvor-argus/blob/main/docs/tutorials/15-external-cicd-integration.md
+# https://github.com/zyvorai/argus/blob/main/docs/tutorials/15-external-cicd-integration.md
 #
 # `entrypoint: [""]` clears the image's baked-in ENTRYPOINT so CircleCI's own
 # step commands (`run:`) execute directly instead of being appended as args to it.
@@ -9,7 +9,7 @@ version: 2.1
 jobs:
   argus-smoke:
     docker:
-      - image: ghcr.io/hypersdk/zyvor-argus:v0.8.0
+      - image: ghcr.io/hypersdk/zyvor-argus:v0.9.1
         entrypoint: [""]
     environment:
       ZYVOR_BASE_URL: https://staging.example.com   # or interpolate a CircleCI context/env var

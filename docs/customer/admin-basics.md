@@ -59,7 +59,7 @@ scripts/test-login.sh https://argus.example.com demo demo
 | `ENABLE_AUTOFIX` / `ENABLE_AUTOFIX_APPLY` | Self-healing suggestions / apply |
 | `GITHUB_WEBHOOK_SECRET` | HMAC for `POST /webhook/github` |
 
-Canonical list: repo [`.env.example`](https://github.com/zyvorai/zyvor-argus/blob/main/.env.example) and [`docs/configuration.md`](https://github.com/zyvorai/zyvor-argus/blob/main/docs/configuration.md).
+Canonical list: repo [`.env.example`](https://github.com/zyvorai/argus/blob/main/.env.example) and [`docs/configuration.md`](https://github.com/zyvorai/argus/blob/main/docs/configuration.md).
 
 ## Deploy sketch
 
@@ -80,7 +80,7 @@ For Argus Enterprise Helm / Keycloak deploy steps, see
 - Always set `DASHBOARD_PASSWORD` before exposing Mission Control pod logs publicly.
 - For Enterprise, disable Keycloak demo users (`demo` / `ssouser`) outside eval labs.
 - Treat webhook secrets, OIDC client secrets, and LLM keys as production secrets.
-- Support: [GitHub issues](https://github.com/zyvorai/zyvor-argus/issues) · [sales@zyvor.dev](mailto:sales@zyvor.dev) for Enterprise.
+- Support: [GitHub issues](https://github.com/zyvorai/argus/issues) · [sales@zyvor.dev](mailto:sales@zyvor.dev) for Enterprise.
 
 ## Related
 

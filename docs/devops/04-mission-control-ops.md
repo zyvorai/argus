@@ -104,7 +104,7 @@ Set `ZYVOR_PW_WORKERS=2` (or lower) on small hosts / in-cluster.
 1. Read release notes for the new tag.  
 2. Staging host: `--quick` or new image tag.  
 3. Run smoke once: `argus test exec --grep @smoke`.  
-4. Bump CI pin `hypersdk/zyvor-argus@vX.Y.Z` in product repos (separate PR).  
+4. Bump CI pin `zyvorai/argus@vX.Y.Z` in product repos (separate PR).  
 5. Keep previous image tag pullable for 7 days for rollback.
 
 Rollback: redeploy previous tag; revert workflow pin.

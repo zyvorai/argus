@@ -154,4 +154,4 @@ jobs:
             docker pull ghcr.io/hypersdk/zyvor-argus:${{ needs.publish-image.outputs.tag }}
             ```
 
-            macOS desktop app: download the `.dmg` below (unsigned — right-click → Open on first launch). See [Tutorial 17](https://github.com/hypersdk/zyvor-argus/blob/main/docs/tutorials/17-desktop-app.md) and `desktop/README.md`.
+            macOS desktop app: download the `.dmg` below (unsigned — right-click → Open on first launch). See [Tutorial 17](https://github.com/zyvorai/argus/blob/main/docs/tutorials/17-desktop-app.md) and `desktop/README.md`.

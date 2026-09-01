@@ -38,7 +38,7 @@ argus serve --port 8080
 ```
 
 1. **Pipeline** → ▶ **Smoke**
-2. **Journeys** → 🎬 **Flow test** — URL `https://zyvor.dev`, paste [`zyvor-dev-demo.steps`](https://github.com/zyvorai/zyvor-argus/blob/main/docs/assets/zyvor-dev-demo.steps), **record video** on
+2. **Journeys** → 🎬 **Flow test** — URL `https://zyvor.dev`, paste [`zyvor-dev-demo.steps`](https://github.com/zyvorai/argus/blob/main/docs/assets/zyvor-dev-demo.steps), **record video** on
 3. **Journeys** → 📼 **HAR** — optional record `/` then replay
 
 ### UX cues

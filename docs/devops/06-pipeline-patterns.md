@@ -26,7 +26,7 @@ qa:
       shard: [1/4, 2/4, 3/4, 4/4]
   runs-on: ubuntu-latest
   steps:
-    - uses: hypersdk/zyvor-argus@v0.8.0
+    - uses: zyvorai/argus@v0.9.1
       with:
         command: test
         target-url: ${{ vars.STAGING_URL }}
@@ -53,7 +53,7 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - uses: hypersdk/zyvor-argus@v0.8.0
+      - uses: zyvorai/argus@v0.9.1
         with:
           command: test
           target-url: ${{ vars.STAGING_URL }}
@@ -71,7 +71,7 @@ jobs:
             -e ZYVOR_IGNORE_HTTPS_ERRORS=true \
             -v "$PWD/qa/flows:/flows:ro" \
             -v "$PWD/reports:/app/reports" \
-            ghcr.io/hypersdk/zyvor-argus:v0.4.0 \
+            ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
             flow "${{ vars.STAGING_URL }}" --steps /flows/checkout.flow --video
       - if: always()
         uses: actions/upload-artifact@v4

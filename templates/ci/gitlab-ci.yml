@@ -1,12 +1,12 @@
 # Copy into your own repo as .gitlab-ci.yml (or merge the job into an existing one).
 # Full env var / exit-code / summary.json contract:
-# https://github.com/hypersdk/zyvor-argus/blob/main/docs/tutorials/15-external-cicd-integration.md
+# https://github.com/zyvorai/argus/blob/main/docs/tutorials/15-external-cicd-integration.md
 #
 # GitLab's `image:` + `script:` combo overrides the container's own ENTRYPOINT,
 # so `script` must call `argus` explicitly (a plain `docker run` would not need this).
 argus-smoke:
   stage: test
-  image: ghcr.io/hypersdk/zyvor-argus:v0.8.0
+  image: ghcr.io/hypersdk/zyvor-argus:v0.9.1
   variables:
     ZYVOR_BASE_URL: "$STAGING_URL"        # set STAGING_URL as a CI/CD variable
     ZYVOR_ENV: "development"              # "production" enforces ZYVOR_TARGET_ALLOWLIST for private targets

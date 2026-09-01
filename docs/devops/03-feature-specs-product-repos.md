@@ -12,7 +12,7 @@
 | `qa/flows/*.flow` journeys | Product repo | QA |
 | OpenAPI URL / file | Product / API repo | API owners |
 | Workflow calling argus | Product repo `.github/` | DevOps |
-| Image pin `v0.4.0` | Workflow | DevOps |
+| Image pin `v0.9.1` | Workflow | DevOps |
 | Optional long-lived agent checkout with `tests/manual/` | Platform repo or fork | QA + DevOps |
 
 ---
@@ -56,7 +56,7 @@ Put specs under a stable path, e.g. `docs/specs/`. PR template: “New user-faci
 ### A. Developer laptop / agent workspace
 
 ```bash
-git clone https://github.com/hypersdk/zyvor-argus.git && cd Zyvor Argus
+git clone https://github.com/zyvorai/argus.git && cd Zyvor Argus
 cp .env.example .env
 # .env
 ZYVOR_BASE_URL=https://staging.example.com
@@ -78,7 +78,7 @@ argus test run --source github --spec docs/specs/billing-upgrade.md
       -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
       -e ZYVOR_ENV=development \
       -v "$PWD/reports:/app/reports" \
-      ghcr.io/hypersdk/zyvor-argus:v0.4.0 \
+      ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
       run --source github --spec docs/specs/billing-upgrade.md
 ```
 
@@ -98,7 +98,7 @@ docker run --rm \
   -e ZYVOR_BASE_URL="$STAGING_URL" \
   -v "$PWD/qa/flows:/flows:ro" \
   -v "$PWD/reports:/app/reports" \
-  ghcr.io/hypersdk/zyvor-argus:v0.4.0 \
+  ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
   flow "$STAGING_URL" --steps /flows/billing.flow --video
 ```
 

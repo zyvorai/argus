@@ -53,8 +53,8 @@ argus serve --port 8080         # → http://localhost:8080/dashboard
 Container:
 
 ```bash
-docker pull ghcr.io/hypersdk/zyvor-argus:v0.9.0
-docker run --rm -p 8080:8080 --env-file .env ghcr.io/hypersdk/zyvor-argus:v0.9.0 serve --port 8080 --host 0.0.0.0
+docker pull ghcr.io/hypersdk/zyvor-argus:v0.9.1
+docker run --rm -p 8080:8080 --env-file .env ghcr.io/hypersdk/zyvor-argus:v0.9.1 serve --port 8080 --host 0.0.0.0
 ```
 
 ---
@@ -104,7 +104,7 @@ Full command reference: [`docs/test-authoring.md`](docs/test-authoring.md)
 |-----------|-----|
 | **QA agent + Mission Control** (free, Apache-2.0) | **This repo** |
 | Hardening inside one `argus serve` (RBAC, durable jobs, SSRF policy) | [Enterprise v2 overlay](docs/enterprise-v2.md) |
-| Multi-target **Watchfloor** (SSO, billing, unified findings) | Argus Enterprise — [trial release](https://github.com/hypersdk/zyvor-argus/releases/tag/v1.1.1-ent-trial) |
+| Multi-target **Watchfloor** (SSO, billing, unified findings) | Argus Enterprise — [trial release](https://github.com/zyvorai/argus/releases/tag/v1.1.1-ent-trial) |
 
 ---
 

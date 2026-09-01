@@ -68,7 +68,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: argus
-          image: ghcr.io/hypersdk/zyvor-argus:v0.8.0
+          image: ghcr.io/hypersdk/zyvor-argus:v0.9.1
           imagePullPolicy: IfNotPresent
           args: ["serve", "--host", "0.0.0.0", "--port", "8080"]
           ports:

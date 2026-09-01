@@ -21,7 +21,7 @@ Full env table: [Admin basics](admin-basics.md) · repo [`.env.example`](../../.
 ## 1. Install
 
 ```bash
-git clone https://github.com/zyvorai/zyvor-argus.git
+git clone https://github.com/zyvorai/argus.git
 cd Zyvor Argus
 cp .env.example .env   # set ZYVOR_BASE_URL at minimum
 make install           # argus CLI + Playwright browsers

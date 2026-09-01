@@ -1,13 +1,13 @@
 # Copy into your own repo as azure-pipelines.yml (or merge the step into an existing job).
 # Full env var / exit-code / summary.json contract:
-# https://github.com/hypersdk/zyvor-argus/blob/main/docs/tutorials/15-external-cicd-integration.md
+# https://github.com/zyvorai/argus/blob/main/docs/tutorials/15-external-cicd-integration.md
 trigger:
   - main
 
 pool:
   vmImage: 'ubuntu-latest'
 
-container: ghcr.io/hypersdk/zyvor-argus:v0.8.0
+container: ghcr.io/hypersdk/zyvor-argus:v0.9.1
 
 variables:
   ZYVOR_BASE_URL: $(STAGING_URL)   # define STAGING_URL as a pipeline variable/secret
