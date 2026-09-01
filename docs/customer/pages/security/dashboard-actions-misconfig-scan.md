@@ -13,7 +13,7 @@ Tech/version fingerprinting, wordlist-driven path discovery, security-header val
 ## How to get there
 
 - Surface: `/dashboard/actions/misconfig-scan`
-- UI: Mission Control → **Security** → **Misconfig scan** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Security** → **Misconfig scan** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

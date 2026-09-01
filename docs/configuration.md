@@ -178,9 +178,9 @@ Consumed by: `agents/discover/crawl.py`, `playwright/scripts/crawl-site.mjs`, `p
 | `ZYVOR_THROTTLE` | *(none)* | `3g` / `offline` network emulation via CDP (set by `--throttle`) |
 | `ZYVOR_SLOW_MS` | `12000` | Live-data per-request latency budget before a page is flagged `slow` |
 
-### Knowledge RAG (optional Ask Zyvor)
+### Knowledge RAG (optional Ask Zyra)
 
-Requires Python **3.11 or 3.12**, `pip install -e ".[knowledge]"`, and a running Qdrant. Mission Control shows **Ask Zyvor**; API clients use `POST /v1/qa`.
+Requires Python **3.11 or 3.12**, `pip install -e ".[knowledge]"`, and a running Qdrant. Mission Control shows **Ask Zyra**; API clients use `POST /v1/qa`.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -206,8 +206,8 @@ Requires Python **3.11 or 3.12**, `pip install -e ".[knowledge]"`, and a running
 | `KNOWLEDGE_TENANT_ID` | `public` | Tenant used by Mission Control ask proxy (never from the browser) |
 | `KNOWLEDGE_ACCESS_LEVELS` | `public,customer` | Access levels for Mission Control ask proxy |
 | `KNOWLEDGE_CHECKPOINT_PATH` | `reports/knowledge-checkpoints.sqlite` | SQLite path for conversation checkpoints (`:memory:` for ephemeral) |
-| `ENABLE_LIVE_CLUSTER_TOOLS` | `false` | Opt-in read-only live K8s/KubeVirt/Cilium/Hubble/Ceph/node tools in Ask Zyvor |
-| `ENABLE_REMEDIATION_AGENT` | `false` | Separate HITL remediation planner (`POST /v1/remediation`); not part of Ask Zyvor |
+| `ENABLE_LIVE_CLUSTER_TOOLS` | `false` | Opt-in read-only live K8s/KubeVirt/Cilium/Hubble/Ceph/node tools in Ask Zyra |
+| `ENABLE_REMEDIATION_AGENT` | `false` | Separate HITL remediation planner (`POST /v1/remediation`); not part of Ask Zyra |
 | `ENABLE_REMEDIATION_EXECUTOR` | `false` | After HITL approve, allowlisted pod restarts may execute |
 | `REMEDIATION_RESTART_NAMESPACES` | *(empty — deny all)* | Namespaces where approved restarts may run (`*` for any) |
 | `REMEDIATION_RESTART_NAME_PREFIXES` | *(empty — any name in allowlisted NS)* | Optional pod name prefixes required for executor restarts |
@@ -222,7 +222,7 @@ Requires Python **3.11 or 3.12**, `pip install -e ".[knowledge]"`, and a running
 
 Eval / observability: set `LANGSMITH_API_KEY` and run `argus ask evaluate --langsmith` to send traces to LangSmith (`LANGCHAIN_PROJECT`, default `zyvor-knowledge-eval`).
 
-Start Qdrant: `docker compose -f docker/docker-compose.yml up -d qdrant`. Ingest samples: `argus ask ingest knowledge_docs/sample --tenant-id public --access-level public`. See [Tutorial 14](tutorials/14-ask-zyvor-knowledge.md).
+Start Qdrant: `docker compose -f docker/docker-compose.yml up -d qdrant`. Ingest samples: `argus ask ingest knowledge_docs/sample --tenant-id public --access-level public`. See [Tutorial 14](tutorials/14-ask-zyra-knowledge.md).
 
 The **🎬 Flow test** action (`flow` job / `argus flow run`) drives a multi-step journey recorded as one video, with a Playwright `trace.zip` (open at trace.playwright.dev) and richer assertions (`assert_not` / `assert_count` / `assert_value` / `assert_url` / `assert_api` / `assert_aria` / `upload` / `download` / `dialog` / `iframe` / `clock` / `wait_until`); the **🗺 Route sweep** action (`route_sweep` / `argus vision route-sweep`) screenshots routes at desktop/mobile and diffs them against baselines under `reports/artifacts/route-baselines/`, and can `--auto`-discover routes by crawling. **📼 HAR record/replay** (`har_replay` / `argus api har-replay`) captures network as HAR then drives the UI against it. **📥 Import codegen** (`import_codegen` / `argus test import-codegen`) turns pasted Playwright codegen into flow steps (optionally runs them). Both honour `ZYVOR_IGNORE_HTTPS_ERRORS`, `ZYVOR_NO_SANDBOX`, and (flow) `ZYVOR_VIDEO`, and both are schedulable. Serve the dashboard over HTTPS with `argus serve --tls` (self-signed cert under `~/.zyvor-argus/tls`) or the deploy script's `--tls`. A target-site login password passed to a flow/crawl is redacted (`***`) from the job-status API, history, and live panel — it is never echoed back to a dashboard reader. See [Tutorial 11](tutorials/11-flow-tests.md).
 

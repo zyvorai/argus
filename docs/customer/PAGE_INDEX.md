@@ -2,7 +2,7 @@
 
 Every Mission Control surface and action card.
 
-_42 routes_
+_43 routes_
 
 Regenerate: `node scripts/customer-docs/generate-page-index.mjs`
 
@@ -10,13 +10,19 @@ Regenerate: `node scripts/customer-docs/generate-page-index.mjs`
 
 | Page | Route | Purpose | Guide |
 |------|-------|---------|-------|
-| Mission Control | `/dashboard` | Live Mission Control console — status hero, workloads, pods, action cards, schedules, findings, and QA run history. | [Open](pages/overview/dashboard.md) |
-| Login | `/login` | Mission Control DASHBOARD_PASSWORD gate; Argus Enterprise uses Keycloak SSO (demo/demo) — see customer/enterprise-sso.md. | [Open](pages/overview/login.md) |
+| Mission Control | `/dashboard` | Live Mission Control console — side-rail navigation, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history. | [Open](pages/overview/dashboard.md) |
+| Login | `/login` | Mission Control sign-in — same dark/light design system as the dashboard; DASHBOARD_PASSWORD gate. Argus Enterprise uses Keycloak SSO (demo/demo) — see customer/enterprise-sso.md. | [Open](pages/overview/login.md) |
 | Hero status | `/dashboard/hero` | Cluster/app health banner with pods, replicas, last QA run, pass rate, and next scheduled smoke. | [Open](pages/overview/dashboard-hero.md) |
 | Workloads | `/dashboard/workloads` | Deployment and CronJob strip for the argus namespace (when kube access is available). | [Open](pages/overview/dashboard-workloads.md) |
 | Pods | `/dashboard/pods` | Pod cards with phase, restarts, and click-through logs; optional cluster events toggle. | [Open](pages/overview/dashboard-pods.md) |
-| Live job panel | `/dashboard/job-live` | Live panel for the running job — elapsed time, per-test chips, streaming log, Stop / download. | [Open](pages/overview/dashboard-job-live.md) |
-| Command palette | `/dashboard/command-palette` | ⌘K / Ctrl-K spotlight to jump to any action card by name. | [Open](pages/overview/dashboard-command-palette.md) |
+| Live job panel | `/dashboard/job-live` | Live panel for the running job — macOS Terminal chrome, syntax-colored log, per-test chips, Stop / download. | [Open](pages/overview/dashboard-job-live.md) |
+| Command palette | `/dashboard/command-palette` | ⌘K / Ctrl-K or header Search — spotlight to jump to any action or Ask Zyra. | [Open](pages/overview/dashboard-command-palette.md) |
+
+## Console
+
+| Page | Route | Purpose | Guide |
+|------|-------|---------|-------|
+| Ask Zyra | `/dashboard/ask` | Ask Zyra — citation-first product knowledge Q&A (optional Qdrant RAG); read-only, no cluster mutations. | [Open](pages/console/dashboard-ask.md) |
 
 ## Pipeline
 
@@ -78,7 +84,7 @@ Regenerate: `node scripts/customer-docs/generate-page-index.mjs`
 | Security engagements | `/dashboard/actions/security-engagements` | Create/revoke the admin-issued, target-scoped authorization required before running any deeper security testing job. | [Open](pages/security/dashboard-actions-security-engagements.md) |
 | Misconfig scan | `/dashboard/actions/misconfig-scan` | Tech/version fingerprinting, wordlist-driven path discovery, security-header value grading, and DNS hygiene checks — requires a security engagement. | [Open](pages/security/dashboard-actions-misconfig-scan.md) |
 | CVE lookup | `/dashboard/actions/cve-lookup` | Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement. | [Open](pages/security/dashboard-actions-cve-lookup.md) |
-| LLM red-team | `/dashboard/actions/llm-redteam` | Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement. | [Open](pages/security/dashboard-actions-llm-redteam.md) |
+| LLM red-team | `/dashboard/actions/llm-redteam` | Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement. | [Open](pages/security/dashboard-actions-llm-redteam.md) |
 | Exploit PoC | `/dashboard/actions/exploit-poc` | LLM-generated, non-destructive verification of a described finding, executed in a locked-down Kubernetes sandbox — requires an exploit-tier engagement and an execution opt-in. | [Open](pages/security/dashboard-actions-exploit-poc.md) |
 | Attack chain | `/dashboard/actions/attack-chain` | Chains exploit-PoC steps via an LLM planner to confirm a multi-step escalation path — same sandbox and opt-ins as Exploit PoC. | [Open](pages/security/dashboard-actions-attack-chain.md) |
 | Host pentest | `/dashboard/actions/host-pentest` | Credentialed SSH enumeration of a described finding via paramiko in the sandbox — needs a third, independent credentialed-pentest opt-in; credentials are always env-var references, never raw values. | [Open](pages/security/dashboard-actions-host-pentest.md) |

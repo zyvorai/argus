@@ -2,31 +2,29 @@
 
 ## Purpose
 
-Cluster/app health banner with pods, replicas, last QA run, pass rate, and next scheduled smoke.
+Cluster/app health banner with pods, replicas, last QA run, pass rate, next schedule, and knowledge (Ask Zyra) stat tile.
 
 ## When to use it
 
-- Open this card when the job matches the purpose above
-- Prefer **Mission Control** (`/dashboard`) and the **⌘K** command palette if you are unsure where to start
-- Confirm `ZYVOR_BASE_URL`, dashboard auth, and that Playwright browsers are installed if runs fail immediately
+- First screen after sign-in — one glance at overall health
+- Stat sub-lines explain offline cluster, empty run history, or knowledge install state
 
 ## How to get there
 
-- Surface: `/dashboard/hero`
-- UI: Mission Control → **Overview** → **Hero status** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- Surface: `/dashboard/hero` · hash `#overview`
+- UI: Mission Control → **Overview** panel (default landing)
 
 ## Operate from the console (UX)
 
-1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
-2. Fill the card fields for **Hero status**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).
-3. After success, check **Findings**, **QA Runs**, and any video / report links the card produces.
-4. Turn recurring checks into a **Schedule** (5 min – 6 h) when you want continuous monitoring.
+1. Read the status lamp and headline (ALL SYSTEMS GO / DEGRADED / SYSTEMS DOWN / CLUSTER OFFLINE).
+2. Scan stat tiles — pods/replicas show **No cluster connected** when kube is unavailable (not an error on a laptop).
+3. **Knowledge** tile reflects Ask Zyra status; hover for install hints when offline.
 
-If the card stays idle or errors, hit `GET /health`, confirm the webhook/dashboard process is up (`argus serve`), and re-check env from [.env.example](../../../../.env.example).
+Auto-refreshes every 5 s; press `r` to refresh now.
 
 ## Related pages
 
-- [Getting Started](../../getting-started.md)
 - [Using the Dashboard](../../using-the-dashboard.md)
 - [Mission Control](../overview/dashboard.md)
+- [Ask Zyra](../console/dashboard-ask.md)
 - [Page index](../../PAGE_INDEX.md)

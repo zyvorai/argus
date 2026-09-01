@@ -1,6 +1,6 @@
 # Tutorial 18 — Security testing: engagements, recon, red-teaming, and sandboxed exploitation
 
-Go beyond the 10 read-only probes: misconfig/recon scanning, CVE lookups, LLM red-teaming of Ask Zyvor, a CI/CD security gate, attack-graph reporting, and — behind extra gates — sandboxed PoC verification, attack chaining, and credentialed host/cloud pentesting.
+Go beyond the 10 read-only probes: misconfig/recon scanning, CVE lookups, LLM red-teaming of Ask Zyra, a CI/CD security gate, attack-graph reporting, and — behind extra gates — sandboxed PoC verification, attack chaining, and credentialed host/cloud pentesting.
 
 **Prerequisites:** [Tutorial 1](01-getting-started.md), [Tutorial 10](10-mission-control-dashboard.md). For the sandboxed-exploitation sections (§6–§8) you'll also need a Kubernetes cluster reachable from wherever `argus serve` runs.
 
@@ -46,9 +46,9 @@ argus guard cve-lookup https://your-app.example.com --engagement-id <id>
 
 Coverage is intentionally limited to products with a known ecosystem mapping (currently just npm-published JS libraries like jQuery) — everything else reports "no known ecosystem mapping" rather than guessing.
 
-## 4. LLM red-team Ask Zyvor
+## 4. LLM red-team Ask Zyra
 
-An attacker→judge loop against your own Ask Zyvor RAG agent — a curated battery across five categories: prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, and PII/secret exfiltration.
+An attacker→judge loop against your own Ask Zyra RAG agent — a curated battery across five categories: prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, and PII/secret exfiltration.
 
 ```bash
 argus redteam llm --target dashboard_ask --engagement-id <id>

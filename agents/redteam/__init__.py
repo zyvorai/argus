@@ -13,4 +13,4 @@
 # limitations under the License.
 
 """LLM red-teaming battery + judge for the `llm_redteam` job kind — an
-attacker/judge harness that targets Zyvor Argus's own "Ask Zyvor" RAG agent."""
+attacker/judge harness that targets Zyvor Argus's own "Ask Zyra" RAG agent."""

@@ -48,7 +48,7 @@ api_app = typer.Typer(name="api", help="API/AI/auth contract & workflow testing"
 watch_app = typer.Typer(name="watch", help="Recurring monitoring: vitals & site audits", no_args_is_help=True)
 guard_app = typer.Typer(name="guard", help="Security testing & pentesting", no_args_is_help=True)
 redteam_app = typer.Typer(name="redteam", help="LLM/application red-teaming", no_args_is_help=True)
-ask_app = typer.Typer(name="ask", help="Ask Zyvor knowledge base ingestion & evaluation", no_args_is_help=True)
+ask_app = typer.Typer(name="ask", help="Ask Zyra knowledge base ingestion & evaluation", no_args_is_help=True)
 
 app.add_typer(test_app, name="test")
 app.add_typer(flow_app, name="flow")
@@ -937,7 +937,7 @@ def llm_redteam(
     max_prompts: int = typer.Option(40, help="Max battery prompts to run (capped at 40)"),
     fail_on: str = typer.Option("high", "--fail-on", help="Exit 1 if any finding is at/above this severity"),
 ) -> None:
-    """Attacker/judge red-team loop against Ask Zyvor — jailbreak, prompt-injection, system-prompt-leak resistance."""
+    """Attacker/judge red-team loop against Ask Zyra — jailbreak, prompt-injection, system-prompt-leak resistance."""
     _load_env()
     t0 = time.time()
     started_at = datetime.fromtimestamp(t0, tz=timezone.utc).isoformat()

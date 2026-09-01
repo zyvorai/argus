@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.
+Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.
 
 ## When to use it
 
@@ -13,7 +13,7 @@ Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection
 ## How to get there
 
 - Surface: `/dashboard/actions/llm-redteam`
-- UI: Mission Control → **Security** → **LLM red-team** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Security** → **LLM red-team** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

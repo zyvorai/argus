@@ -13,7 +13,7 @@ Validate REST endpoints against an OpenAPI schema (Forge preset available).
 ## How to get there
 
 - Surface: `/dashboard/actions/api-contract`
-- UI: Mission Control → **API** → **API contract** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **API** → **API contract** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

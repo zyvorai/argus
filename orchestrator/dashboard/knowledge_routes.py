@@ -158,7 +158,7 @@ def knowledge_status() -> dict[str, Any]:
             "live_namespaces": live_namespaces,
             "remediation": remediation,
             "streaming": streaming,
-            "detail": "Set LLM_API_KEY (and start Qdrant) to enable Ask Zyvor",
+            "detail": "Set LLM_API_KEY (and start Qdrant) to enable Ask Zyra",
         }
 
     try:
@@ -230,7 +230,7 @@ def dashboard_remediation_resume(body: RemediationResumeBody) -> dict[str, Any]:
 
 @router.post("/api/dashboard/ask/stream")
 def dashboard_ask_stream(body: AskBody) -> Response:
-    """SSE progress stream for Ask Zyvor (POST body; fetch ReadableStream in the UI)."""
+    """SSE progress stream for Ask Zyra (POST body; fetch ReadableStream in the UI)."""
     import json
 
     from knowledge import knowledge_configured, knowledge_deps_available

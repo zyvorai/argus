@@ -51,7 +51,7 @@ const cards = [
   { file: "t06-flow", kicker: "5", line1: "Flow Tests — One Journey, One Video" },
   { file: "t07-audit", kicker: "6", line1: "Site Audit — an A–F Grade" },
   { file: "t08-probes", kicker: "7", line1: "Network & Security Probes" },
-  { file: "t09-ask", kicker: "8", line1: "Ask Zyvor — Citation-First Q&A" },
+  { file: "t09-ask", kicker: "8", line1: "Ask Zyra — Citation-First Q&A" },
   { file: "t10-noc", kicker: "9", line1: "NOC Wall Mode & the ⌘K Palette" },
   { file: "t11-outro", kicker: "", line1: "That's the tour — you're ready to run it yourself.", line2: "docs/tutorials · zyvor.dev" },
 ];
@@ -67,8 +67,8 @@ const captions = [
   { file: "cap-audit", text: "Accessibility, SEO, performance, and security per page — rolled up into one letter grade." },
   { file: "cap-reports", text: "Every run exports to CSV, HTML, or a print-ready PDF — for a ticket, a standup, or an audit trail." },
   { file: "cap-probes", text: "Ten network & security probes — headers, cookies, CORS, compression, exposed paths, redirects — no browser required." },
-  { file: "cap-ask", text: "Ask Zyvor answers from the product's own knowledge base — citation-first, so every claim traces back to a real doc." },
-  { file: "cap-noc", text: "Double-click the brand for NOC wall mode — a big-screen view for the ops room." },
+  { file: "cap-ask", text: "Ask Zyra answers from the product's own knowledge base — citation-first, so every claim traces back to a real doc." },
+  { file: "cap-noc", text: "Side rail collapses to icons-only — a compact view for narrow screens or NOC displays." },
   { file: "cap-palette", text: "⌘K opens the command palette — jump to any action without leaving the keyboard." },
 ];
 

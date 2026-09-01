@@ -13,7 +13,7 @@ Describe a goal; the autonomous browser agent drives the app toward it.
 ## How to get there
 
 - Surface: `/dashboard/actions/ai-test`
-- UI: Mission Control → **Journeys** → **AI test** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Journeys** → **AI test** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

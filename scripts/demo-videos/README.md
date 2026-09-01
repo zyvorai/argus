@@ -40,6 +40,4 @@ generated `.zyvor-argus-auth` credentials.
 
 ## Publishing
 
-Not committed here (binary, and per-run): upload the built MP4 to YouTube and
-copy it locally, following the same convention as prior demo videos (public
-visibility, title cards + captions, copy under `~/Desktop/`).
+Not committed here (binary, per-run): copy finished MP4/GIF to `docs/assets/` for README and customer docs, following the regenerate steps in [`docs/assets/README.md`](../../docs/assets/README.md).

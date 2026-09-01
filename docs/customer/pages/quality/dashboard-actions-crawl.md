@@ -13,7 +13,7 @@ Crawl an arbitrary site and validate every discovered page.
 ## How to get there
 
 - Surface: `/dashboard/actions/crawl`
-- UI: Mission Control → **Quality** → **Crawl & test** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Quality** → **Crawl & test** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

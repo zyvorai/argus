@@ -2,7 +2,7 @@
 
 Tagged releases are published automatically by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
 
-**Current release:** [v0.6.0](https://github.com/hypersdk/zyvor-argus/releases/tag/v0.6.0)
+**Current release:** [v0.9.0](https://github.com/zyvorai/argus/releases/tag/v0.9.0)
 
 ## What happens on a release
 

@@ -13,7 +13,7 @@ Assert WebSocket / SSE streams and optional live-region updates.
 ## How to get there
 
 - Surface: `/dashboard/actions/realtime`
-- UI: Mission Control → **API** → **Live data** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **API** → **Live data** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

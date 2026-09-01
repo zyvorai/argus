@@ -13,7 +13,7 @@ Create/revoke the admin-issued, target-scoped authorization required before runn
 ## How to get there
 
 - Surface: `/dashboard/actions/security-engagements`
-- UI: Mission Control → **Security** → **Security engagements** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Security** → **Security engagements** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

@@ -13,7 +13,7 @@ Capture desktop / tablet / mobile screenshots of any URL.
 ## How to get there
 
 - Surface: `/dashboard/actions/screenshot`
-- UI: Mission Control → **Visual** → **Screenshot** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Visual** → **Screenshot** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

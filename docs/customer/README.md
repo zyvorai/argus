@@ -9,7 +9,7 @@
 | Install and first smoke | [Getting Started](getting-started.md) |
 | Learn Mission Control | [Using the Dashboard](using-the-dashboard.md) |
 | Test zyvor.dev (video + HAR) | [Test zyvor.dev](test-zyvor-dev.md) |
-| Ask Zyvor knowledge Q&A | [Tutorial 14](../tutorials/14-ask-zyvor-knowledge.md) |
+| Ask Zyra knowledge Q&A | [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md) |
 | Follow a card, step by step | [Page-by-page guides](pages/README.md) |
 | Multi-step jobs (flow, HAR, API…) | [Common workflows](workflows.md) |
 | Look up any surface | [Complete page index](PAGE_INDEX.md) |

@@ -13,7 +13,7 @@ Re-run the suite N times and surface unstable tests.
 ## How to get there
 
 - Surface: `/dashboard/actions/flaky`
-- UI: Mission Control → **Quality** → **Flaky check** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Quality** → **Flaky check** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

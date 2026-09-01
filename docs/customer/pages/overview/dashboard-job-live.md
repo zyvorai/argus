@@ -2,31 +2,26 @@
 
 ## Purpose
 
-Live panel for the running job — elapsed time, per-test chips, streaming log, Stop / download.
+Live panel for the running job — macOS Terminal chrome, syntax-colored streaming log, per-test chips, Stop / download.
 
-## When to use it
+## When to get there
 
-- Open this card when the job matches the purpose above
-- Prefer **Mission Control** (`/dashboard`) and the **⌘K** command palette if you are unsure where to start
-- Confirm `ZYVOR_BASE_URL`, dashboard auth, and that Playwright browsers are installed if runs fail immediately
+- Appears automatically when any action card starts a job (one job at a time)
+- Usually visible on **Overview** or the panel where you launched the job
 
 ## How to get there
 
 - Surface: `/dashboard/job-live`
-- UI: Mission Control → **Overview** → **Live job panel** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: start any action from a category panel or the ⌘K palette
 
 ## Operate from the console (UX)
 
-1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
-2. Fill the card fields for **Live job panel**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).
-3. After success, check **Findings**, **QA Runs**, and any video / report links the card produces.
-4. Turn recurring checks into a **Schedule** (5 min – 6 h) when you want continuous monitoring.
-
-If the card stays idle or errors, hit `GET /health`, confirm the webhook/dashboard process is up (`argus serve`), and re-check env from [.env.example](../../../../.env.example).
+1. Watch the Terminal-style log and ✓/✗ case chips while the job runs.
+2. Use **Stop** to cancel mid-flight.
+3. Copy or download the log; when finished, use report / video / trace links in the result area.
 
 ## Related pages
 
-- [Getting Started](../../getting-started.md)
 - [Using the Dashboard](../../using-the-dashboard.md)
 - [Mission Control](../overview/dashboard.md)
 - [Page index](../../PAGE_INDEX.md)

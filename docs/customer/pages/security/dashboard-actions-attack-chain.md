@@ -13,7 +13,7 @@ Chains exploit-PoC steps via an LLM planner to confirm a multi-step escalation p
 ## How to get there
 
 - Surface: `/dashboard/actions/attack-chain`
-- UI: Mission Control → **Security** → **Attack chain** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Security** → **Attack chain** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

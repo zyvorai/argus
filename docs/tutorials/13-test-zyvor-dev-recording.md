@@ -10,16 +10,17 @@ Hands-on recipe that points Zyvor Argus at **[https://zyvor.dev](https://zyvor.d
 
 Mission Control driving a GuestKit journey (login → Flow URL → live steps):
 
-[![Zyvor Argus · Mission Control → GuestKit](https://img.youtube.com/vi/ys7SvKKqf9w/maxresdefault.jpg)](https://youtu.be/ys7SvKKqf9w)
+<p align="center">
+  <img src="../assets/zyvor-dev-mission-control-demo.gif" alt="Mission Control demo" width="720">
+</p>
 
 Also a raw Playwright capture of zyvor.dev (home → assert HyperSDK → click Products):
 
 <video src="../assets/zyvor-dev-mission-control-demo.webm" controls width="720" title="zyvor.dev journey recording"></video>
 
-- **YouTube:** https://youtu.be/ys7SvKKqf9w
 - **Video file:** [`docs/assets/zyvor-dev-mission-control-demo.webm`](../assets/zyvor-dev-mission-control-demo.webm)
 - **Steps that produced it:** [`docs/assets/zyvor-dev-demo.steps`](../assets/zyvor-dev-demo.steps)
-- **Raw GitHub URL:** https://github.com/hypersdk/zyvor-argus/raw/main/docs/assets/zyvor-dev-mission-control-demo.webm
+- **Raw GitHub URL:** https://github.com/zyvorai/argus/raw/main/docs/assets/zyvor-dev-mission-control-demo.webm
 
 ---
 
@@ -76,14 +77,12 @@ open http://localhost:8080/dashboard
 
 | Cue | What it means |
 |-----|----------------|
-| **Boot splash** | Short “warming Mission Control…” intro |
-| **Full-bleed layout** | Edge-to-edge console |
-| **Glass sticky topbar / footer** | Brand + status while you scroll |
-| **Live constellation / signal field** | Canvas behind the hero |
-| **Primary Smoke CTA** | One-click ▶ Smoke |
-| **⌘K palette** | Jump to Flow, HAR, … |
-| **NOC wall** | Double-click the brand |
-| **Warp flash** | `` ` `` or type `zyvor` |
+| **Side rail** | Category panels — Overview, Ask Zyra, Pipeline, … |
+| **Dark theme** | Charcoal default; moon/sun toggle in header |
+| **Overview hero** | Status lamp + stat tiles |
+| **⌘K / Search** | Command palette — jump to Flow, HAR, Ask Zyra, … |
+| **Live Terminal panel** | macOS-style log while a job runs |
+| **Collapse rail** | Icons-only mode at bottom of side rail |
 
 ---
 

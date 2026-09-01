@@ -13,7 +13,7 @@ Screenshot many routes (or auto-crawl) and diff against route-sweep baselines.
 ## How to get there
 
 - Surface: `/dashboard/actions/route-sweep`
-- UI: Mission Control → **Visual** → **Route sweep** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Visual** → **Route sweep** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

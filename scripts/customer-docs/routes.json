@@ -2,6 +2,7 @@
   "routes": [
     { "label": "Mission Control", "path": "/dashboard", "category": "Overview" },
     { "label": "Login", "path": "/login", "category": "Overview" },
+    { "label": "Ask Zyra", "path": "/dashboard/ask", "category": "Console" },
     { "label": "Hero status", "path": "/dashboard/hero", "category": "Overview" },
     { "label": "Workloads", "path": "/dashboard/workloads", "category": "Overview" },
     { "label": "Pods", "path": "/dashboard/pods", "category": "Overview" },

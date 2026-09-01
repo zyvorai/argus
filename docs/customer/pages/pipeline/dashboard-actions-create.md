@@ -13,7 +13,7 @@ Turn an English description into a one-off test (LLM when keyed, heuristic other
 ## How to get there
 
 - Surface: `/dashboard/actions/create`
-- UI: Mission Control → **Pipeline** → **Create from English** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Pipeline** → **Create from English** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

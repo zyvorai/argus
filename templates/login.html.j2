@@ -4,330 +4,204 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in · Zyvor Argus Mission Control</title>
+<script>
+(function () {
+  var t = localStorage.getItem("zyvor-theme");
+  document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "dark");
+})();
+</script>
 <style>
-/* Zyvor premium login — ported from veyron scripts/zyvor-branding (Machina-style shell) */
-@keyframes login-gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-@keyframes login-float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-18px) scale(1.02); } }
-@keyframes login-fade-in-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes login-pulse-glow {
-  0%, 100% { box-shadow: 0 0 24px rgba(59,130,246,0.12), inset 0 1px 0 rgba(255,255,255,0.06); }
-  50% { box-shadow: 0 0 40px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
-}
-@keyframes login-shimmer { 0% { transform: translateX(-100%) skewX(-12deg); } 100% { transform: translateX(200%) skewX(-12deg); } }
-@keyframes login-aurora-drift {
-  0%, 100% { opacity: 0.55; transform: translate(0,0) scale(1); }
-  33% { opacity: 0.85; transform: translate(4%,-3%) scale(1.05); }
-  66% { opacity: 0.65; transform: translate(-3%,2%) scale(0.98); }
-}
-@keyframes login-spotlight-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.65; } }
-@keyframes login-particle-float { 0%, 100% { opacity: 0.15; transform: translateY(0); } 50% { opacity: 0.75; transform: translateY(-12px); } }
-@keyframes login-beam-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-@keyframes login-scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
-@keyframes login-logo-glow {
-  0%, 100% { box-shadow: 0 0 24px rgba(59,130,246,0.35), 0 0 48px rgba(99,102,241,0.15); }
-  50% { box-shadow: 0 0 36px rgba(59,130,246,0.55), 0 0 64px rgba(139,92,246,0.25); }
-}
-@keyframes login-shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
-
-* { box-sizing: border-box; }
-html, body { margin: 0; min-height: 100%; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
-  color: #f1f5f9; background: #020617; -webkit-font-smoothing: antialiased;
-}
-.login-page { isolation: isolate; min-height: 100vh; display: flex; position: relative; overflow: hidden; }
-.login-aurora {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 55% 45% at 15% 20%, rgba(59,130,246,0.22), transparent 55%),
-    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(237,25,68,0.12), transparent 50%),
-    radial-gradient(ellipse 45% 50% at 70% 15%, rgba(139,92,246,0.14), transparent 55%);
-  animation: login-aurora-drift 14s ease-in-out infinite;
-}
-.login-scanline {
-  position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.04;
-  background: linear-gradient(180deg, transparent, rgba(148,163,184,0.15) 50%, transparent);
-  animation: login-scan 8s linear infinite;
-}
-
-/* hero (left 58%) */
-.login-hero {
-  position: relative; display: none; width: 58%;
-  flex-direction: column; justify-content: space-between; padding: 48px;
-  background: linear-gradient(145deg, #020617 0%, #0f172a 35%, #1e3a5f 65%, #0f172a 100%);
-  background-size: 400% 400%; animation: login-gradient-shift 18s ease infinite; overflow: hidden;
-}
-@media (min-width: 1024px) { .login-hero { display: flex; } .mobile-brand { display: none; } }
-.login-hero::before {
-  content: ""; position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(148,163,184,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148,163,184,0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 20%, transparent 75%);
-}
-.login-spotlight {
-  position: absolute; top: -20%; left: 10%; width: 70%; height: 60%;
-  background: radial-gradient(ellipse at center, rgba(96,165,250,0.2) 0%, transparent 65%);
-  animation: login-spotlight-pulse 6s ease-in-out infinite; pointer-events: none;
-}
-.login-orb {
-  position: absolute; border-radius: 9999px; pointer-events: none;
-  animation: login-float var(--dur,10s) ease-in-out infinite; animation-delay: var(--del,0s);
-}
-.orb-blue { background: radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 70%); }
-.orb-violet { background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%); }
-.orb-cyan { background: radial-gradient(circle, rgba(34,211,238,0.16) 0%, transparent 70%); }
-.orb-red { background: radial-gradient(circle, rgba(237,25,68,0.14) 0%, transparent 70%); }
-.login-particle {
-  position: absolute; border-radius: 9999px; background: rgba(147,197,253,0.8);
-  box-shadow: 0 0 8px rgba(96,165,250,0.6); animation: login-particle-float 4s ease-in-out infinite;
-}
-.hero-z { position: relative; z-index: 10; }
-.brand-row { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
-.login-logo-ring {
-  border-radius: 1rem; animation: login-logo-glow 3.5s ease-in-out infinite;
-  width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(145deg, rgba(56,189,248,0.22), rgba(99,102,241,0.12));
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.brand-name { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.02em; color: #fff; display: block; line-height: 1.1; }
-.brand-sub { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.28em; color: rgba(125,211,252,0.8); margin-top: 3px; display: block; }
-.hero-headline { font-size: 2.6rem; font-weight: 800; color: #fff; line-height: 1.08; margin: 0 0 16px; max-width: 34rem; }
-.login-text-gradient {
-  background: linear-gradient(135deg, #93c5fd 0%, #e2e8f0 50%, #60a5fa 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.hero-sub { font-size: 1.1rem; color: rgba(203,213,225,0.9); max-width: 30rem; line-height: 1.6; margin: 0; }
-.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-.login-stat-pill {
-  display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem;
-  border-radius: 9999px; font-size: 0.75rem; font-weight: 500;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(148,163,184,0.15); color: rgba(226,232,240,0.85);
-}
-.login-stat-pill-glow { border-color: rgba(237,25,68,0.35); box-shadow: 0 0 16px rgba(237,25,68,0.12); }
-.features { position: relative; z-index: 10; display: flex; flex-direction: column; gap: 10px; }
-.login-feature-card {
-  display: flex; align-items: flex-start; gap: 16px; padding: 16px; border-radius: 0.75rem;
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
-}
-.login-feature-card:hover { transform: translateX(4px); border-color: rgba(255,255,255,0.2); }
-.login-feature-card-highlight {
-  background: linear-gradient(135deg, rgba(127,29,29,0.35) 0%, rgba(15,23,42,0.5) 100%);
-  border: 1px solid rgba(237,25,68,0.35);
-  box-shadow: 0 0 32px rgba(237,25,68,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
-}
-.feature-icon {
-  width: 40px; height: 40px; border-radius: 0.5rem; display: flex; align-items: center;
-  justify-content: center; flex: none; font-size: 18px;
-  background: linear-gradient(to bottom right, rgba(59,130,246,0.95), rgba(55,48,163,0.95));
-  box-shadow: 0 10px 15px -3px rgba(59,130,246,0.25);
-}
-.feature-title { font-size: 0.875rem; font-weight: 600; color: #fff; }
-.feature-desc { font-size: 0.75rem; margin-top: 4px; color: #94a3b8; line-height: 1.6; }
-
-.login-beam {
-  position: absolute; top: 0; bottom: 0; left: 58%; width: 2px; z-index: 5; display: none;
-  background: linear-gradient(180deg, transparent, rgba(96,165,250,0.9) 30%, rgba(167,139,250,0.9) 70%, transparent);
-  box-shadow: 0 0 24px rgba(59,130,246,0.6), 0 0 48px rgba(139,92,246,0.3);
-  animation: login-beam-pulse 3s ease-in-out infinite;
-}
-@media (min-width: 1024px) { .login-beam { display: block; } }
-
-/* form panel (right) */
-.login-panel {
-  flex: 1; display: flex; align-items: center; justify-content: center; position: relative;
-  padding: 48px 24px; min-height: 100vh;
-  background-color: #020617;
-  background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,0.12), transparent),
-    linear-gradient(180deg, #020617 0%, #0f172a 100%);
-}
-.login-panel-grid {
-  position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
-  background-image: radial-gradient(circle at 1px 1px, rgba(148,163,184,0.9) 1px, transparent 0);
-  background-size: 32px 32px;
-}
-.login-panel-glow {
-  position: absolute; top: 50%; left: 50%; width: min(90vw, 480px); height: 320px;
-  transform: translate(-50%,-50%);
-  background: radial-gradient(ellipse, rgba(37,99,235,0.12) 0%, transparent 70%); pointer-events: none;
-}
-.panel-inner { width: 100%; max-width: 420px; position: relative; z-index: 10; }
-.mobile-brand { text-align: center; margin-bottom: 32px; }
-.mobile-brand .login-logo-ring { margin: 0 auto 16px; }
-.panel-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 4px; }
-.panel-sub { font-size: 0.875rem; color: #94a3b8; margin: 0 0 32px; }
-.login-glass {
-  background: rgba(15,23,42,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(51,65,85,0.6); border-radius: 1rem; padding: 32px;
-  animation: login-pulse-glow 5s ease-in-out infinite; position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
-}
-.login-glass::before {
-  content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px;
-  background: linear-gradient(135deg, rgba(59,130,246,0.5), rgba(139,92,246,0.25), rgba(51,65,85,0.4));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
-}
-.field-label { display: block; font-size: 0.875rem; font-weight: 500; color: #cbd5e1; margin: 0 0 8px; }
-.field { position: relative; margin-bottom: 20px; }
-.login-input {
-  width: 100%; padding: 0.75rem 1rem 0.75rem 2.75rem; border-radius: 0.75rem; font-size: 0.875rem;
-  color: #f1f5f9; background: rgba(15,23,42,0.8); border: 1px solid rgba(51,65,85,0.7);
-  transition: border-color 0.2s, box-shadow 0.2s; font-family: inherit;
-}
-.login-input:focus { outline: none; border-color: rgba(59,130,246,0.6); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-.login-field-icon {
-  position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%);
-  width: 1rem; height: 1rem; color: #64748b; transition: color 0.2s; pointer-events: none;
-}
-.field:focus-within .login-field-icon { color: #60a5fa; }
-.login-btn-primary {
-  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
-  gap: 0.5rem; width: 100%; margin-top: 1.5rem; padding: 0.75rem 1rem; font-size: 0.875rem;
-  font-weight: 600; color: #fff; border-radius: 0.75rem; cursor: pointer;
-  border: 1px solid rgba(59,130,246,0.4);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
-  box-shadow: 0 4px 24px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-  transition: transform 0.2s, box-shadow 0.2s; font-family: inherit;
-}
-.login-btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(37,99,235,0.45); }
-.login-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.login-btn-primary::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
-  animation: login-shimmer 3s ease-in-out infinite;
-}
-.remember { display: flex; align-items: center; gap: 10px; margin-top: 20px; cursor: pointer; user-select: none; }
-.remember input { width: 16px; height: 16px; accent-color: #3b82f6; }
-.remember span { font-size: 0.875rem; color: #94a3b8; }
-.login-error {
-  display: none; align-items: center; gap: 10px; background: rgba(69,10,10,0.5);
-  border: 1px solid rgba(239,68,68,0.4); border-radius: 0.75rem; padding: 12px; margin-bottom: 24px;
-  font-size: 0.875rem; color: #fca5a5;
-}
-.login-error.show { display: flex; animation: login-shake 0.45s ease-out; }
-.panel-hint { font-size: 0.75rem; text-align: center; margin-top: 16px; color: #64748b; line-height: 1.6; }
-.login-fade-in { animation: login-fade-in-up 0.65s ease-out forwards; }
-.d1 { animation-delay: 0.1s; opacity: 0; } .d2 { animation-delay: 0.2s; opacity: 0; }
-.d3 { animation-delay: 0.3s; opacity: 0; } .d4 { animation-delay: 0.4s; opacity: 0; }
-
-@media (prefers-reduced-motion: reduce) {
-  .login-hero { animation: none !important; background-size: auto !important; }
-  .login-aurora, .login-scanline, .login-orb, .login-particle, .login-beam,
-  .login-logo-ring, .login-glass, .login-btn-primary::after, .login-spotlight { animation: none !important; }
-  .login-fade-in, .d1, .d2, .d3, .d4 { animation: none !important; opacity: 1 !important; }
-  .login-feature-card:hover { transform: none !important; }
-  .login-error.show { animation: none !important; }
-}
+  :root {
+    color-scheme: dark;
+    --bg: #1d1d1f;
+    --surface: #2c2c2e;
+    --rail-bg: #161617;
+    --text: #f5f5f7;
+    --text-secondary: #a1a1a6;
+    --text-muted: #86868b;
+    --border: #424245;
+    --accent: #2997ff;
+    --accent-hover: #0077ed;
+    --radius: 12px;
+    --rail-width: 280px;
+    --status-error: #ff453a;
+    --font-base: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    --code-bg: #3a3a3c;
+    --focus-ring: rgba(41,151,255,0.28);
+    --shadow-sm: 0 2px 16px rgba(0,0,0,0.35);
+  }
+  [data-theme="light"] {
+    color-scheme: light;
+    --bg: #fbfbfd;
+    --surface: #ffffff;
+    --rail-bg: #f5f5f7;
+    --text: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --text-muted: #86868b;
+    --border: #d2d2d7;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --status-error: #ff3b30;
+    --code-bg: #eee;
+    --focus-ring: rgba(0,113,227,0.15);
+    --shadow-sm: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: var(--font-base); color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; line-height: 1.47059; letter-spacing: -0.022em;
+  }
+  .login-shell { display: flex; min-height: 100vh; }
+  .login-rail {
+    width: var(--rail-width); flex: none; background: var(--rail-bg);
+    border-right: 1px solid var(--border); padding: 48px 40px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .zyvor-mark {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--text); text-decoration: none; margin-bottom: 16px;
+  }
+  .zyvor-mark .mark-word {
+    font-weight: 700; font-size: 15px; letter-spacing: -0.03em;
+  }
+  .rail-title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem); font-weight: 600;
+    letter-spacing: -0.03em; margin: 0 0 12px; line-height: 1.1;
+  }
+  .rail-tagline { margin: 0; color: var(--text-secondary); font-size: 1.05rem; max-width: 20rem; }
+  .rail-features { display: flex; flex-direction: column; gap: 14px; margin-top: 40px; }
+  .rail-feature {
+    padding: 14px 0; border-top: 1px solid var(--border);
+    font-size: 0.92rem; color: var(--text-secondary);
+  }
+  .rail-feature strong { display: block; color: var(--text); font-weight: 600; margin-bottom: 4px; font-size: 0.95rem; }
+  .login-main {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 48px 24px;
+  }
+  .login-card {
+    width: 100%; max-width: 400px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); padding: 36px 32px;
+  }
+  .mobile-brand { display: none; text-align: center; margin-bottom: 28px; }
+  .mobile-brand .rail-title { font-size: 1.5rem; }
+  .card-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 4px; }
+  .card-sub { font-size: 0.95rem; color: var(--text-secondary); margin: 0 0 28px; }
+  .field-label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text); margin: 0 0 8px; }
+  .field { margin-bottom: 18px; }
+  .login-input {
+    width: 100%; padding: 11px 14px; border-radius: 8px; font-size: 0.95rem;
+    color: var(--text); background: var(--surface); border: 1px solid var(--border);
+    font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .login-input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+  }
+  .remember { display: flex; align-items: center; gap: 10px; margin: 4px 0 0; cursor: pointer; user-select: none; }
+  .remember input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .remember span { font-size: 0.875rem; color: var(--text-secondary); }
+  .login-btn-primary {
+    display: flex; align-items: center; justify-content: center; width: 100%;
+    margin-top: 24px; padding: 12px 16px; font-size: 0.95rem; font-weight: 500;
+    color: #fff; border-radius: 980px; cursor: pointer; border: none;
+    background: var(--accent); font-family: inherit;
+    transition: background 0.15s;
+  }
+  .login-btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+  .login-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error {
+    display: none; align-items: flex-start; gap: 10px;
+    background: rgba(255,59,48,0.08); border: 1px solid rgba(255,59,48,0.35);
+    border-radius: 8px; padding: 12px; margin-bottom: 20px;
+    font-size: 0.875rem; color: var(--status-error);
+  }
+  .login-error.show { display: flex; }
+  .panel-hint {
+    font-size: 0.78rem; text-align: center; margin-top: 20px;
+    color: var(--text-muted); line-height: 1.6;
+  }
+  .panel-hint code {
+    font-family: ui-monospace, Menlo, monospace; font-size: 0.85em;
+    background: var(--code-bg); padding: 1px 5px; border-radius: 4px;
+  }
+  @media (max-width: 900px) {
+    .login-rail { display: none; }
+    .mobile-brand { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; }
+  }
 </style>
 </head>
 <body>
-<div class="login-page">
-  <div class="login-aurora" aria-hidden="true"></div>
-  <div class="login-scanline" aria-hidden="true"></div>
-
-  <aside class="login-hero">
-    <div class="login-spotlight" aria-hidden="true"></div>
-    <div id="orbs" aria-hidden="true"></div>
-    <div id="particles" aria-hidden="true"></div>
-
-    <div class="hero-z">
-      <div class="brand-row login-fade-in">
-        <div class="login-logo-ring">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
+<div class="login-shell">
+  <aside class="login-rail" aria-label="Zyvor Argus">
+    <div>
+      <a class="zyvor-mark" href="https://zyvor.dev/" target="_blank" rel="noopener noreferrer" aria-label="Zyvor home">
+        <svg class="mark-z" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+          <path d="M2 2h14L6.6 16H16" fill="none" stroke="#ff5a15" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <span class="mark-word">zyvor</span>
+      </a>
+      <h1 class="rail-title">Mission Control</h1>
+      <p class="rail-tagline">Autonomous testing, security, and requirements quality for your product.</p>
+      <div class="rail-features">
+        <div class="rail-feature">
+          <strong>Autonomous pipeline</strong>
+          Spec to tests to execution to report — triggered by GitHub or one click.
         </div>
-        <div>
-          <span class="brand-name">Zyvor Argus</span>
-          <span class="brand-sub">Mission Control</span>
+        <div class="rail-feature">
+          <strong>Self-healing autofix</strong>
+          Broken selectors diagnosed, repaired, and re-run automatically.
         </div>
-      </div>
-      <h2 class="hero-headline login-fade-in d1">Autonomous software assurance for the <span class="login-text-gradient">Zyvor platform</span></h2>
-      <p class="hero-sub login-fade-in d2">Reads requirements, generates Playwright tests, runs them after every deploy, heals broken selectors, and reports back — on its own.</p>
-      <div class="pills login-fade-in d3">
-        <span class="login-stat-pill">🎭 Playwright</span>
-        <span class="login-stat-pill">🕸 LangGraph</span>
-        <span class="login-stat-pill">☸️ Kubernetes</span>
-        <span class="login-stat-pill login-stat-pill-glow">🩹 Self-healing</span>
-      </div>
-    </div>
-
-    <div class="features">
-      <div class="login-feature-card login-fade-in" style="animation-delay:.35s;opacity:0">
-        <div class="feature-icon">🚀</div>
-        <div>
-          <div class="feature-title">Autonomous pipeline</div>
-          <p class="feature-desc">Spec → tests → execution → analysis → report, triggered by GitHub events or one click.</p>
-        </div>
-      </div>
-      <div class="login-feature-card login-feature-card-highlight login-fade-in" style="animation-delay:.42s;opacity:0">
-        <div class="feature-icon" style="background:linear-gradient(to bottom right, rgba(237,25,68,0.9), rgba(127,29,29,0.9));box-shadow:0 10px 15px -3px rgba(237,25,68,0.25)">🩹</div>
-        <div>
-          <div class="feature-title">Self-healing autofix</div>
-          <p class="feature-desc">Broken selectors are diagnosed, repaired, and re-run automatically.</p>
-        </div>
-      </div>
-      <div class="login-feature-card login-fade-in" style="animation-delay:.49s;opacity:0">
-        <div class="feature-icon">🔎</div>
-        <div>
-          <div class="feature-title">Coverage discovery</div>
-          <p class="feature-desc">Finds untested routes and pages by reading your repo and crawling the live site.</p>
+        <div class="rail-feature">
+          <strong>Coverage discovery</strong>
+          Finds untested routes from your repo and live site crawl.
         </div>
       </div>
     </div>
+    <p class="rail-tagline" style="font-size:0.85rem;margin:0">Apache 2.0 · ZyvorAI Labs</p>
   </aside>
 
-  <div class="login-beam" aria-hidden="true"></div>
-
-  <main class="login-panel">
-    <div class="login-panel-grid" aria-hidden="true"></div>
-    <div class="login-panel-glow" aria-hidden="true"></div>
-    <div class="panel-inner">
+  <main class="login-main">
+    <div class="login-card">
       <div class="mobile-brand">
-        <div class="login-logo-ring">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        <a class="zyvor-mark" href="https://zyvor.dev/" target="_blank" rel="noopener noreferrer" aria-label="Zyvor home">
+          <svg class="mark-z" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M2 2h14L6.6 16H16" fill="none" stroke="#ff5a15" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
           </svg>
+          <span class="mark-word">zyvor</span>
+        </a>
+        <h1 class="rail-title" style="font-size:1.5rem;margin-top:8px">Mission Control</h1>
+      </div>
+
+      <h2 class="card-title">Sign in</h2>
+      <p class="card-sub">Enter your credentials to open the console.</p>
+
+      <div class="login-error" id="err" role="alert">
+        <span id="err-msg">Invalid username or password</span>
+      </div>
+
+      <form id="form" autocomplete="on">
+        <label class="field-label" for="username">Username</label>
+        <div class="field">
+          <input class="login-input" id="username" name="username" placeholder="Username" required autofocus>
         </div>
-        <h1 class="panel-title">Zyvor Argus</h1>
-        <p class="panel-sub" style="margin-bottom:0">Mission Control</p>
-      </div>
-
-      <div class="login-fade-in">
-        <h2 class="panel-title" id="panel-title">Welcome back</h2>
-        <p class="panel-sub">Sign in to Mission Control</p>
-      </div>
-
-      <div class="login-glass login-fade-in d1">
-        <div class="login-error" id="err" role="alert">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span id="err-msg">Invalid username or password</span>
+        <label class="field-label" for="password">Password</label>
+        <div class="field" style="margin-bottom:0">
+          <input class="login-input" id="password" name="password" type="password" placeholder="Password" required>
         </div>
-        <form id="form" autocomplete="on">
-          <label class="field-label" for="username">Username</label>
-          <div class="field">
-            <svg class="login-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <input class="login-input" id="username" name="username" placeholder="Username" required autofocus>
-          </div>
-          <label class="field-label" for="password">Password</label>
-          <div class="field" style="margin-bottom:0">
-            <svg class="login-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <input class="login-input" id="password" name="password" type="password" placeholder="Password" required>
-          </div>
-          <label class="remember">
-            <input type="checkbox" id="remember">
-            <span>Remember me on this device</span>
-          </label>
-          <button class="login-btn-primary" id="submit" type="submit">Sign in to Mission Control</button>
-        </form>
-      </div>
+        <label class="remember">
+          <input type="checkbox" id="remember">
+          <span>Remember me on this device</span>
+        </label>
+        <button class="login-btn-primary" id="submit" type="submit">Sign in</button>
+      </form>
 
-      <p class="panel-hint login-fade-in d2">
+      <p class="panel-hint">
         {% if auth_enabled %}Credentials are set via <code>DASHBOARD_USER</code> / <code>DASHBOARD_PASSWORD</code> on the server.{% else %}Authentication is not configured — set <code>DASHBOARD_PASSWORD</code> to protect this dashboard.{% endif %}
       </p>
     </div>
@@ -336,31 +210,6 @@ body {
 
 <script>
 "use strict";
-/* orbs + particles (seeded like the veyron shell) */
-(function () {
-  const orbs = [
-    { size: 340, top: "4%", left: "6%", del: "0s", dur: "11s", hue: "blue" },
-    { size: 220, top: "55%", left: "12%", del: "2.2s", dur: "13s", hue: "violet" },
-    { size: 180, top: "18%", left: "58%", del: "0.8s", dur: "9s", hue: "cyan" },
-    { size: 400, top: "58%", left: "68%", del: "3.2s", dur: "15s", hue: "red" },
-  ];
-  const orbHost = document.getElementById("orbs");
-  for (const o of orbs) {
-    const el = document.createElement("div");
-    el.className = "login-orb orb-" + o.hue;
-    el.style.cssText = "width:" + o.size + "px;height:" + o.size + "px;top:" + o.top + ";left:" + o.left + ";--del:" + o.del + ";--dur:" + o.dur;
-    orbHost.appendChild(el);
-  }
-  const pHost = document.getElementById("particles");
-  for (let i = 0; i < 28; i++) {
-    const s = document.createElement("span");
-    const size = 2 + (i % 3);
-    s.className = "login-particle";
-    s.style.cssText = "left:" + ((i * 17 + 7) % 100) + "%;top:" + ((i * 23 + 11) % 100) + "%;width:" + size + "px;height:" + size + "px;animation-delay:" + ((i % 7) * 0.45) + "s";
-    pHost.appendChild(s);
-  }
-})();
-
 const form = document.getElementById("form");
 form.addEventListener("submit", async (ev) => {
   ev.preventDefault();
@@ -392,7 +241,7 @@ form.addEventListener("submit", async (ev) => {
     err.classList.add("show");
   }
   btn.disabled = false;
-  btn.textContent = "Sign in to Mission Control";
+  btn.textContent = "Sign in";
 });
 </script>
 </body>

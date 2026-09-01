@@ -13,7 +13,7 @@ Browse and download recorded journey videos / traces from recent jobs.
 ## How to get there
 
 - Surface: `/dashboard/videos`
-- UI: Mission Control → **Operations** → **Videos** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Operations** → **Videos** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

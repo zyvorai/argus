@@ -13,7 +13,7 @@ Collected issues from API, auth, live-data, vitals, and audit jobs with export/c
 ## How to get there
 
 - Surface: `/dashboard/findings`
-- UI: Mission Control → **Operations** → **Findings** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Operations** → **Findings** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

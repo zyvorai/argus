@@ -13,7 +13,7 @@ Pixel-compare visual snapshots against baselines; optionally update baselines.
 ## How to get there
 
 - Surface: `/dashboard/actions/regression`
-- UI: Mission Control → **Visual** → **Visual regression** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Visual** → **Visual regression** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

@@ -13,7 +13,7 @@ Turn smoke, audit, ping, TLS, flow, route sweep, API, realtime, or vitals into a
 ## How to get there
 
 - Surface: `/dashboard/schedules`
-- UI: Mission Control → **Operations** → **Schedules** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Operations** → **Schedules** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

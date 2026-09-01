@@ -12,6 +12,12 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [Auth & session](api/dashboard-actions-auth.md) | Login → reusable session file → logout / expiry / negative auth checks. |
 | [Live data](api/dashboard-actions-realtime.md) | Assert WebSocket / SSE streams and optional live-region updates. |
 
+## Console
+
+| Page | What it covers |
+|------|----------------|
+| [Ask Zyra](console/dashboard-ask.md) | Citation-first product knowledge Q&A — optional Qdrant hybrid RAG. Read-only; does not mutate cluster state. Aligned with Zyra copilot branding across the Zyvor platform. |
+
 ## Journeys
 
 | Page | What it covers |
@@ -34,13 +40,13 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 
 | Page | What it covers |
 |------|----------------|
-| [Command palette](overview/dashboard-command-palette.md) | ⌘K / Ctrl-K spotlight to jump to any action card by name. |
-| [Hero status](overview/dashboard-hero.md) | Cluster/app health banner with pods, replicas, last QA run, pass rate, and next scheduled smoke. |
-| [Live job panel](overview/dashboard-job-live.md) | Live panel for the running job — elapsed time, per-test chips, streaming log, Stop / download. |
+| [Command palette](overview/dashboard-command-palette.md) | ⌘K / Ctrl-K or header Search — spotlight to jump to any action, panel, or Ask Zyra. |
+| [Hero status](overview/dashboard-hero.md) | Cluster/app health banner with pods, replicas, last QA run, pass rate, next schedule, and knowledge (Ask Zyra) stat tile. |
+| [Live job panel](overview/dashboard-job-live.md) | Live panel for the running job — macOS Terminal chrome, syntax-colored streaming log, per-test chips, Stop / download. |
 | [Pods](overview/dashboard-pods.md) | Pod cards with phase, restarts, and click-through logs; optional cluster events toggle. |
 | [Workloads](overview/dashboard-workloads.md) | Deployment and CronJob strip for the argus namespace (when kube access is available). |
-| [Mission Control](overview/dashboard.md) | Live Mission Control console — status hero, workloads, pods, action cards, schedules, findings, and QA run history. |
-| [Login](overview/login.md) | Mission Control `DASHBOARD_PASSWORD` login gate; Argus Enterprise uses Keycloak/OIDC with demo accounts `demo`/`demo` and `ssouser`/`Sso@321` (see the Enterprise SSO chapter in this manual). |
+| [Mission Control](overview/dashboard.md) | Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history. |
+| [Login](overview/login.md) | Mission Control sign-in when `DASHBOARD_PASSWORD` is set. Uses the same dark/light design system as the dashboard (charcoal default, blue accent buttons). Argus Enterprise uses Keycloak/OIDC with demo accounts `demo`/`demo` and `ssouser`/`Sso@321` (see the Enterprise SSO chapter in this manual). |
 
 ## Pipeline
 
@@ -78,7 +84,7 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [CVE lookup](security/dashboard-actions-cve-lookup.md) | Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement. |
 | [Exploit PoC](security/dashboard-actions-exploit-poc.md) | LLM-generated, non-destructive verification of a described finding, executed in a locked-down Kubernetes sandbox — requires an exploit-tier engagement and an execution opt-in. |
 | [Host pentest](security/dashboard-actions-host-pentest.md) | Credentialed SSH enumeration of a described finding via paramiko in the sandbox — needs a third, independent credentialed-pentest opt-in; credentials are always env-var references, never raw values. |
-| [LLM red-team](security/dashboard-actions-llm-redteam.md) | Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement. |
+| [LLM red-team](security/dashboard-actions-llm-redteam.md) | Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement. |
 | [Misconfig scan](security/dashboard-actions-misconfig-scan.md) | Tech/version fingerprinting, wordlist-driven path discovery, security-header value grading, and DNS hygiene checks — requires a security engagement. |
 | [Security engagements](security/dashboard-actions-security-engagements.md) | Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, or LLM red-team. |
 
@@ -93,4 +99,4 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 
 ---
 
-42 guides. Regenerate: `node scripts/customer-docs/generate-guide-index.mjs`.
+43 guides. Regenerate: `node scripts/customer-docs/generate-guide-index.mjs`.

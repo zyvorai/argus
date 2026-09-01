@@ -13,7 +13,7 @@ Login → reusable session file → logout / expiry / negative auth checks.
 ## How to get there
 
 - Surface: `/dashboard/actions/auth`
-- UI: Mission Control → **API** → **Auth & session** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **API** → **Auth & session** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

@@ -13,7 +13,7 @@ Pod cards with phase, restarts, and click-through logs; optional cluster events 
 ## How to get there
 
 - Surface: `/dashboard/pods`
-- UI: Mission Control → **Overview** → **Pods** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Overview** → **Pods** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

@@ -13,7 +13,7 @@ History table of QA runs with pass/fail chips and sparkline trends.
 ## How to get there
 
 - Surface: `/dashboard/runs`
-- UI: Mission Control → **Operations** → **QA Runs** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Operations** → **QA Runs** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

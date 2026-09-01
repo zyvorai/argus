@@ -13,7 +13,7 @@ Side-by-side visual diff of two URLs (e.g. staging vs production).
 ## How to get there
 
 - Surface: `/dashboard/actions/compare`
-- UI: Mission Control → **Visual** → **Compare URLs** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Visual** → **Compare URLs** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

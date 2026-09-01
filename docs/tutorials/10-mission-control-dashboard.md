@@ -1,14 +1,12 @@
 # Tutorial 10 — Mission Control Dashboard
 
-A live, self-refreshing operations console served by the webhook server. It shows Kubernetes pod health and logs, QA run history with trends, and a full **Actions** panel that runs 20+ QA capabilities — every CLI command plus a whole suite of web-quality, security, and performance checks — with live-streamed output and downloadable HTML/PDF/Markdown/CSV reports.
+A live, self-refreshing operations console served by the webhook server. It shows Kubernetes pod health and logs, QA run history with trends, and category panels that run 20+ QA capabilities — every CLI command plus web-quality, security, and performance checks — with live-streamed output and downloadable HTML/PDF/Markdown/CSV reports.
 
-**UX:** full-bleed layout, glass sticky topbar/footer, boot splash, live signal-field constellation, primary Smoke CTA, card motion, ⌘K palette, NOC wall mode (double-click brand), and warp flash (`` ` `` / type `zyvor`). Reduced-motion aware.
+**UX:** Apple-style **side rail** (Overview, Ask Zyra, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations), **dark theme by default** (charcoal surfaces, minimal blue `#2997ff` accent buttons), collapsible icons-only rail, global header with knowledge lamp + theme toggle + **Search** (⌘K palette), hash routing (`#overview`, `#ask`, `#pipeline`, …), and a **macOS Terminal** live job console with syntax-colored logs. Reduced-motion aware.
 
-**Watch:** Mission Control → GuestKit flow demo
+**Watch:** Record a journey locally — [`docs/assets/zyvor-dev-demo.steps`](../assets/zyvor-dev-demo.steps) against https://zyvor.dev ([Tutorial 13](13-test-zyvor-dev-recording.md)).
 
-[![Zyvor Argus Mission Control demo](https://img.youtube.com/vi/ys7SvKKqf9w/maxresdefault.jpg)](https://youtu.be/ys7SvKKqf9w)
-
-**Prerequisites:** [Tutorial 1](01-getting-started.md). A Kubernetes cluster is optional — without one the pod panel shows an offline state and everything else still works. To practice against the public site with video + HAR, see [Tutorial 13](13-test-zyvor-dev-recording.md).
+**Prerequisites:** [Tutorial 1](01-getting-started.md). A Kubernetes cluster is optional — without one the pod panel shows **No cluster connected** and everything else still works. To practice against the public site with video + HAR, see [Tutorial 13](13-test-zyvor-dev-recording.md).
 
 ---
 
@@ -20,20 +18,20 @@ argus serve --port 8080
 open http://localhost:8080/dashboard
 ```
 
-What you'll see:
+What you'll see on **Overview**:
 
-- **Boot splash** — brief “warming Mission Control…” then the console
-- **Status hero** — one glanceable verdict with stat tiles for pods, replicas, last QA run, and a countdown to the next scheduled smoke run:
+- **Status hero** — one glanceable verdict with stat tiles for pods, replicas, last QA run, pass rate, next schedule, and knowledge (Ask Zyra):
   - `ALL SYSTEMS GO` — every pod healthy, last QA run green
   - `DEGRADED` — some pods unhealthy or the last QA run failed
   - `SYSTEMS DOWN` — every pod unhealthy
   - `CLUSTER OFFLINE` — no Kubernetes API reachable (normal on a laptop)
-- **Signal field** — live constellation canvas behind the hero (atmosphere)
-- **Workloads** — per-deployment replica readiness; per-cronjob schedule, last run, and "in 4h 12m" countdown
+- **Workloads** — per-deployment replica readiness; per-cronjob schedule, last run, and countdown
 - **Pods** — one card per pod: phase, ready containers, restart count, age, node, image, recent Warning events. **Click a pod** to open the log drawer (last 100 lines, live-refreshing; hover pauses refresh).
 - **QA Runs** — latest result, pass-rate sparkline over the last 30 runs (hover for per-run detail), and a recent-runs table
 
-Keyboard: `r` refreshes immediately, `esc` closes the log drawer, `` ` `` warps, ⌘K opens the palette. Double-click the brand for **NOC** wall mode. Everything auto-refreshes every 5 seconds.
+**Navigation:** use the **side rail** to switch panels, or **⌘K** (Ctrl-K) / header **Search** for the command palette. **Theme toggle** (moon/sun) switches dark ↔ light; preference is saved in the browser. **Collapse** at the bottom of the rail for icons-only mode.
+
+Keyboard: `r` refreshes immediately, `esc` closes the log drawer or palette. Everything auto-refreshes every 5 seconds (configurable in the footer).
 
 ## 2. Where run history comes from
 
@@ -84,23 +82,27 @@ open http://localhost:8080/dashboard
 
 If you do want it on the ingress, add an authenticated path — see [`kubernetes/README.md`](../../kubernetes/README.md#dashboard-optional-ingress-exposure).
 
+Remote VM deploy: `./scripts/deploy-remote.sh <host> <user> --service --key` (default port **30080**). Use full profile on first bring-up; `--quick` only after `python3-venv` is installed on the host.
+
 ## 5. Signing in
 
-Set `DASHBOARD_PASSWORD` (and optionally `DASHBOARD_USER`, default `admin`) to put the dashboard, its API, and all artifacts behind the Zyvor premium login screen — `/health` and the HMAC-verified `/webhook/github` stay open. Without a password, the dashboard is open (local-dev mode).
+Set `DASHBOARD_PASSWORD` (and optionally `DASHBOARD_USER`, default `admin`) to put the dashboard, its API, and all artifacts behind the Zyvor login screen — `/health` and the HMAC-verified `/webhook/github` stay open. Without a password, the dashboard is open (local-dev mode).
 
-`deploy-remote.sh` handles this automatically: it generates a random password once per host, persists it (`.argus-auth` next to the port file), injects it into the remote `.env` / K8s secret, and prints the credentials in the deploy summary. Pass `--no-auth` to skip.
+`deploy-remote.sh` handles this automatically: it sets default credentials once per host, persists them (`.zyvor-argus-auth` next to the port file), injects them into the remote `.env` / K8s secret, and prints the credentials in the deploy summary. Pass `--no-auth` to skip.
 
-Sessions are signed cookies (12 h, or 30 days with "remember me"); sign out from the chip in the header.
+Sessions are signed cookies (12 h, or 30 days with "remember me"); sign out from the header.
+
+Login and dashboard share the same **dark theme** design system (light mode available via the header toggle).
 
 ## 6. Actions — run anything, watch it live
 
-The **Actions** panel is the heart of the console. Click any card to start a job; one runs at a time. A **live panel** appears immediately with:
+Action cards live in category panels (**Pipeline**, **Visual**, **Quality**, etc.). Click any card to start a job; one runs at a time. A **live panel** appears immediately with:
 
-- streaming Playwright/probe output, **per-test ✓/✗ chips** and a running pass/fail tally
+- macOS Terminal chrome, streaming Playwright/probe output with syntax colors, **per-test ✓/✗ chips** and a running pass/fail tally
 - an elapsed timer, a **⏹ Stop** button that kills the run mid-flight, and copy-log / download-`.txt`
-- when it finishes: a full result table with error text, a **💡 likely-cause hint** per failure, 🎬 video and 🔍 trace links, and a **Download HTML · PDF · Markdown · CSV** row — Markdown also gets a one-click **⧉ Copy MD** button that puts the report straight on your clipboard, ready to paste into a GitHub issue/PR or Slack message
+- when it finishes: a full result table with error text, a **💡 likely-cause hint** per failure, 🎬 video and 🔍 trace links, and a **Download HTML · PDF · Markdown · CSV** row — Markdown also gets a one-click **⧉ Copy MD** button
 
-A green run pops confetti and a rising sound cue (both mutable / reduced-motion aware). Press **⌘K** (Ctrl-K) for a command palette that launches any action.
+Press **⌘K** (Ctrl-K) or click **Search** for the command palette that launches any action or jumps to **Ask Zyra**.
 
 ### CLI-equivalent actions
 
@@ -171,24 +173,28 @@ Plus **⏱ Load test** (fire N requests at C concurrency → p50/p95/p99 latency
 
 ### Schedules — run on a loop
 
-The **Schedules** panel turns any job into a recurring monitor (5 min – 6 h). A background thread re-triggers due schedules (respecting single-flight). Add a smoke run every 15 min, an audit every hour, a TLS check daily — add/remove from the panel or the ⌘K palette.
+The **Operations → Schedules** panel turns any job into a recurring monitor (5 min – 6 h). A background thread re-triggers due schedules (respecting single-flight). Add a smoke run every 15 min, an audit every hour, a TLS check daily — add/remove from the panel or the ⌘K palette.
 
 Local `spec` and any URL parameters are validated; local paths are restricted to files inside the repository.
 
-## 7. Reports, videos & test health
+## 7. Ask Zyra (optional knowledge panel)
+
+Citation-first Q&A over ingested product docs — see [Tutorial 14](14-ask-zyra-knowledge.md). Side rail → **Ask Zyra**, or ⌘K → “Ask Zyra”. The knowledge lamp in the header shows ready / degraded / offline.
+
+## 8. Reports, videos & test health
 
 - Every executed job writes an **HTML / PDF / Markdown / CSV bundle** to `reports/jobs/<ts>-<kind>/` (PVC-backed on K8s) and exposes it in the result panel — Markdown needs no external renderer, so it's always produced even with `ENABLE_PDF_REPORT=false`.
-- **🎬 videos** panel lists every recorded test video; **⬇ all videos (zip)** downloads them in one shot.
-- **Test health** panel ranks the worst-offender tests (fail count, fail %, flaky badge) from a per-test index every run appends to.
+- **Operations → Videos** lists every recorded test video; **⬇ all videos (zip)** downloads them in one shot.
+- **Test health** (Operations) ranks the worst-offender tests (fail count, fail %, flaky badge) from a per-test index every run appends to.
 - **QA Runs** shows the pass-rate sparkline, expandable run rows, and **⬇ export** (runs as JSON).
 
-## 8. Cluster ops
+## 9. Cluster ops
 
 - **Pods** cards show CPU/memory (metrics-server), restarts, warnings, and a **⟳ restart** button.
 - **⚡ events** panel shows recent namespace events.
 - Log drawer: per-container tabs, line-count selector, follow mode, download.
 
-## 9. API endpoints
+## 10. API endpoints
 
 The page is a thin client over JSON endpoints you can script against:
 

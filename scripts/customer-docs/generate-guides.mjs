@@ -46,7 +46,7 @@ ${purpose}
 ## How to get there
 
 - Surface: \`${path}\`
-- UI: Mission Control → **${category}** → **${title}** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **${category}** panel → **${title}** (side rail, or ⌘K / Ctrl-K **Search**)
 
 ## What you can do
 

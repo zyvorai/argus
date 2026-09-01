@@ -13,7 +13,7 @@ HTTP uptime / latency checks across a list of URLs.
 ## How to get there
 
 - Surface: `/dashboard/actions/ping`
-- UI: Mission Control → **Probes** → **Uptime ping** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Probes** → **Uptime ping** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

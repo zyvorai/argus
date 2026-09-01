@@ -13,7 +13,7 @@ Run ▶ Smoke (optional grep/shard) or ▶ Full LangGraph pipeline from local or
 ## How to get there
 
 - Surface: `/dashboard/actions/run-tests`
-- UI: Mission Control → **Pipeline** → **Run tests** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Pipeline** → **Run tests** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

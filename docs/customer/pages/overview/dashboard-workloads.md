@@ -13,7 +13,7 @@ Deployment and CronJob strip for the argus namespace (when kube access is availa
 ## How to get there
 
 - Surface: `/dashboard/workloads`
-- UI: Mission Control → **Overview** → **Workloads** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Overview** → **Workloads** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

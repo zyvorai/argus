@@ -2,30 +2,23 @@
 
 Zyvor Argus’s **Mission Control** is a single live console at `/dashboard` (login at `/login` when password auth is on).
 
-## Surfaces
+## Layout
 
 | Element | Purpose |
 |---------|---------|
-| **Boot splash** | Short warm-up intro on first load |
-| **Hero** | Health banner + stat tiles (pods, replicas, last run, pass rate, cron) + primary Smoke CTA |
-| **Signal field** | Live constellation canvas behind the hero |
-| **Glass topbar / footer** | Sticky brand + status while you scroll |
+| **Side rail** | Category navigation: Overview, Ask Zyra, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations — collapsible to icons-only |
+| **Global header** | Knowledge lamp, dark/light theme toggle, **Search** (opens ⌘K palette) |
+| **Overview hero** | Health banner + stat tiles (pods, replicas, last run, pass rate, cron, knowledge) |
+| **Panel viewport** | One active category at a time; hash URLs (`#pipeline`, `#ask`, …) are bookmarkable |
 | **Workloads / Pods** | K8s strip and pod cards with log drawer (needs kube SA or kubeconfig) |
-| **Actions grid** | Every job card — smoke, flow, HAR, codegen, API, auth, vitals, probes, … |
-| **Live job panel** | Streaming log, case chips, Stop, copy/download log |
-| **Schedules** | Loop smoke / audit / ping / TLS / flow / sweep / API / realtime / vitals |
-| **Findings** | Aggregated issues from quality jobs |
-| **QA Runs / Videos** | History and recorded journeys |
-| **Command palette** | ⌘K / Ctrl-K to find any action by name |
+| **Action cards** | Job cards inside each category panel — smoke, flow, HAR, probes, security, … |
+| **Live job panel** | macOS Terminal chrome — syntax-colored streaming log, case chips, Stop, copy/download log |
+| **Operations** | Schedules, Findings, QA Runs, Videos |
+| **Command palette** | ⌘K / Ctrl-K or header **Search** — jump to any action or Ask Zyra |
 
-## UX extras
+## Theme
 
-| Cue | How |
-|-----|-----|
-| **NOC wall** | Double-click the **Zyvor Mission Control** brand |
-| **Warp flash** | Press `` ` `` or type `zyvor` |
-| **Achievements** | First visit / NOC / warp unlock toast badges |
-| **Reduced motion** | Splash / flash / canvas respect `prefers-reduced-motion` |
+Dark charcoal theme is the default (Apple-style, minimal blue accent buttons). Use the **moon/sun** control in the header to switch to light mode; preference persists in the browser. Login uses the same design system.
 
 ## Browse vs act
 
@@ -34,6 +27,10 @@ Reading pods, history, and findings is safe. Starting jobs mutates the target un
 ## Practice on zyvor.dev
 
 See [Test zyvor.dev (with recording)](test-zyvor-dev.md) for smoke + flow video + HAR against the public site.
+
+## Ask Zyra
+
+Optional citation-first knowledge Q&A — side rail **Ask Zyra** or ⌘K. See [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md).
 
 ## Related
 
@@ -44,9 +41,8 @@ See [Test zyvor.dev (with recording)](test-zyvor-dev.md) for smoke + flow video 
 
 ## Operate from the console (UX)
 
-1. Open this route from the nav or command palette and wait for live API data.
-2. Use filters/search when present; drill into a row for detail.
-3. For mutating actions: confirm role gates and impact before applying.
-4. **Empty / fail:** Check service health, auth, and that required CRDs/backends for this domain are installed.
-5. **Success:** Live data loads; created/updated objects appear without error toasts.
-
+1. Open `/dashboard` (sign in at `/login` when auth is enabled).
+2. Pick a category from the side rail or ⌘K.
+3. Fill the action card fields, run the job, watch the live terminal panel.
+4. Review Findings / QA Runs / downloads when the job completes.
+5. **Empty / fail:** Check `GET /health`, auth, and that Playwright browsers are installed on the host.

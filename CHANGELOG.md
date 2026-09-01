@@ -1,6 +1,15 @@
 # Changelog
 
-## Unreleased
+## [0.9.0](https://github.com/zyvorai/argus/releases/tag/v0.9.0) — 2026-09-01
+
+### Changed
+- **Mission Control UX** — Apple-style side rail with category panels, dark theme default (light toggle), collapsible icons-only rail, macOS Terminal live job console, hash routing. Removed boot splash, signal field, NOC/warp/confetti/achievements.
+- **Ask Zyra** — Renamed knowledge Q&A from “Ask Zyvor” across Mission Control, docs, and CLI help (API paths unchanged).
+- **README & docs** — Rewritten README with local demo GIF; removed YouTube embeds and links from docs and customer manuals.
+
+### Added
+- `scripts/e2e-remote-dashboard.mjs` — Playwright Chrome smoke for remote Mission Control deploys.
+- Customer page guide: Ask Zyra (`docs/customer/pages/console/dashboard-ask.md`).
 
 ## [0.8.0](https://github.com/hypersdk/zyvor-argus/releases/tag/v0.8.0) — 2026-08-18
 
@@ -58,7 +67,7 @@
   - A general-purpose security-engagement authorization primitive (`orchestrator/security/engagement_policy.py`, `engagements` table in `orchestrator/persistence/store.py`, `POST/GET/DELETE /api/v2/engagements`) — an admin-issued, target-scoped, tier-ranked attestation that gates every elevated-risk job kind below, enforced at `_validate()` so no caller (dashboard, CLI, `/api/v2/jobs`, schedules) can bypass it. Mirrors `orchestrator/security/agent_policy.py`'s mode/fail-closed-in-production shape
   - `misconfig_scan` job/CLI command: tech + version fingerprinting, wordlist-driven path discovery (`agents/probes/data/misconfig_paths.txt`, ~150 paths vs. the existing `security_paths` probe's static 7), security-header *value* grading (not just presence), SPF/DMARC/CAA DNS hygiene checks
   - `cve_lookup` job/CLI command: read-only — fingerprints tech/versions, checks them against OSV.dev. No PoC is generated or run
-  - `llm_redteam` job/CLI command: attacker→judge loop (curated ~15-prompt battery, `agents/redteam/`) against argus's own "Ask Zyvor" RAG agent, covering prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, and PII/secret exfiltration — the first job kind able to raise a `critical`-severity finding
+  - `llm_redteam` job/CLI command: attacker→judge loop (curated ~15-prompt battery, `agents/redteam/`) against argus's own "Ask Zyra" RAG agent, covering prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, and PII/secret exfiltration — the first job kind able to raise a `critical`-severity finding
   - CI/CD security gate: `--fail-on <severity>` on `audit`/`misconfig-scan`/`cve-lookup`/`llm-redteam` (new `audit` CLI command — it previously had none), plus `pr-gate` posting a REQUEST_CHANGES/APPROVE PR review + commit status (`github_integration/client.py` gains `create_pr_review`/`set_commit_status`/`get_pr_head_sha`, using PyGithub methods that were already a transitive dependency)
   - Attack-graph reporting: findings now carry a `category` field (OWASP/informal tags), rendered as a same-origin Mermaid graph (`agents/reporter/attack_graph.py`, vendored `templates/vendor/mermaid.min.js` — the CSP's `script-src 'self'` blocks a CDN `<script>`) embedded in the audit report
   - `exploit_poc` job/CLI command: generates a non-destructive verification script via LLM for a described finding and runs it in a short-lived, locked-down Kubernetes Job (`orchestrator/security/sandbox.py`, `kubernetes/sandbox.yaml`) — dropped capabilities, non-root, read-only rootfs, no ServiceAccount token, resource limits, hard timeout — never in the job-runner process. Gated by two independent things: an `exploit`-tier engagement *and* a separate `ZYVOR_EXPLOIT_EXECUTION_ENABLED=true` opt-in. Refuses to run (does not fall back to unsandboxed execution) if no cluster/namespace is configured. Live-verified against a real k3s cluster — found and fixed a real pod-log decoding bug in the process
@@ -66,7 +75,7 @@
   - `host_pentest`/`cloud_pentest` job/CLI commands: generate a non-destructive SSH (`paramiko`) or cloud-CLI (`aws`/`gcloud`/`az`) enumeration script via LLM and run it in a specially-imaged sandbox Job (`ZYVOR_SANDBOX_HOST_IMAGE`/`ZYVOR_SANDBOX_CLOUD_IMAGE` — the default `python:3.12-slim` image lacks this tooling, so these fail closed rather than silently running without it). Credentials are supplied as `{"$secret": "env:NAME"}` references (`orchestrator/security/secrets.py`), resolved only at execution time and injected straight into the one ephemeral Job's environment — never logged, never embedded in generated code, never present in the job result. A *third*, independent opt-in — `ZYVOR_CREDENTIALED_PENTEST_ENABLED=true` — gates these on top of `exploit_poc`'s existing two gates, since using real credentials against real infrastructure is a bigger step than generating/running a verification script against a URL. `sandbox.py` also gained an `image` override and explicit `imagePullPolicy: IfNotPresent` (found live: Kubernetes defaults `:latest`-tagged images to `Always`, which fails to pull a locally-built/imported custom image that was never pushed to a registry). This closes out the full NeuroSploit-inspired "active exploitation" scope from `ROADMAP.md`
 - Mission Control UI for the four new security job kinds above (`exploit_poc`, `attack_chain`, `host_pentest`, `cloud_pentest`) — dashboard cards, command-palette entries, and result-panel rendering
 - Tutorial 18 (`docs/tutorials/18-security-testing.md`) covering the full security-testing feature set end to end: engagements, recon/red-team jobs, the CI gate, and the sandboxed exploitation tiers with their opt-in gates
-- Markdown report export (`agents/reporter/exports.py`): every per-job report bundle (smoke/flow/checks/realtime/vitals/api-contract/route-sweep/audit) now also writes `report.md` — a GitHub-flavored table with pass/fail badges and a failure-details section, generated locally with no external tool (always available even with `ENABLE_PDF_REPORT=false`). Dashboard gets a **⬇ Markdown** download button plus a one-click **⧉ Copy MD** that puts the report straight on the clipboard, mirroring the existing Ask Zyvor "copy as Markdown" pattern; `GET /api/dashboard/jobs/report.md` added alongside the existing `.csv`/`.html`/`.pdf` route
+- Markdown report export (`agents/reporter/exports.py`): every per-job report bundle (smoke/flow/checks/realtime/vitals/api-contract/route-sweep/audit) now also writes `report.md` — a GitHub-flavored table with pass/fail badges and a failure-details section, generated locally with no external tool (always available even with `ENABLE_PDF_REPORT=false`). Dashboard gets a **⬇ Markdown** download button plus a one-click **⧉ Copy MD** that puts the report straight on the clipboard, mirroring the existing Ask Zyra "copy as Markdown" pattern; `GET /api/dashboard/jobs/report.md` added alongside the existing `.csv`/`.html`/`.pdf` route
 
 ### Changed
 - CI's unit-test coverage gate raised from 36% to 40% (`.github/workflows/security.yml`) after the security-testing feature pass added its own coverage (~39% → ~42% actual, 389 tests)
@@ -122,17 +131,17 @@
 ## [0.3.0](https://github.com/hypersdk/zyvor-argus/releases/tag/v0.3.0) — 2026-07-30
 
 ### Added
-- **Ask Zyvor** — optional citation-first knowledge RAG (`knowledge/` package, Qdrant hybrid retrieval) in Mission Control; Tutorial 14
+- **Ask Zyra** — optional citation-first knowledge RAG (`knowledge/` package, Qdrant hybrid retrieval) in Mission Control; Tutorial 14
 - Streaming ask (`POST /v1/qa/stream`, dashboard SSE), query understanding, evidence-based confidence
 - Optional read-only live cluster diagnostic tools (namespaced allowlist)
 - Separate HITL remediation planner + allowlisted pod-restart executor
-- Mission Control → GuestKit YouTube demo: https://youtu.be/ys7SvKKqf9w
+- Mission Control → GuestKit demo recording in `docs/assets/`
 - Sample knowledge corpus, ingest/evaluate CLIs, unit tests for knowledge
 
 ### Docs
-- YouTube thumbnail embeds in README, Tutorial 10/13, customer manuals
+- Demo GIF/MP4/WebM in `docs/assets/` for README and customer manuals
 - Configuration + `.env.knowledge.example` for knowledge / remediation flags
-- Feature guide: Ask Zyvor + demo links
+- Feature guide: Ask Zyra + demo links
 
 ### Container
 - `ghcr.io/hypersdk/zyvor-argus:v0.3.0` (+ `:latest`)

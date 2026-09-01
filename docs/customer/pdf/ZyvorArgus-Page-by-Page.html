@@ -24,7 +24,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
 <h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Page-by-Page Product Manual</div>
-<div class="badge">2026-08-29</div>
+<div class="badge">2026-09-01</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><h2>Page-by-page guides</h2>
 <p>Each guide follows: Purpose → When to use it → How to get there → What you can do → Related pages.</p>
@@ -48,6 +48,19 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tr>
 <td><a href="api/dashboard-actions-realtime.md">Live data</a></td>
 <td>Assert WebSocket / SSE streams and optional live-region updates.</td>
+</tr>
+</tbody></table>
+<h3>Console</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>What it covers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="console/dashboard-ask.md">Ask Zyra</a></td>
+<td>Citation-first product knowledge Q&amp;A — optional Qdrant hybrid RAG. Read-only; does not mutate cluster state. Aligned with Zyra copilot branding across the Zyvor platform.</td>
 </tr>
 </tbody></table>
 <h3>Journeys</h3>
@@ -110,15 +123,15 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </thead>
 <tbody><tr>
 <td><a href="overview/dashboard-command-palette.md">Command palette</a></td>
-<td>⌘K / Ctrl-K spotlight to jump to any action card by name.</td>
+<td>⌘K / Ctrl-K or header Search — spotlight to jump to any action, panel, or Ask Zyra.</td>
 </tr>
 <tr>
 <td><a href="overview/dashboard-hero.md">Hero status</a></td>
-<td>Cluster/app health banner with pods, replicas, last QA run, pass rate, and next scheduled smoke.</td>
+<td>Cluster/app health banner with pods, replicas, last QA run, pass rate, next schedule, and knowledge (Ask Zyra) stat tile.</td>
 </tr>
 <tr>
 <td><a href="overview/dashboard-job-live.md">Live job panel</a></td>
-<td>Live panel for the running job — elapsed time, per-test chips, streaming log, Stop / download.</td>
+<td>Live panel for the running job — macOS Terminal chrome, syntax-colored streaming log, per-test chips, Stop / download.</td>
 </tr>
 <tr>
 <td><a href="overview/dashboard-pods.md">Pods</a></td>
@@ -130,11 +143,11 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 <tr>
 <td><a href="overview/dashboard.md">Mission Control</a></td>
-<td>Live Mission Control console — status hero, workloads, pods, action cards, schedules, findings, and QA run history.</td>
+<td>Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.</td>
 </tr>
 <tr>
 <td><a href="overview/login.md">Login</a></td>
-<td>Mission Control <code>DASHBOARD_PASSWORD</code> login gate; Argus Enterprise uses Keycloak/OIDC with demo accounts <code>demo</code>/<code>demo</code> and <code>ssouser</code>/<code>Sso@321</code> (see the Enterprise SSO chapter in this manual).</td>
+<td>Mission Control sign-in when <code>DASHBOARD_PASSWORD</code> is set. Uses the same dark/light design system as the dashboard (charcoal default, blue accent buttons). Argus Enterprise uses Keycloak/OIDC with demo accounts <code>demo</code>/<code>demo</code> and <code>ssouser</code>/<code>Sso@321</code> (see the Enterprise SSO chapter in this manual).</td>
 </tr>
 </tbody></table>
 <h3>Pipeline</h3>
@@ -242,7 +255,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 <tr>
 <td><a href="security/dashboard-actions-llm-redteam.md">LLM red-team</a></td>
-<td>Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</td>
+<td>Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</td>
 </tr>
 <tr>
 <td><a href="security/dashboard-actions-misconfig-scan.md">Misconfig scan</a></td>
@@ -279,7 +292,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 </tbody></table>
 <hr>
-<p>42 guides. Regenerate: <code>node scripts/customer-docs/generate-guide-index.mjs</code>.</p>
+<p>43 guides. Regenerate: <code>node scripts/customer-docs/generate-guide-index.mjs</code>.</p>
 <hr>
 <h2>API contract</h2>
 <h3>Purpose</h3>
@@ -293,7 +306,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/api-contract</code></li>
-<li>UI: Mission Control → <strong>API</strong> → <strong>API contract</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>API</strong> → <strong>API contract</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -323,7 +336,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/auth</code></li>
-<li>UI: Mission Control → <strong>API</strong> → <strong>Auth &amp; session</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>API</strong> → <strong>Auth &amp; session</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -353,7 +366,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/realtime</code></li>
-<li>UI: Mission Control → <strong>API</strong> → <strong>Live data</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>API</strong> → <strong>Live data</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -371,6 +384,36 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>Ask Zyra</h2>
+<h3>Purpose</h3>
+<p>Citation-first product knowledge Q&amp;A — optional Qdrant hybrid RAG. Read-only; does not mutate cluster state. Aligned with <strong>Zyra</strong> copilot branding across the Zyvor platform.</p>
+<h3>When to use it</h3>
+<ul>
+<li>You need grounded answers from ingested manuals, API docs, runbooks, or migration guides</li>
+<li>You want citations and confidence scores before acting on an answer</li>
+<li>Live cluster diagnostics are optional (<code>ENABLE_LIVE_CLUSTER_TOOLS</code>) — still read-only</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/ask</code> · hash <code>#ask</code></li>
+<li>UI: Mission Control → <strong>Console</strong> panel → <strong>Ask Zyra</strong> (side rail, or ⌘K → “Ask Zyra”)</li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Install optional extras: <code>pip install -e &quot;.[knowledge]&quot;</code>, start Qdrant, set <code>LLM_API_KEY</code> — see <a href="../../../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>.</li>
+<li>Open <strong>Ask Zyra</strong>, pick product / document-type filters, ask a question.</li>
+<li>Review citations, confidence badge, and <strong>⧉ copy MD</strong> for Slack/Jira.</li>
+<li>Header <strong>knowledge lamp</strong> shows ready / degraded / offline.</li>
+</ol>
+<p>Without <code>[knowledge]</code> extras, Mission Control still works; Ask Zyra shows offline with install hints.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../../tutorials/14-ask-zyra-knowledge.md">Tutorial 14 — Ask Zyra</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>AI test</h2>
 <h3>Purpose</h3>
 <p>Describe a goal; the autonomous browser agent drives the app toward it.</p>
@@ -383,7 +426,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/ai-test</code></li>
-<li>UI: Mission Control → <strong>Journeys</strong> → <strong>AI test</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Journeys</strong> → <strong>AI test</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -524,7 +567,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/findings</code></li>
-<li>UI: Mission Control → <strong>Operations</strong> → <strong>Findings</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Operations</strong> → <strong>Findings</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -554,7 +597,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/runs</code></li>
-<li>UI: Mission Control → <strong>Operations</strong> → <strong>QA Runs</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Operations</strong> → <strong>QA Runs</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -584,7 +627,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/schedules</code></li>
-<li>UI: Mission Control → <strong>Operations</strong> → <strong>Schedules</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Operations</strong> → <strong>Schedules</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -614,7 +657,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/videos</code></li>
-<li>UI: Mission Control → <strong>Operations</strong> → <strong>Videos</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Operations</strong> → <strong>Videos</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -634,29 +677,25 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Command palette</h2>
 <h3>Purpose</h3>
-<p>⌘K / Ctrl-K spotlight to jump to any action card by name.</p>
+<p>⌘K / Ctrl-K or header <strong>Search</strong> — spotlight to jump to any action, panel, or Ask Zyra.</p>
 <h3>When to use it</h3>
 <ul>
-<li>Open this card when the job matches the purpose above</li>
-<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
-<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+<li>You know the action name but not which category panel it lives in</li>
+<li>Fast keyboard-driven navigation without scrolling the side rail</li>
 </ul>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/command-palette</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Command palette</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: press <strong>⌘K</strong> (Ctrl-K) anywhere in Mission Control, or click header <strong>Search</strong></li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
-<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
-<li>Fill the card fields for <strong>Command palette</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
-<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
-<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+<li>Open the palette from the keyboard or <strong>Search</strong> button.</li>
+<li>Type to filter — e.g. “flow”, “Ask Zyra”, “TLS”.</li>
+<li>Enter to run or navigate; Esc to close.</li>
 </ol>
-<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>Related pages</h3>
 <ul>
-<li><a href="../../getting-started.md">Getting Started</a></li>
 <li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
 <li><a href="../overview/dashboard.md">Mission Control</a></li>
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
@@ -664,59 +703,53 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Hero status</h2>
 <h3>Purpose</h3>
-<p>Cluster/app health banner with pods, replicas, last QA run, pass rate, and next scheduled smoke.</p>
+<p>Cluster/app health banner with pods, replicas, last QA run, pass rate, next schedule, and knowledge (Ask Zyra) stat tile.</p>
 <h3>When to use it</h3>
 <ul>
-<li>Open this card when the job matches the purpose above</li>
-<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
-<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+<li>First screen after sign-in — one glance at overall health</li>
+<li>Stat sub-lines explain offline cluster, empty run history, or knowledge install state</li>
 </ul>
 <h3>How to get there</h3>
 <ul>
-<li>Surface: <code>/dashboard/hero</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Hero status</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>Surface: <code>/dashboard/hero</code> · hash <code>#overview</code></li>
+<li>UI: Mission Control → <strong>Overview</strong> panel (default landing)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
-<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
-<li>Fill the card fields for <strong>Hero status</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
-<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
-<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+<li>Read the status lamp and headline (ALL SYSTEMS GO / DEGRADED / SYSTEMS DOWN / CLUSTER OFFLINE).</li>
+<li>Scan stat tiles — pods/replicas show <strong>No cluster connected</strong> when kube is unavailable (not an error on a laptop).</li>
+<li><strong>Knowledge</strong> tile reflects Ask Zyra status; hover for install hints when offline.</li>
 </ol>
-<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<p>Auto-refreshes every 5 s; press <code>r</code> to refresh now.</p>
 <h3>Related pages</h3>
 <ul>
-<li><a href="../../getting-started.md">Getting Started</a></li>
 <li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
 <li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../console/dashboard-ask.md">Ask Zyra</a></li>
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
 <h2>Live job panel</h2>
 <h3>Purpose</h3>
-<p>Live panel for the running job — elapsed time, per-test chips, streaming log, Stop / download.</p>
-<h3>When to use it</h3>
+<p>Live panel for the running job — macOS Terminal chrome, syntax-colored streaming log, per-test chips, Stop / download.</p>
+<h3>When to get there</h3>
 <ul>
-<li>Open this card when the job matches the purpose above</li>
-<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
-<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+<li>Appears automatically when any action card starts a job (one job at a time)</li>
+<li>Usually visible on <strong>Overview</strong> or the panel where you launched the job</li>
 </ul>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/job-live</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Live job panel</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: start any action from a category panel or the ⌘K palette</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
-<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
-<li>Fill the card fields for <strong>Live job panel</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
-<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
-<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+<li>Watch the Terminal-style log and ✓/✗ case chips while the job runs.</li>
+<li>Use <strong>Stop</strong> to cancel mid-flight.</li>
+<li>Copy or download the log; when finished, use report / video / trace links in the result area.</li>
 </ol>
-<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>Related pages</h3>
 <ul>
-<li><a href="../../getting-started.md">Getting Started</a></li>
 <li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
 <li><a href="../overview/dashboard.md">Mission Control</a></li>
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
@@ -734,7 +767,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/pods</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Pods</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Overview</strong> → <strong>Pods</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -764,7 +797,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/workloads</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Workloads</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Overview</strong> → <strong>Workloads</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -784,45 +817,45 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Mission Control</h2>
 <h3>Purpose</h3>
-<p>Live Mission Control console — status hero, workloads, pods, action cards, schedules, findings, and QA run history.</p>
+<p>Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.</p>
 <h3>When to use it</h3>
 <ul>
-<li>Open this card when the job matches the purpose above</li>
-<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Your starting point for every QA action and cluster health view</li>
+<li>Prefer the <strong>side rail</strong> or <strong>⌘K / Search</strong> if you are unsure where to start</li>
 <li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
 </ul>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard</code></li>
-<li>UI: Mission Control → <strong>Overview</strong> → <strong>Mission Control</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: sign in at <code>/login</code> when auth is enabled, then use the <strong>side rail</strong> or <code>#overview</code> hash URL</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
-<li>Fill the card fields for <strong>Mission Control</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
-<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
-<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+<li><strong>Overview</strong> — hero stat tiles, workloads, pods, QA runs.</li>
+<li><strong>Pipeline / Visual / Quality / …</strong> — run jobs from category panels; one job at a time with a live Terminal-style log panel.</li>
+<li><strong>Ask Zyra</strong> — optional citation-first knowledge Q&amp;A (<a href="../../../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>).</li>
+<li><strong>Operations</strong> — schedules, findings, run history, videos.</li>
+<li><strong>⌘K</strong> or header <strong>Search</strong> — command palette to jump anywhere.</li>
 </ol>
-<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<p>Use the <strong>theme toggle</strong> (moon/sun) for light mode; <strong>Collapse</strong> on the rail for icons-only.</p>
+<p>If the console stays idle or errors, hit <code>GET /health</code>, confirm <code>argus serve</code> (or systemd <code>argus.service</code>) is up, and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>Related pages</h3>
 <ul>
 <li><a href="../../getting-started.md">Getting Started</a></li>
 <li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
-<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../console/dashboard-ask.md">Ask Zyra</a></li>
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
 <h2>Login</h2>
 <h3>Purpose</h3>
-<p>Mission Control <code>DASHBOARD_PASSWORD</code> login gate; Argus Enterprise uses Keycloak/OIDC with demo accounts <code>demo</code>/<code>demo</code> and <code>ssouser</code>/<code>Sso@321</code> (see the Enterprise SSO chapter in this manual).</p>
+<p>Mission Control sign-in when <code>DASHBOARD_PASSWORD</code> is set. Uses the same dark/light design system as the dashboard (charcoal default, blue accent buttons). Argus Enterprise uses Keycloak/OIDC with demo accounts <code>demo</code>/<code>demo</code> and <code>ssouser</code>/<code>Sso@321</code> (see the Enterprise SSO chapter in this manual).</p>
 <p>For <strong>Argus Enterprise</strong> (Watchfloor) full setup steps, open <a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a> — that product does not use <code>DASHBOARD_PASSWORD</code>.</p>
 <h3>When to use it</h3>
 <ul>
 <li>You opened <code>/dashboard</code> and were redirected to <code>/login</code></li>
-<li>You need to confirm Mission Control auth before running cards that read
-cluster logs or artifacts</li>
-<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if
-you are unsure where to start</li>
+<li>You need to confirm Mission Control auth before running cards that read cluster logs or artifacts</li>
 </ul>
 <h3>How to get there</h3>
 <ul>
@@ -833,16 +866,15 @@ you are unsure where to start</li>
 <h4>Mission Control (community)</h4>
 <ol>
 <li>Ensure <code>DASHBOARD_PASSWORD</code> (and optional <code>DASHBOARD_USER</code>, default <code>admin</code>) is set.</li>
-<li>Open <code>/login</code>, enter username + password (lab defaults are often
-<code>admin</code> / <code>Admin@321</code> — rotate for anything exposed).</li>
+<li>Open <code>/login</code>, enter username + password (lab defaults are often <code>admin</code> / <code>Admin@321</code> — rotate for anything exposed).</li>
 <li>Optional: check <strong>Remember me</strong> for a longer session (30 days vs 12 h).</li>
 <li>After success you land on <code>/dashboard</code>. <code>/health</code> and <code>/webhook/github</code> stay open.</li>
 </ol>
+<p>Theme preference (<code>zyvor-theme</code> in browser storage) is shared with the dashboard after sign-in.</p>
 <h4>Argus Enterprise (Watchfloor)</h4>
 <ol>
 <li>Claim the fresh install with the one-time setup token from app logs.</li>
-<li>On the login screen, choose the SSO / Keycloak provider (or the local
-email/password form if local auth is enabled).</li>
+<li>On the login screen, choose the SSO / Keycloak provider (or the local email/password form if local auth is enabled).</li>
 <li>Demo accounts after a default Keycloak install:<ul>
 <li><code>demo</code> / <code>demo</code></li>
 <li><code>ssouser</code> / <code>Sso@321</code></li>
@@ -850,14 +882,8 @@ email/password form if local auth is enabled).</li>
 </li>
 <li>Verify with <code>scripts/test-login.sh https://argus.example.com demo demo</code>.</li>
 </ol>
-<p>Full steps (Helm, BYO OIDC, local auth, troubleshooting):
-<a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
-<p>If Mission Control login fails, hit <code>GET /health</code>, confirm <code>argus serve</code> is up,
-and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
-<ol start="5">
-<li><strong>Empty / fail:</strong> Check health, auth, and domain dependencies.</li>
-<li><strong>Success:</strong> Live data loads; mutations complete without error toasts.</li>
-</ol>
+<p>Full steps (Helm, BYO OIDC, local auth, troubleshooting): <a href="../../enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
+<p>If Mission Control login fails, hit <code>GET /health</code>, confirm <code>argus serve</code> is up, and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>Related pages</h3>
 <ul>
 <li><a href="../../getting-started.md">Getting Started</a></li>
@@ -880,7 +906,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/create</code></li>
-<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Create from English</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Create from English</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -910,7 +936,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/discover</code></li>
-<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Discover coverage</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Discover coverage</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -940,7 +966,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/generate</code></li>
-<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Generate tests</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Generate tests</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -970,7 +996,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/run-tests</code></li>
-<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Run tests</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Pipeline</strong> → <strong>Run tests</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1000,7 +1026,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/loadtest</code></li>
-<li>UI: Mission Control → <strong>Probes</strong> → <strong>Load test</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Probes</strong> → <strong>Load test</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1030,7 +1056,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/ping</code></li>
-<li>UI: Mission Control → <strong>Probes</strong> → <strong>Uptime ping</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Probes</strong> → <strong>Uptime ping</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1060,7 +1086,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/probes</code></li>
-<li>UI: Mission Control → <strong>Probes</strong> → <strong>Probes</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Probes</strong> → <strong>Probes</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1090,7 +1116,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/tls</code></li>
-<li>UI: Mission Control → <strong>Probes</strong> → <strong>TLS check</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Probes</strong> → <strong>TLS check</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1120,7 +1146,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/audit</code></li>
-<li>UI: Mission Control → <strong>Quality</strong> → <strong>Site audit</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Quality</strong> → <strong>Site audit</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1150,7 +1176,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/crawl</code></li>
-<li>UI: Mission Control → <strong>Quality</strong> → <strong>Crawl &amp; test</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Quality</strong> → <strong>Crawl &amp; test</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1180,7 +1206,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/flaky</code></li>
-<li>UI: Mission Control → <strong>Quality</strong> → <strong>Flaky check</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Quality</strong> → <strong>Flaky check</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1210,7 +1236,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/vitals</code></li>
-<li>UI: Mission Control → <strong>Quality</strong> → <strong>Web Vitals</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Quality</strong> → <strong>Web Vitals</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1240,7 +1266,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/attack-chain</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>Attack chain</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Attack chain</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1270,7 +1296,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/cloud-pentest</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>Cloud pentest</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Cloud pentest</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1300,7 +1326,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/cve-lookup</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>CVE lookup</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>CVE lookup</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1330,7 +1356,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/exploit-poc</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>Exploit PoC</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Exploit PoC</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1360,7 +1386,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/host-pentest</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>Host pentest</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Host pentest</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1380,7 +1406,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <hr>
 <h2>LLM red-team</h2>
 <h3>Purpose</h3>
-<p>Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</p>
+<p>Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</p>
 <h3>When to use it</h3>
 <ul>
 <li>Open this card when the job matches the purpose above</li>
@@ -1390,7 +1416,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/llm-redteam</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>LLM red-team</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>LLM red-team</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1420,7 +1446,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/misconfig-scan</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>Misconfig scan</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Misconfig scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1450,7 +1476,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/security-engagements</code></li>
-<li>UI: Mission Control → <strong>Security</strong> → <strong>Security engagements</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Security engagements</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1480,7 +1506,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/compare</code></li>
-<li>UI: Mission Control → <strong>Visual</strong> → <strong>Compare URLs</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Visual</strong> → <strong>Compare URLs</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1510,7 +1536,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/regression</code></li>
-<li>UI: Mission Control → <strong>Visual</strong> → <strong>Visual regression</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Visual</strong> → <strong>Visual regression</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1540,7 +1566,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/route-sweep</code></li>
-<li>UI: Mission Control → <strong>Visual</strong> → <strong>Route sweep</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Visual</strong> → <strong>Route sweep</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1570,7 +1596,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>How to get there</h3>
 <ul>
 <li>Surface: <code>/dashboard/actions/screenshot</code></li>
-<li>UI: Mission Control → <strong>Visual</strong> → <strong>Screenshot</strong> (scroll the Actions grid, or search with ⌘K / Ctrl-K)</li>
+<li>UI: Mission Control → <strong>Visual</strong> → <strong>Screenshot</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
@@ -1590,7 +1616,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <hr>
 <h2>Zyvor Argus — Complete page index</h2>
 <p>Every Mission Control surface and action card.</p>
-<p><em>42 routes</em></p>
+<p><em>43 routes</em></p>
 <p>Regenerate: <code>node scripts/customer-docs/generate-page-index.mjs</code></p>
 <h3>Overview</h3>
 <table>
@@ -1605,13 +1631,13 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <tbody><tr>
 <td>Mission Control</td>
 <td><code>/dashboard</code></td>
-<td>Live Mission Control console — status hero, workloads, pods, action cards, schedules, findings, and QA run history.</td>
+<td>Live Mission Control console — side-rail navigation, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.</td>
 <td><a href="pages/overview/dashboard.md">Open</a></td>
 </tr>
 <tr>
 <td>Login</td>
 <td><code>/login</code></td>
-<td>Mission Control DASHBOARD_PASSWORD gate; Argus Enterprise uses Keycloak SSO (demo/demo) — see customer/enterprise-sso.md.</td>
+<td>Mission Control sign-in — same dark/light design system as the dashboard; DASHBOARD_PASSWORD gate. Argus Enterprise uses Keycloak SSO (demo/demo) — see customer/enterprise-sso.md.</td>
 <td><a href="pages/overview/login.md">Open</a></td>
 </tr>
 <tr>
@@ -1635,14 +1661,31 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <tr>
 <td>Live job panel</td>
 <td><code>/dashboard/job-live</code></td>
-<td>Live panel for the running job — elapsed time, per-test chips, streaming log, Stop / download.</td>
+<td>Live panel for the running job — macOS Terminal chrome, syntax-colored log, per-test chips, Stop / download.</td>
 <td><a href="pages/overview/dashboard-job-live.md">Open</a></td>
 </tr>
 <tr>
 <td>Command palette</td>
 <td><code>/dashboard/command-palette</code></td>
-<td>⌘K / Ctrl-K spotlight to jump to any action card by name.</td>
+<td>⌘K / Ctrl-K or header Search — spotlight to jump to any action or Ask Zyra.</td>
 <td><a href="pages/overview/dashboard-command-palette.md">Open</a></td>
+</tr>
+</tbody></table>
+<h3>Console</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Route</th>
+<th>Purpose</th>
+<th>Guide</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ask Zyra</td>
+<td><code>/dashboard/ask</code></td>
+<td>Ask Zyra — citation-first product knowledge Q&amp;A (optional Qdrant RAG); read-only, no cluster mutations.</td>
+<td><a href="pages/console/dashboard-ask.md">Open</a></td>
 </tr>
 </tbody></table>
 <h3>Pipeline</h3>
@@ -1880,7 +1923,7 @@ and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <tr>
 <td>LLM red-team</td>
 <td><code>/dashboard/actions/llm-redteam</code></td>
-<td>Attacker/judge adversarial-prompt battery against Ask Zyvor — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</td>
+<td>Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</td>
 <td><a href="pages/security/dashboard-actions-llm-redteam.md">Open</a></td>
 </tr>
 <tr>

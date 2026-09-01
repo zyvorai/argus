@@ -2378,7 +2378,7 @@ def _job_cve_lookup(params: dict[str, Any]) -> dict[str, Any]:
 
 
 def _job_llm_redteam(params: dict[str, Any]) -> dict[str, Any]:
-    """Attacker→judge loop against Zyvor Argus's own Ask Zyvor RAG agent (or an
+    """Attacker→judge loop against Zyvor Argus's own Ask Zyra RAG agent (or an
     external /v1/qa endpoint), grading resistance to a curated adversarial
     prompt battery. First job kind that can emit `critical` severity."""
     import time as _time

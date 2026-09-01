@@ -13,7 +13,7 @@ Measure Core Web Vitals (LCP / CLS / INP) with optional device and network throt
 ## How to get there
 
 - Surface: `/dashboard/actions/vitals`
-- UI: Mission Control → **Quality** → **Web Vitals** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Quality** → **Web Vitals** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

@@ -97,7 +97,7 @@ The live-crawl agent (`playwright/scripts/crawl-site.mjs`) has its own, narrower
 Seven job kinds do deeper, potentially-invasive security testing —
 `misconfig_scan` (misconfig/recon beyond the static probes), `cve_lookup`
 (read-only, checks fingerprinted versions against OSV.dev), `llm_redteam`
-(adversarial-prompt battery against Ask Zyvor), `exploit_poc`
+(adversarial-prompt battery against Ask Zyra), `exploit_poc`
 (LLM-generated, sandboxed, non-destructive verification of a described
 finding), `attack_chain` (repeated `exploit_poc` steps chained by an LLM
 planner), and `host_pentest`/`cloud_pentest` (credentialed, sandboxed,

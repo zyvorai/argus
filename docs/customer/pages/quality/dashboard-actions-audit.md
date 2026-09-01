@@ -13,7 +13,7 @@ Crawl pages for a11y (axe), broken links, SEO, console, perf, and security heade
 ## How to get there
 
 - Surface: `/dashboard/actions/audit`
-- UI: Mission Control → **Quality** → **Site audit** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Quality** → **Site audit** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

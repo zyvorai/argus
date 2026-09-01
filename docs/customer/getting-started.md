@@ -48,11 +48,11 @@ install, smoke-test with `demo` / `demo` or `ssouser` / `Sso@321` — full guide
 
 ## 4. Orient yourself
 
-1. **Boot splash → hero** — pods, replicas, last QA run, pass rate, next smoke; signal field behind the hero.
-2. **Actions** — smoke, generate, flow, HAR, API, auth, vitals, probes, …
-3. **Live job panel** — streaming log, ✓/✗ chips, Stop.
-4. **Schedules / Findings / QA Runs** — monitors, collected issues, history.
-5. **⌘K** — jump to any card; double-click brand for **NOC**; `` ` `` for warp.
+1. **Overview hero** — pods, replicas, last QA run, pass rate, knowledge (Ask Zyra).
+2. **Side rail** — Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations, **Ask Zyra**.
+3. **Live job panel** — macOS Terminal log, ✓/✗ chips, Stop.
+4. **Schedules / Findings / QA Runs** — Operations panel.
+5. **⌘K / Search** — jump to any action; **theme toggle** for light mode.
 
 ## 5. First workflows
 

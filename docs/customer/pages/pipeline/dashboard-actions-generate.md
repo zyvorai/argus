@@ -13,7 +13,7 @@ Generate Playwright tests from a product spec (local path or GitHub).
 ## How to get there
 
 - Surface: `/dashboard/actions/generate`
-- UI: Mission Control → **Pipeline** → **Generate tests** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Pipeline** → **Generate tests** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

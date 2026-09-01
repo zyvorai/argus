@@ -24,7 +24,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
 <h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Getting Started</div>
-<div class="badge">2026-08-29</div>
+<div class="badge">2026-09-01</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><p><strong>Wrong product?</strong> If you need multi-target Watchfloor SSO / RBAC / billing, that is
 <strong>Argus Enterprise</strong>, not this Mission Control path — see <a href="which-product.md">Which product</a>.
@@ -76,11 +76,11 @@ install, smoke-test with <code>demo</code> / <code>demo</code> or <code>ssouser<
 <a href="enterprise-sso.md">Enterprise SSO / OIDC</a>.</p>
 <h2>4. Orient yourself</h2>
 <ol>
-<li><strong>Boot splash → hero</strong> — pods, replicas, last QA run, pass rate, next smoke; signal field behind the hero.</li>
-<li><strong>Actions</strong> — smoke, generate, flow, HAR, API, auth, vitals, probes, …</li>
-<li><strong>Live job panel</strong> — streaming log, ✓/✗ chips, Stop.</li>
-<li><strong>Schedules / Findings / QA Runs</strong> — monitors, collected issues, history.</li>
-<li><strong>⌘K</strong> — jump to any card; double-click brand for <strong>NOC</strong>; <code>`</code> for warp.</li>
+<li><strong>Overview hero</strong> — pods, replicas, last QA run, pass rate, knowledge (Ask Zyra).</li>
+<li><strong>Side rail</strong> — Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations, <strong>Ask Zyra</strong>.</li>
+<li><strong>Live job panel</strong> — macOS Terminal log, ✓/✗ chips, Stop.</li>
+<li><strong>Schedules / Findings / QA Runs</strong> — Operations panel.</li>
+<li><strong>⌘K / Search</strong> — jump to any action; <strong>theme toggle</strong> for light mode.</li>
 </ol>
 <h2>5. First workflows</h2>
 <h3>A. Smoke from the UI</h3>
@@ -115,7 +115,7 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 </ol>
 <hr>
 <p>Zyvor Argus’s <strong>Mission Control</strong> is a single live console at <code>/dashboard</code> (login at <code>/login</code> when password auth is on).</p>
-<h2>Surfaces</h2>
+<h2>Layout</h2>
 <table>
 <thead>
 <tr>
@@ -124,79 +124,50 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>Boot splash</strong></td>
-<td>Short warm-up intro on first load</td>
+<td><strong>Side rail</strong></td>
+<td>Category navigation: Overview, Ask Zyra, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations — collapsible to icons-only</td>
 </tr>
 <tr>
-<td><strong>Hero</strong></td>
-<td>Health banner + stat tiles (pods, replicas, last run, pass rate, cron) + primary Smoke CTA</td>
+<td><strong>Global header</strong></td>
+<td>Knowledge lamp, dark/light theme toggle, <strong>Search</strong> (opens ⌘K palette)</td>
 </tr>
 <tr>
-<td><strong>Signal field</strong></td>
-<td>Live constellation canvas behind the hero</td>
+<td><strong>Overview hero</strong></td>
+<td>Health banner + stat tiles (pods, replicas, last run, pass rate, cron, knowledge)</td>
 </tr>
 <tr>
-<td><strong>Glass topbar / footer</strong></td>
-<td>Sticky brand + status while you scroll</td>
+<td><strong>Panel viewport</strong></td>
+<td>One active category at a time; hash URLs (<code>#pipeline</code>, <code>#ask</code>, …) are bookmarkable</td>
 </tr>
 <tr>
 <td><strong>Workloads / Pods</strong></td>
 <td>K8s strip and pod cards with log drawer (needs kube SA or kubeconfig)</td>
 </tr>
 <tr>
-<td><strong>Actions grid</strong></td>
-<td>Every job card — smoke, flow, HAR, codegen, API, auth, vitals, probes, …</td>
+<td><strong>Action cards</strong></td>
+<td>Job cards inside each category panel — smoke, flow, HAR, probes, security, …</td>
 </tr>
 <tr>
 <td><strong>Live job panel</strong></td>
-<td>Streaming log, case chips, Stop, copy/download log</td>
+<td>macOS Terminal chrome — syntax-colored streaming log, case chips, Stop, copy/download log</td>
 </tr>
 <tr>
-<td><strong>Schedules</strong></td>
-<td>Loop smoke / audit / ping / TLS / flow / sweep / API / realtime / vitals</td>
-</tr>
-<tr>
-<td><strong>Findings</strong></td>
-<td>Aggregated issues from quality jobs</td>
-</tr>
-<tr>
-<td><strong>QA Runs / Videos</strong></td>
-<td>History and recorded journeys</td>
+<td><strong>Operations</strong></td>
+<td>Schedules, Findings, QA Runs, Videos</td>
 </tr>
 <tr>
 <td><strong>Command palette</strong></td>
-<td>⌘K / Ctrl-K to find any action by name</td>
+<td>⌘K / Ctrl-K or header <strong>Search</strong> — jump to any action or Ask Zyra</td>
 </tr>
 </tbody></table>
-<h2>UX extras</h2>
-<table>
-<thead>
-<tr>
-<th>Cue</th>
-<th>How</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>NOC wall</strong></td>
-<td>Double-click the <strong>Zyvor Mission Control</strong> brand</td>
-</tr>
-<tr>
-<td><strong>Warp flash</strong></td>
-<td>Press <code>`</code> or type <code>zyvor</code></td>
-</tr>
-<tr>
-<td><strong>Achievements</strong></td>
-<td>First visit / NOC / warp unlock toast badges</td>
-</tr>
-<tr>
-<td><strong>Reduced motion</strong></td>
-<td>Splash / flash / canvas respect <code>prefers-reduced-motion</code></td>
-</tr>
-</tbody></table>
+<h2>Theme</h2>
+<p>Dark charcoal theme is the default (Apple-style, minimal blue accent buttons). Use the <strong>moon/sun</strong> control in the header to switch to light mode; preference persists in the browser. Login uses the same design system.</p>
 <h2>Browse vs act</h2>
 <p>Reading pods, history, and findings is safe. Starting jobs mutates the target under test and writes reports under <code>reports/</code> — confirm URL, credentials, and scope before Run.</p>
 <h2>Practice on zyvor.dev</h2>
 <p>See <a href="test-zyvor-dev.md">Test zyvor.dev (with recording)</a> for smoke + flow video + HAR against the public site.</p>
+<h2>Ask Zyra</h2>
+<p>Optional citation-first knowledge Q&amp;A — side rail <strong>Ask Zyra</strong> or ⌘K. See <a href="../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>.</p>
 <h2>Related</h2>
 <ul>
 <li><a href="getting-started.md">Getting Started</a></li>
@@ -206,19 +177,19 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 </ul>
 <h2>Operate from the console (UX)</h2>
 <ol>
-<li>Open this route from the nav or command palette and wait for live API data.</li>
-<li>Use filters/search when present; drill into a row for detail.</li>
-<li>For mutating actions: confirm role gates and impact before applying.</li>
-<li><strong>Empty / fail:</strong> Check service health, auth, and that required CRDs/backends for this domain are installed.</li>
-<li><strong>Success:</strong> Live data loads; created/updated objects appear without error toasts.</li>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when auth is enabled).</li>
+<li>Pick a category from the side rail or ⌘K.</li>
+<li>Fill the action card fields, run the job, watch the live terminal panel.</li>
+<li>Review Findings / QA Runs / downloads when the job completes.</li>
+<li><strong>Empty / fail:</strong> Check <code>GET /health</code>, auth, and that Playwright browsers are installed on the host.</li>
 </ol>
 <hr>
 <p>Canonical how-to for pointing Zyvor Argus at <strong><a href="https://zyvor.dev">https://zyvor.dev</a></strong>. <strong>Watch the journey video first</strong>, then re-run the same flow locally.</p>
 <h2>Watch the recording</h2>
-<p><a href="https://youtu.be/ys7SvKKqf9w"><img src="https://img.youtube.com/vi/ys7SvKKqf9w/maxresdefault.jpg" alt="Zyvor Argus · Mission Control → GuestKit"></a></p>
-<p><video src="../assets/zyvor-dev-mission-control-demo.webm" controls width="720" title="zyvor.dev journey recording"></video></p>
+<p align="center">
+  <img src="../assets/zyvor-dev-mission-control-demo.gif" alt="Mission Control demo" width="720">
+</p><p><video src="../assets/zyvor-dev-mission-control-demo.webm" controls width="720" title="zyvor.dev journey recording"></video></p>
 <ul>
-<li><strong>YouTube (with thumbnail):</strong> <a href="https://youtu.be/ys7SvKKqf9w">https://youtu.be/ys7SvKKqf9w</a></li>
 <li><strong><a href="../assets/zyvor-dev-mission-control-demo.webm">Download the .webm</a></strong></li>
 <li>Steps used: <a href="../assets/zyvor-dev-demo.steps"><code>zyvor-dev-demo.steps</code></a> in <code>docs/assets/</code></li>
 <li>Full tutorial: <a href="../tutorials/13-test-zyvor-dev-recording.md">Test zyvor.dev with recording</a></li>
@@ -237,9 +208,9 @@ argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --vide
 # → http://localhost:8080/dashboard
 </code></pre>
 <ol>
-<li>▶ <strong>Smoke</strong></li>
-<li>🎬 <strong>Flow test</strong> — URL <code>https://zyvor.dev</code>, paste <a href="https://github.com/zyvorai/zyvor-argus/blob/main/docs/assets/zyvor-dev-demo.steps"><code>zyvor-dev-demo.steps</code></a>, <strong>record video</strong> on</li>
-<li>📼 <strong>HAR</strong> — optional record <code>/</code> then replay</li>
+<li><strong>Pipeline</strong> → ▶ <strong>Smoke</strong></li>
+<li><strong>Journeys</strong> → 🎬 <strong>Flow test</strong> — URL <code>https://zyvor.dev</code>, paste <a href="https://github.com/zyvorai/zyvor-argus/blob/main/docs/assets/zyvor-dev-demo.steps"><code>zyvor-dev-demo.steps</code></a>, <strong>record video</strong> on</li>
+<li><strong>Journeys</strong> → 📼 <strong>HAR</strong> — optional record <code>/</code> then replay</li>
 </ol>
 <h3>UX cues</h3>
 <table>
@@ -250,24 +221,24 @@ argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --vide
 </tr>
 </thead>
 <tbody><tr>
-<td>Boot splash</td>
-<td>Brief intro on first load</td>
+<td>Side rail</td>
+<td>Switch category panels (Pipeline, Journeys, …)</td>
 </tr>
 <tr>
-<td>Signal field</td>
-<td>Live constellation behind the hero</td>
+<td>Dark theme</td>
+<td>Default; header moon/sun for light mode</td>
 </tr>
 <tr>
-<td>⌘K</td>
+<td>⌘K / Search</td>
 <td>Command palette</td>
 </tr>
 <tr>
-<td>NOC wall</td>
-<td>Double-click the brand</td>
+<td>Live job panel</td>
+<td>Terminal-style log while jobs run</td>
 </tr>
 <tr>
-<td>Warp</td>
-<td><code>`</code> or type <code>zyvor</code></td>
+<td>Ask Zyra</td>
+<td>Side rail → citation-first Q&amp;A (optional)</td>
 </tr>
 </tbody></table>
 <h2>Related</h2>

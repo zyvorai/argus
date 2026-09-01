@@ -1,4 +1,4 @@
-# Tutorial 14 — Ask Zyvor (knowledge RAG)
+# Tutorial 14 — Ask Zyra (knowledge RAG)
 
 Grounded, citation-first answers about Zyvor products inside Mission Control. This is **optional** and separate from the Playwright test pipeline.
 
@@ -43,13 +43,13 @@ Sample corpus includes manuals, migration guides, API reference, known issues, r
 argus serve --port 8080
 ```
 
-Open `/dashboard` → **Ask Zyvor**.
+Open `/dashboard` → **Ask Zyra**.
 
 - Pick a product filter (e.g. PacketWolf)
 - Ask: *How can PacketWolf allow namespace communication while blocking internet access?*
 - Expect citations, confidence, and optional “insufficient context”
 - Use **⧉ copy MD** for Slack/Jira; **New thread** for a fresh conversation
-- ⌘K → “Ask Zyvor” focuses the panel
+- ⌘K → “Ask Zyra” focuses the panel
 
 The browser calls `POST /api/dashboard/ask` (session auth). Tenant and access levels come from server config (`KNOWLEDGE_TENANT_ID` / `KNOWLEDGE_ACCESS_LEVELS`), never from the client.
 
@@ -97,7 +97,7 @@ ENABLE_LIVE_CLUSTER_TOOLS=true
 KNOWLEDGE_LIVE_NAMESPACES=default,kube-system,rook-ceph
 ```
 
-Ask Zyvor can then combine docs with observed state via read-only tools such as
+Ask Zyra can then combine docs with observed state via read-only tools such as
 `get_cluster_summary`, `get_hubble_health`, `get_kubevirt_vm_status`,
 `get_packetwolf_policy`, `get_vm_migration_status`, `get_guestkit_report`, and
 `get_cilium_status`. Namespace queries outside the allowlist are denied. The
@@ -108,7 +108,7 @@ A **separate** remediation planner can be enabled with `ENABLE_REMEDIATION_AGENT
 approval for restart requests. Set `ENABLE_REMEDIATION_EXECUTOR=true` plus namespace/prefix
 allowlists to execute approved pod restarts; otherwise approval only records intent.
 
-Ask Zyvor streams progress over `POST /api/dashboard/ask/stream` (understanding → tool
+Ask Zyra streams progress over `POST /api/dashboard/ask/stream` (understanding → tool
 calls → final answer) when `ENABLE_ASK_STREAMING=true`.
 
 ## Notes
@@ -118,4 +118,4 @@ calls → final answer) when `ENABLE_ASK_STREAMING=true`.
 - PII middleware redacts emails and common API-token patterns from inputs/tool results. Set `LLM_FALLBACK_MODEL` for automatic model failover.
 - Answers are read-only knowledge — the agent will not mutate cluster state. Live tools are also read-only when enabled.
 - Re-ingesting a file deletes prior chunks for the same tenant + source path before indexing.
-- Without `[knowledge]` extras, Mission Control still works; Ask Zyvor shows offline / install hints.
+- Without `[knowledge]` extras, Mission Control still works; Ask Zyra shows offline / install hints.

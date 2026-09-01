@@ -193,7 +193,7 @@ gated behind an authorized **security engagement**:
 |----------|------|--------------|
 | `misconfig_scan` | `active_recon` | Tech/version fingerprinting, wordlist-driven path discovery (`agents/probes/data/misconfig_paths.txt`), security-header *value* grading, DNS hygiene (SPF/DMARC/CAA) — `agents/probes/misconfig_scan.py` |
 | `cve_lookup` | `active_recon` | Read-only: fingerprints tech/versions, checks them against OSV.dev — `agents/probes/cve_lookup.py`. No PoC is generated or run |
-| `llm_redteam` | `active_recon` | Attacker→judge loop against Ask Zyvor (curated battery, `agents/redteam/`) — prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, PII/secret exfiltration |
+| `llm_redteam` | `active_recon` | Attacker→judge loop against Ask Zyra (curated battery, `agents/redteam/`) — prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, PII/secret exfiltration |
 | `exploit_poc` | `exploit` | Generates a non-destructive verification script via LLM for a described finding and runs it in a sandboxed Kubernetes Job (`orchestrator/security/sandbox.py`, `kubernetes/sandbox.yaml`) — never in-process. Also requires `ZYVOR_EXPLOIT_EXECUTION_ENABLED=true` |
 | `attack_chain` | `exploit` | Repeatedly plan-and-verifies one escalation step at a time (LLM planner + `exploit_poc`'s exact PoC-generation/sandbox machinery), stopping the moment a step fails or the planner has nothing safe left to propose (max 5 steps). Same gates as `exploit_poc` |
 | `host_pentest` | `exploit` | Non-destructive SSH enumeration (`paramiko`) via a specially-imaged sandbox (`ZYVOR_SANDBOX_HOST_IMAGE`). Also requires `ZYVOR_CREDENTIALED_PENTEST_ENABLED=true`; creds must be `$secret` refs |

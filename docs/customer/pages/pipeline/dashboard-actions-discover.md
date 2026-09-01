@@ -13,7 +13,7 @@ Scan repo code/docs for untested routes and pages, then propose coverage.
 ## How to get there
 
 - Surface: `/dashboard/actions/discover`
-- UI: Mission Control → **Pipeline** → **Discover coverage** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Pipeline** → **Discover coverage** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

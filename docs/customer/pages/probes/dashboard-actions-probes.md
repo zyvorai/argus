@@ -13,7 +13,7 @@ One-shot network & security probes: redirects, headers, cookies, robots, exposed
 ## How to get there
 
 - Surface: `/dashboard/actions/probes`
-- UI: Mission Control → **Probes** → **Probes** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Probes** → **Probes** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 

@@ -13,7 +13,7 @@ Simple concurrency load test for latency under pressure.
 ## How to get there
 
 - Surface: `/dashboard/actions/loadtest`
-- UI: Mission Control → **Probes** → **Load test** (scroll the Actions grid, or search with ⌘K / Ctrl-K)
+- UI: Mission Control → **Probes** → **Load test** (side rail panel, or ⌘K / Ctrl-K Search)
 
 ## Operate from the console (UX)
 
