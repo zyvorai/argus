@@ -168,14 +168,25 @@ panel. Tests: `tests/unit/test_sql_guard.py`, `test_db_assert_runner.py`
 (mirrors `test_pentest_jobs.py`'s secret-non-leak shape); extended
 `test_jobs_validate.py`.
 
-**Also noticed, not fixed (pre-existing, out of scope for this pass):**
-`cloud_pentest`'s Mission Control card doesn't actually exist —
-`jobParams("cloud_pentest")` in `templates/dashboard.html.j2` references
+**Also noticed during this phase, fixed in a follow-up pass:**
+`cloud_pentest`'s Mission Control card didn't actually exist —
+`jobParams("cloud_pentest")` in `templates/dashboard.html.j2` referenced
 DOM elements (`cp-eng`, `cp-creds`, `cp-provider`, `cp-target`, `cp-finding`,
-`cp-timeout`) that aren't present anywhere in the template, only reachable
-via the command palette entry which hits the same missing elements.
-`cloud_pentest` is presumably only usable via direct API calls today, not
-through the dashboard UI.
+`cp-timeout`) that weren't present anywhere in the template, only reachable
+via the command palette entry which hit the same missing elements.
+Added the `action-cloud-pentest` card to the Security panel (same shape as
+`action-host-pentest`, right above it). Live-verified against a real
+`argus serve` instance with `ZYVOR_CREDENTIALED_PENTEST_ENABLED=true`: opened
+the dashboard in a real browser, confirmed the card renders and scrolls into
+view, filled all six fields (including a `$secret` env-ref for
+`secret_access_key`) and selected a real `exploit`-tier engagement, confirmed
+`jobParams("cloud_pentest")` builds the exact expected params object with the
+secret ref intact, then clicked through `startJob("cloud_pentest")` and
+confirmed via `/api/dashboard/jobs/status` it reaches the same
+"exploit sandbox unavailable" `RuntimeError` boundary as `host_pentest`/
+`db_assert`/`chaos_inject` in this cluster-less dev environment — and that the
+persisted job params show `secret_access_key: "***"`, i.e. redaction holds
+end-to-end through the real UI path, not just in unit tests.
 
 ### ~~Phase 4: `chaos_inject` / `chaos_webhook` (fault-injection testing)~~ — done
 
