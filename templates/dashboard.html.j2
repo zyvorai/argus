@@ -1329,6 +1329,72 @@
       </div>
     </div>
 
+<div class="glass card act" id="action-chaos-inject" style="grid-column: 1 / -1">
+      <div class="act-title">💥 Chaos inject — client-side fault injection while a control test observes</div>
+      <div class="d" style="margin-bottom:8px">Needs a second gate — <code>ZYVOR_CHAOS_INJECTION_ENABLED=true</code> — and <code>ZYVOR_SANDBOX_CHAOS_IMAGE</code> configured server-side. Shapes the sandbox's own egress toward the target (<code>tc</code>/<code>iptables</code>) — never the target's own infrastructure. <b>You must confirm below that this target has consented to fault injection.</b></div>
+      <div class="act-row">
+        <input class="inp grow" id="ci-url" placeholder="https://your-app.example.com">
+        <select class="inp" id="ci-fault-type" style="max-width:170px">
+          <option value="latency">latency</option>
+          <option value="packet_loss">packet_loss</option>
+          <option value="connection_reset">connection_reset</option>
+          <option value="dependency_timeout">dependency_timeout</option>
+        </select>
+      </div>
+      <div class="act-row" style="gap:10px">
+        <input class="inp" id="ci-latency" type="number" value="200" min="0" max="5000" style="width:110px" title="latency_ms (latency fault)">
+        <input class="inp" id="ci-loss" type="number" value="10" min="0" max="100" style="width:100px" title="packet_loss_pct (packet_loss fault)">
+        <input class="inp" id="ci-duration" type="number" value="30" min="5" max="120" style="width:100px" title="duration_s">
+        <select class="inp" id="ci-control-kind" style="max-width:120px">
+          <option value="flow">flow</option>
+          <option value="smoke">smoke</option>
+        </select>
+      </div>
+      <div class="act-row"><textarea class="inp grow" id="ci-control-desc" rows="2" placeholder="control test — flow: describe the journey to run while the fault is active; smoke: @grep pattern (optional)"></textarea></div>
+      <div class="act-row" style="gap:10px">
+        <input class="inp" id="ci-error-threshold" type="number" value="10" min="0" max="100" style="width:110px" title="error_rate_threshold_pct">
+        <input class="inp" id="ci-recovery-sla" type="number" value="30" min="1" max="300" style="width:110px" title="recovery_sla_s">
+        <label class="chk"><input type="checkbox" id="ci-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row" style="gap:10px">
+        <label class="chk" style="font-weight:600"><input type="checkbox" id="ci-consent"> this target has consented to fault injection</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="ci-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="chaos_inject" style="margin-left:auto">💥 Inject fault</button>
+      </div>
+    </div>
+
+<div class="glass card act" id="action-chaos-webhook" style="grid-column: 1 / -1">
+      <div class="act-title">🌐 Chaos webhook — trigger your own chaos experiment, then observe</div>
+      <div class="d" style="margin-bottom:8px">Zero new sandbox capability — POSTs to a chaos-experiment webhook you own (Chaos Mesh/Litmus/etc.), waits, then runs a control test. Same two gates as Chaos inject. <b>You must confirm below that this target has consented to fault injection.</b></div>
+      <div class="act-row">
+        <input class="inp grow" id="cw-url" placeholder="https://your-app.example.com">
+        <input class="inp" id="cw-settle" type="number" value="5" min="1" max="60" style="width:100px" title="settle_s">
+      </div>
+      <div class="act-row">
+        <input class="inp grow" id="cw-start-url" placeholder="experiment start webhook URL">
+        <input class="inp grow" id="cw-stop-url" placeholder="experiment stop webhook URL (optional)">
+      </div>
+      <div class="act-row" style="gap:10px">
+        <select class="inp" id="cw-control-kind" style="max-width:120px">
+          <option value="flow">flow</option>
+          <option value="smoke">smoke</option>
+        </select>
+        <input class="inp" id="cw-error-threshold" type="number" value="10" min="0" max="100" style="width:110px" title="error_rate_threshold_pct">
+        <input class="inp" id="cw-recovery-sla" type="number" value="30" min="1" max="300" style="width:110px" title="recovery_sla_s">
+        <label class="chk"><input type="checkbox" id="cw-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row"><textarea class="inp grow" id="cw-control-desc" rows="2" placeholder="control test — flow: describe the journey to run after triggering the experiment; smoke: @grep pattern (optional)"></textarea></div>
+      <div class="act-row" style="gap:10px">
+        <label class="chk" style="font-weight:600"><input type="checkbox" id="cw-consent"> this target has consented to fault injection</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="cw-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="chaos_webhook" style="margin-left:auto">🌐 Trigger &amp; observe</button>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1637,7 +1703,7 @@ const PANEL_FOR_KIND = {
   api_contract: "api", realtime: "api", auth_test: "api",
   misconfig_scan: "security", cve_lookup: "security", llm_redteam: "security",
   exploit_poc: "security", attack_chain: "security", host_pentest: "security", cloud_pentest: "security",
-  db_assert: "security",
+  db_assert: "security", chaos_inject: "security", chaos_webhook: "security",
 };
 function showPanel(id, opts) {
   opts = opts || {};
@@ -2878,6 +2944,16 @@ $("logout").addEventListener("click", async (ev) => {
   location.href = "/login";
 });
 
+/* chaos_inject/chaos_webhook share the same control-test param shape */
+function buildChaosControlParams(controlKind, descText) {
+  if (controlKind === "smoke") {
+    const params = {};
+    if (descText) params.grep = descText;
+    return params;
+  }
+  return { description: descText, record: false };
+}
+
 /* job triggers — every CLI capability, online */
 function jobParams(kind) {
   if (kind === "smoke") return {
@@ -3105,6 +3181,47 @@ function jobParams(kind) {
       engagement_id: $("dba-eng").value,
     };
   }
+  if (kind === "chaos_inject") {
+    if (!$("ci-consent").checked) {
+      toast("chaos_inject", false, "confirm the target has consented to fault injection first");
+      throw new Error("consent required");
+    }
+    const controlKind = $("ci-control-kind").value;
+    return {
+      url: $("ci-url").value.trim(),
+      fault_type: $("ci-fault-type").value,
+      latency_ms: parseInt($("ci-latency").value, 10) || 200,
+      packet_loss_pct: parseInt($("ci-loss").value, 10) || 10,
+      duration_s: parseInt($("ci-duration").value, 10) || 30,
+      control_kind: controlKind,
+      control_params: buildChaosControlParams(controlKind, $("ci-control-desc").value.trim()),
+      error_rate_threshold_pct: parseFloat($("ci-error-threshold").value) || 10,
+      recovery_sla_s: parseFloat($("ci-recovery-sla").value) || 30,
+      insecure: $("ci-insecure").checked,
+      target_accepts_fault_injection: true,
+      engagement_id: $("ci-eng").value,
+    };
+  }
+  if (kind === "chaos_webhook") {
+    if (!$("cw-consent").checked) {
+      toast("chaos_webhook", false, "confirm the target has consented to fault injection first");
+      throw new Error("consent required");
+    }
+    const controlKind = $("cw-control-kind").value;
+    return {
+      url: $("cw-url").value.trim(),
+      experiment_webhook_url: $("cw-start-url").value.trim(),
+      experiment_stop_webhook_url: $("cw-stop-url").value.trim(),
+      settle_s: parseInt($("cw-settle").value, 10) || 5,
+      control_kind: controlKind,
+      control_params: buildChaosControlParams(controlKind, $("cw-control-desc").value.trim()),
+      error_rate_threshold_pct: parseFloat($("cw-error-threshold").value) || 10,
+      recovery_sla_s: parseFloat($("cw-recovery-sla").value) || 30,
+      insecure: $("cw-insecure").checked,
+      target_accepts_fault_injection: true,
+      engagement_id: $("cw-eng").value,
+    };
+  }
   if (kind === "cloud_pentest") {
     let creds = {};
     const raw = $("cp-creds").value.trim();
@@ -3185,7 +3302,7 @@ const KIND_LABELS = { smoke: "smoke tests", full: "full pipeline", generate: "ge
   har_replay: "HAR record/replay", import_codegen: "import codegen",
   misconfig_scan: "misconfig scan", cve_lookup: "CVE lookup", sca_scan: "SCA scan", llm_redteam: "LLM red-team",
   exploit_poc: "exploit PoC", attack_chain: "attack chain", host_pentest: "host pentest", cloud_pentest: "cloud pentest",
-  db_assert: "DB assert" };
+  db_assert: "DB assert", chaos_inject: "chaos inject", chaos_webhook: "chaos webhook" };
 
 let lastToastKey = "";
 function renderRunStatus(st) {

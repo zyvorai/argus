@@ -50,6 +50,26 @@ def test_cloud_pentest_image_returns_configured_value(monkeypatch):
     assert sandbox.cloud_pentest_image() == "ghcr.io/example/cloud-pentest:latest"
 
 
+def test_db_image_none_when_unset(monkeypatch):
+    monkeypatch.delenv("ZYVOR_SANDBOX_DB_IMAGE", raising=False)
+    assert sandbox.db_image() is None
+
+
+def test_db_image_returns_configured_value(monkeypatch):
+    monkeypatch.setenv("ZYVOR_SANDBOX_DB_IMAGE", "ghcr.io/example/db-assert:latest")
+    assert sandbox.db_image() == "ghcr.io/example/db-assert:latest"
+
+
+def test_chaos_image_none_when_unset(monkeypatch):
+    monkeypatch.delenv("ZYVOR_SANDBOX_CHAOS_IMAGE", raising=False)
+    assert sandbox.chaos_image() is None
+
+
+def test_chaos_image_returns_configured_value(monkeypatch):
+    monkeypatch.setenv("ZYVOR_SANDBOX_CHAOS_IMAGE", "ghcr.io/example/chaos:latest")
+    assert sandbox.chaos_image() == "ghcr.io/example/chaos:latest"
+
+
 def test_available_false_without_namespace_env(monkeypatch):
     monkeypatch.delenv("ZYVOR_SANDBOX_NAMESPACE", raising=False)
     assert sandbox.available() is False
@@ -195,6 +215,46 @@ def test_run_python_happy_path_creates_and_cleans_up_job(monkeypatch):
     assert fake_core.create_namespaced_config_map.call_count == 1
     assert fake_batch.delete_namespaced_job.call_count == 1
     assert fake_core.delete_namespaced_config_map.call_count == 1
+
+    # The sandbox's normal invariant: every OTHER kind (this one included)
+    # drops every capability, none added.
+    _, job_arg = fake_batch.create_namespaced_job.call_args[0]
+    security_context = job_arg.spec.template.spec.containers[0].security_context
+    assert security_context.capabilities.drop == ["ALL"]
+    assert security_context.capabilities.add is None
+    assert security_context.run_as_non_root is True
+    assert security_context.read_only_root_filesystem is True
+
+
+def test_run_chaos_grants_only_net_admin_on_top_of_the_same_hardening(monkeypatch):
+    """The one deliberate, narrow exception to the sandbox's normal 'drop
+    ALL capabilities' invariant (see ROADMAP.md's chaos-testing section) --
+    confirms run_chaos() actually differs from run_python() in exactly the
+    one way it's supposed to (CAP_NET_ADMIN added) and nothing else
+    (non-root/read-only-rootfs/no-token/limits stay identical)."""
+    monkeypatch.setenv("ZYVOR_SANDBOX_NAMESPACE", "argus-sandbox")
+
+    fake_batch = MagicMock()
+    fake_batch.read_namespaced_job_status.return_value = _FakeJobStatusResponse(_FakeStatus(succeeded=1))
+    fake_core = MagicMock()
+    fake_core.list_namespaced_pod.return_value = _FakePodList([_FakePod("zyvor-poc-abc-xyz", 0)])
+    fake_core.read_namespaced_pod_log.return_value = 'RESULT: {"phase": "teardown_complete"}\n'
+    monkeypatch.setattr(k8s_module, "_load_clients", lambda: {"core": fake_core, "batch": fake_batch})
+
+    result = sandbox.run_chaos("#!/bin/sh\ntrue\n", timeout_s=10, image="custom/chaos-image:latest")
+
+    assert result.exit_code == 0
+    _, job_arg = fake_batch.create_namespaced_job.call_args[0]
+    container = job_arg.spec.template.spec.containers[0]
+    security_context = container.security_context
+    assert security_context.capabilities.drop == ["ALL"]
+    assert security_context.capabilities.add == ["NET_ADMIN"]
+    # everything else identical to run_python()'s hardening
+    assert security_context.run_as_non_root is True
+    assert security_context.read_only_root_filesystem is True
+    assert security_context.allow_privilege_escalation is False
+    assert security_context.run_as_user == 65534
+    assert container.image == "custom/chaos-image:latest"
 
 
 def test_run_python_sets_image_pull_policy_if_not_present(monkeypatch):

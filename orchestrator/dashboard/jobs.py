@@ -45,7 +45,7 @@ VALID_KINDS = {
     "api_contract", "api_contract_diff", "contract_verify", "auth_test", "realtime", "vitals", "ai_flow",
     "har_replay", "import_codegen",
     "misconfig_scan", "cve_lookup", "sca_scan", "llm_redteam", "exploit_poc", "attack_chain",
-    "host_pentest", "cloud_pentest", "db_assert",
+    "host_pentest", "cloud_pentest", "db_assert", "chaos_inject", "chaos_webhook",
 } | PROBE_KINDS
 
 # Job kinds gated behind an authorized security engagement
@@ -63,7 +63,15 @@ ELEVATED_RISK_KINDS: dict[str, str] = {
     "attack_chain": "exploit",
     "host_pentest": "exploit",
     "cloud_pentest": "exploit",
+    "chaos_inject": "exploit",
+    "chaos_webhook": "exploit",
 }
+
+# control_kind allowlist for chaos_inject/chaos_webhook -- the "observe
+# behavior under fault" test. Deliberately narrow: running e.g. exploit_poc
+# as the "control" makes no sense and must be rejected, not silently
+# accepted.
+_CHAOS_CONTROL_KINDS = {"flow", "smoke"}
 
 _lock = threading.Lock()
 _cancel = threading.Event()
@@ -635,6 +643,62 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("assertion must be a dict with mode in row_count|cell_equals|column_values")
         clean["assertion"] = assertion
         clean["timeout_s"] = max(5, min(int(params.get("timeout_s") or 30), 120))
+    if kind in ("chaos_inject", "chaos_webhook"):
+        # Two gates shared by both kinds, on top of the exploit-tier
+        # engagement check at the end of _validate(): an independent
+        # fail-closed opt-in (mirrors ZYVOR_EXPLOIT_EXECUTION_ENABLED's
+        # pattern), and a per-run attestation -- distinct from the other
+        # two because it's a confirmation THIS target consented to being
+        # broken, not operator-level policy. Even client-side-only fault
+        # injection against a target with no resilience has real impact.
+        if os.environ.get("ZYVOR_CHAOS_INJECTION_ENABLED", "false").strip().lower() not in {"1", "true", "yes", "on"}:
+            raise ValueError(f"{kind} is disabled — set ZYVOR_CHAOS_INJECTION_ENABLED=true to enable it")
+        if params.get("target_accepts_fault_injection") is not True:
+            raise ValueError(
+                "target_accepts_fault_injection must be true — an explicit, per-run "
+                "confirmation that this specific target has consented to fault injection"
+            )
+        clean["target_accepts_fault_injection"] = True
+
+        url = (params.get("url") or "").strip()
+        if not url.startswith(("http://", "https://")):
+            raise ValueError("url must start with http:// or https://")
+        clean["url"] = url[:500]
+        clean["insecure"] = bool(params.get("insecure"))
+
+        control_kind = (params.get("control_kind") or "").strip()
+        if control_kind not in _CHAOS_CONTROL_KINDS:
+            raise ValueError(f"control_kind must be one of {sorted(_CHAOS_CONTROL_KINDS)}")
+        clean["control_kind"] = control_kind
+        control_params = dict(params.get("control_params") or {})
+        control_params["url"] = url
+        try:
+            clean["control_params"] = _validate(control_kind, control_params)
+        except ValueError as exc:
+            raise ValueError(f"control_params invalid for control_kind {control_kind!r}: {exc}") from exc
+
+        clean["error_rate_threshold_pct"] = max(0.0, min(float(params.get("error_rate_threshold_pct") or 10.0), 100.0))
+        clean["recovery_sla_s"] = max(1.0, min(float(params.get("recovery_sla_s") or 30.0), 300.0))
+    if kind == "chaos_inject":
+        from agents.chaos.inject_script import FAULT_TYPES
+
+        fault_type = (params.get("fault_type") or "").strip()
+        if fault_type not in FAULT_TYPES:
+            raise ValueError(f"fault_type must be one of {FAULT_TYPES}")
+        clean["fault_type"] = fault_type
+        # Hard-capped server-side, not relaxable via params -- blast radius
+        # is real even for client-side-only fault injection.
+        clean["latency_ms"] = max(0, min(int(params.get("latency_ms") or 200), 5000))
+        clean["packet_loss_pct"] = max(0, min(int(params.get("packet_loss_pct") or 10), 100))
+        clean["duration_s"] = max(5, min(int(params.get("duration_s") or 30), 120))
+    if kind == "chaos_webhook":
+        experiment_url = (params.get("experiment_webhook_url") or "").strip()
+        if not experiment_url.startswith(("http://", "https://")):
+            raise ValueError("experiment_webhook_url must start with http:// or https://")
+        clean["experiment_webhook_url"] = experiment_url[:500]
+        stop_url = (params.get("experiment_stop_webhook_url") or "").strip()
+        clean["experiment_stop_webhook_url"] = stop_url[:500] if stop_url.startswith(("http://", "https://")) else ""
+        clean["settle_s"] = max(1, min(int(params.get("settle_s") or 5), 60))
     if kind in PROBE_KINDS:
         target = (params.get("url") or params.get("host") or "").strip()
         if kind == "dns_records":
@@ -653,7 +717,8 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
     # pass also catches URL fields added by future job kinds.
     from orchestrator.security.target_policy import TargetPolicy
     policy = TargetPolicy.from_env()
-    for key in ("url", "url_a", "url_b", "login_url", "protected", "logout_url", "ticket_url"):
+    for key in ("url", "url_a", "url_b", "login_url", "protected", "logout_url", "ticket_url",
+                "experiment_webhook_url", "experiment_stop_webhook_url"):
         value = clean.get(key)
         if isinstance(value, str) and value.startswith(("http://", "https://")):
             clean[key] = policy.validate_url(value)
@@ -3212,6 +3277,211 @@ def _job_db_assert(params: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _extract_error_bodies(control_kind: str, control_result: dict[str, Any]) -> list[str]:
+    """Best-effort per-case error text for verdict.py's stack-trace check.
+    Only 'flow' exposes this at the level _job_flow returns it
+    (flow_steps[].error) -- 'smoke' results don't carry per-case error text
+    at this layer, so this returns [] for it rather than guessing.
+    error_rate (the primary resilience criterion) is computed correctly for
+    both kinds from passed/failed/total regardless."""
+    if control_kind == "flow":
+        return [
+            step.get("error", "") for step in control_result.get("flow_steps", [])
+            if step.get("status") != "passed" and step.get("error")
+        ]
+    return []
+
+
+def _job_chaos_inject(params: dict[str, Any]) -> dict[str, Any]:
+    """Client-side fault injection: shapes the sandbox pod's OWN egress
+    toward the target (tc netem for latency/packet_loss, iptables for
+    connection_reset/dependency_timeout) while a concurrently-run control
+    test (flow/smoke) observes behavior. Never touches the target's own
+    infrastructure -- real target-cluster pod-kill/infra chaos is
+    explicitly out of scope (see _job_chaos_webhook for that case, and
+    ROADMAP.md for the full reasoning). Three gates, checked in
+    _validate(): exploit-tier engagement, ZYVOR_CHAOS_INJECTION_ENABLED,
+    and a per-run target_accepts_fault_injection attestation."""
+    import threading
+    import time as _time
+    from urllib.parse import urlsplit
+
+    from agents.chaos.inject_script import build_injection_script
+    from agents.chaos.probe import measure_latency_s, measure_recovery_s
+    from agents.chaos.verdict import assess_resilience
+    from agents.common.models import PipelineReport
+    from orchestrator.dashboard import findings, history
+    from orchestrator.security import sandbox
+
+    t0 = _time.time()
+    url = params["url"]
+    fault_type = params["fault_type"]
+    duration_s = params["duration_s"]
+    control_kind = params["control_kind"]
+    control_params = params["control_params"]
+    insecure = params.get("insecure", False)
+
+    if not sandbox.available():
+        raise RuntimeError(
+            "exploit sandbox unavailable — set ZYVOR_SANDBOX_NAMESPACE and ensure "
+            "the cluster is reachable (see kubernetes/sandbox.yaml)"
+        )
+    image = sandbox.chaos_image()
+    if not image:
+        raise RuntimeError(
+            "chaos_inject needs a sandbox image with iproute2/iptables installed — "
+            "set ZYVOR_SANDBOX_CHAOS_IMAGE (see docs/enterprise-v2.md)"
+        )
+
+    parsed = urlsplit(url)
+    target_host = parsed.hostname or url
+    target_port = parsed.port or (443 if parsed.scheme == "https" else 80)
+
+    log_progress(f"chaos_inject: measuring baseline latency for {url}")
+    baseline_s = measure_latency_s(url, insecure=insecure) or 1.0
+
+    script = build_injection_script(
+        fault_type=fault_type, target_host=target_host, target_port=target_port,
+        latency_ms=params["latency_ms"], packet_loss_pct=params["packet_loss_pct"], duration_s=duration_s,
+    )
+
+    sandbox_holder: dict[str, Any] = {}
+
+    def _run_fault() -> None:
+        sandbox_holder["result"] = sandbox.run_chaos(
+            script, timeout_s=duration_s + 30, egress_hosts=[target_host], image=image,
+        )
+
+    fault_thread = threading.Thread(target=_run_fault)
+    fault_thread.start()
+    _time.sleep(min(3, duration_s / 4))  # let the fault actually apply before observing
+    log_progress(f"chaos_inject: fault active ({fault_type}), running control test {control_kind}…")
+    control_result = _JOBS[control_kind](control_params)
+    _check_cancel()
+    fault_thread.join(timeout=duration_s + 60)
+    sandbox_result = sandbox_holder.get("result")
+
+    log_progress("chaos_inject: measuring recovery…")
+    recovery_s = measure_recovery_s(url, baseline_s, max_wait_s=params["recovery_sla_s"] * 2, insecure=insecure)
+
+    total = control_result.get("total", 0) or 0
+    failed = control_result.get("failed", 0) or 0
+    error_rate_pct = (100.0 * failed / total) if total else 0.0
+    error_bodies = _extract_error_bodies(control_kind, control_result)
+
+    graceful, reason = assess_resilience(
+        error_rate_pct=error_rate_pct, error_rate_threshold_pct=params["error_rate_threshold_pct"],
+        recovery_s=recovery_s, recovery_sla_s=params["recovery_sla_s"], error_bodies=error_bodies,
+    )
+    log_progress(f"chaos_inject: {'graceful degradation' if graceful else 'resilience gap'} — {reason}")
+
+    raised: list[dict[str, Any]] = []
+    if not graceful:
+        title = f"resilience gap under {fault_type} fault on {url}: {reason}"
+        severity = "high" if recovery_s is None else "medium"
+        findings.add("chaos_inject", severity, title, detail=reason, url=url, category="resilience-gap")
+        raised.append({"severity": severity, "title": title, "detail": reason, "category": "resilience-gap"})
+
+    hist = PipelineReport(
+        summary=f"chaos_inject ({fault_type}) on {url}: {'graceful' if graceful else 'resilience gap'}",
+        passed=1 if graceful else 0, failed=0 if graceful else 1, total=1,
+    )
+    history.append_run(hist, source="dashboard-chaos-inject", duration_s=_time.time() - t0)
+
+    return {
+        "url": url, "fault_type": fault_type, "graceful": graceful, "reason": reason,
+        "error_rate_pct": round(error_rate_pct, 1), "recovery_s": recovery_s, "baseline_s": round(baseline_s, 3),
+        "control_kind": control_kind, "control_result": {"passed": control_result.get("passed"), "failed": failed, "total": total},
+        "sandbox_stdout": (sandbox_result.stdout if sandbox_result else "")[:2000],
+        "network_policy_applied": sandbox_result.network_policy_applied if sandbox_result else False,
+        "findings": raised,
+    }
+
+
+def _job_chaos_webhook(params: dict[str, Any]) -> dict[str, Any]:
+    """Customer-triggered chaos: POSTs to the customer's OWN chaos-
+    experiment webhook (Chaos Mesh/Litmus/etc.), waits `settle_s`, runs the
+    control test, optionally POSTs a stop-webhook. Zero new sandbox
+    capability -- reuses the same job-composition pattern
+    _job_import_codegen already uses calling _job_flow internally. Same
+    three gates as chaos_inject, checked in _validate()."""
+    import time as _time
+
+    import httpx
+
+    from agents.chaos.probe import measure_latency_s, measure_recovery_s
+    from agents.chaos.verdict import assess_resilience
+    from agents.common.models import PipelineReport
+    from orchestrator.dashboard import findings, history
+
+    t0 = _time.time()
+    url = params["url"]
+    experiment_url = params["experiment_webhook_url"]
+    stop_url = params.get("experiment_stop_webhook_url") or ""
+    control_kind = params["control_kind"]
+    control_params = params["control_params"]
+    insecure = params.get("insecure", False)
+
+    log_progress(f"chaos_webhook: measuring baseline latency for {url}")
+    baseline_s = measure_latency_s(url, insecure=insecure) or 1.0
+
+    log_progress(f"chaos_webhook: triggering experiment at {experiment_url}")
+    with httpx.Client(verify=not insecure, timeout=15) as client:
+        response = client.post(experiment_url)
+        response.raise_for_status()
+    _check_cancel()
+
+    log_progress(f"chaos_webhook: settling {params['settle_s']}s before observing…")
+    _time.sleep(params["settle_s"])
+    _check_cancel()
+
+    log_progress(f"chaos_webhook: running control test {control_kind}…")
+    control_result = _JOBS[control_kind](control_params)
+    _check_cancel()
+
+    if stop_url:
+        log_progress(f"chaos_webhook: stopping experiment at {stop_url}")
+        try:
+            with httpx.Client(verify=not insecure, timeout=15) as client:
+                client.post(stop_url)
+        except Exception as exc:
+            log_progress(f"chaos_webhook: stop-webhook call failed (non-fatal): {str(exc)[:200]}")
+
+    log_progress("chaos_webhook: measuring recovery…")
+    recovery_s = measure_recovery_s(url, baseline_s, max_wait_s=params["recovery_sla_s"] * 2, insecure=insecure)
+
+    total = control_result.get("total", 0) or 0
+    failed = control_result.get("failed", 0) or 0
+    error_rate_pct = (100.0 * failed / total) if total else 0.0
+    error_bodies = _extract_error_bodies(control_kind, control_result)
+
+    graceful, reason = assess_resilience(
+        error_rate_pct=error_rate_pct, error_rate_threshold_pct=params["error_rate_threshold_pct"],
+        recovery_s=recovery_s, recovery_sla_s=params["recovery_sla_s"], error_bodies=error_bodies,
+    )
+    log_progress(f"chaos_webhook: {'graceful degradation' if graceful else 'resilience gap'} — {reason}")
+
+    raised: list[dict[str, Any]] = []
+    if not graceful:
+        title = f"resilience gap under customer-triggered chaos on {url}: {reason}"
+        severity = "high" if recovery_s is None else "medium"
+        findings.add("chaos_webhook", severity, title, detail=reason, url=url, category="resilience-gap")
+        raised.append({"severity": severity, "title": title, "detail": reason, "category": "resilience-gap"})
+
+    hist = PipelineReport(
+        summary=f"chaos_webhook on {url}: {'graceful' if graceful else 'resilience gap'}",
+        passed=1 if graceful else 0, failed=0 if graceful else 1, total=1,
+    )
+    history.append_run(hist, source="dashboard-chaos-webhook", duration_s=_time.time() - t0)
+
+    return {
+        "url": url, "graceful": graceful, "reason": reason,
+        "error_rate_pct": round(error_rate_pct, 1), "recovery_s": recovery_s, "baseline_s": round(baseline_s, 3),
+        "control_kind": control_kind, "control_result": {"passed": control_result.get("passed"), "failed": failed, "total": total},
+        "findings": raised,
+    }
+
+
 _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "smoke": _job_smoke,
     "flow": _job_flow,
@@ -3247,6 +3517,8 @@ _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "host_pentest": _job_host_pentest,
     "cloud_pentest": _job_cloud_pentest,
     "db_assert": _job_db_assert,
+    "chaos_inject": _job_chaos_inject,
+    "chaos_webhook": _job_chaos_webhook,
 }
 
 

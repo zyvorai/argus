@@ -89,6 +89,14 @@ def db_image() -> str | None:
     return os.environ.get("ZYVOR_SANDBOX_DB_IMAGE", "").strip() or None
 
 
+def chaos_image() -> str | None:
+    """Image for `chaos_inject` (needs `iproute2`/`iptables` — not in the
+    default image). None if not configured — chaos_inject fails closed
+    rather than running with a generic image that lacks fault-injection
+    tooling."""
+    return os.environ.get("ZYVOR_SANDBOX_CHAOS_IMAGE", "").strip() or None
+
+
 def available() -> bool:
     """True when a cluster is reachable AND a dedicated sandbox namespace is
     explicitly configured. The namespace requirement is deliberate: refusing
@@ -170,6 +178,43 @@ def run_python(
 
     Raises SandboxUnavailable if no sandbox backend is configured/reachable
     — callers must not fall back to any other execution path on this error."""
+    return _run_job(code, timeout_s=timeout_s, env=env, egress_hosts=egress_hosts, image=image, extra_capabilities=None)
+
+
+def run_chaos(
+    code: str,
+    *,
+    timeout_s: int = 60,
+    env: dict[str, str] | None = None,
+    egress_hosts: list[str] | None = None,
+    image: str | None = None,
+) -> SandboxResult:
+    """Like `run_python()`, but grants `CAP_NET_ADMIN` — needed for `tc`/
+    `iptables` fault-shaping inside the pod's own network namespace.
+
+    This is a deliberate, narrow exception to the sandbox's normal "drop ALL
+    capabilities" invariant — every other kind (`exploit_poc`, `host_pentest`,
+    `cloud_pentest`, `db_assert`, ...) runs with capabilities fully dropped.
+    Reachable ONLY from `_job_chaos_inject` — never the generic PoC path.
+    Same non-root/read-only-rootfs/no-ServiceAccount-token/resource-limits/
+    timeout hardening as `run_python()` otherwise; only the capability set
+    differs. See `kubernetes/sandbox.yaml` for the full caveat, and
+    `ROADMAP.md`'s chaos-testing section for why this exception exists."""
+    return _run_job(
+        code, timeout_s=timeout_s, env=env, egress_hosts=egress_hosts, image=image,
+        extra_capabilities=["NET_ADMIN"],
+    )
+
+
+def _run_job(
+    code: str,
+    *,
+    timeout_s: int,
+    env: dict[str, str] | None,
+    egress_hosts: list[str] | None,
+    image: str | None,
+    extra_capabilities: list[str] | None,
+) -> SandboxResult:
     if not available():
         raise SandboxUnavailable(
             "no sandbox backend available — set ZYVOR_SANDBOX_NAMESPACE to a "
@@ -205,7 +250,7 @@ def run_python(
         read_only_root_filesystem=True,
         run_as_non_root=True,
         run_as_user=65534,
-        capabilities=client.V1Capabilities(drop=["ALL"]),
+        capabilities=client.V1Capabilities(drop=["ALL"], add=extra_capabilities or None),
     )
     container = client.V1Container(
         name="poc",

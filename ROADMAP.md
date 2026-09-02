@@ -7,10 +7,12 @@ detail already lives.
 
 ## New test-capability families: contract testing, chaos testing, database testing, compliance/SCA scanning
 
-Planned as four phases (see the plan this shipped from); each phase is an
-independently-shippable, real slice, not a stub. Phases 1-3 are done; Phase
-4 is still open, and the highest-risk one — a new sandbox capability
-exception (`CAP_NET_ADMIN`) for fault injection.
+Shipped as four phases, all done. Each is an independently-shippable, real
+slice, not a stub — see each phase's own section below for what it built,
+what it deliberately left out, and exactly what was and wasn't live-verified
+(the two credentialed/sandboxed phases, 3 and 4, are honest about the one
+thing no Kubernetes cluster in this development environment could verify:
+actual pod execution).
 
 ### ~~Phase 1: compliance signals + API contract diffing~~ — done
 
@@ -175,16 +177,98 @@ via the command palette entry which hits the same missing elements.
 `cloud_pentest` is presumably only usable via direct API calls today, not
 through the dashboard UI.
 
-### Phase 4: `chaos_inject` / `chaos_webhook` (fault-injection testing) — not started
+### ~~Phase 4: `chaos_inject` / `chaos_webhook` (fault-injection testing)~~ — done
 
-Highest-risk phase: `chaos_inject` needs a new, narrow `sandbox.run_chaos()`
-entry point granting `CAP_NET_ADMIN` (for `tc`/`iptables` fault shaping) — a
-deliberate, callout-worthy exception to the sandbox's normal "drop ALL
-capabilities" invariant, scoped only to the chaos image/kind, never the
-generic PoC path. Real target-cluster pod-kill/infra chaos is explicitly out
-of scope — Argus never holds privileged access to a customer's own cluster;
-`chaos_webhook` covers that case by triggering the *customer's own* chaos
-tooling (Chaos Mesh/Litmus) instead.
+The highest-risk phase, as planned: `chaos_inject` needed a new, narrow
+`sandbox.run_chaos()` entry point granting `CAP_NET_ADMIN` (for `tc`/
+`iptables` fault shaping) — a deliberate, callout-worthy exception to the
+sandbox's normal "drop ALL capabilities" invariant. `_run_job()` (the
+shared implementation `run_python()`/`run_chaos()` both now call) takes an
+`extra_capabilities` parameter that only `run_chaos()` ever passes a
+non-`None` value for — `run_python()` still drops everything, unchanged,
+confirmed by a dedicated test that inspects the actual `V1SecurityContext`
+each function builds. Real target-cluster pod-kill/infra chaos is
+explicitly out of scope — Argus never holds privileged access to a
+customer's own cluster; `chaos_webhook` covers that case by triggering the
+*customer's own* chaos tooling (Chaos Mesh/Litmus) instead, needing zero
+new sandbox capability.
+
+- **`agents/chaos/verdict.py::assess_resilience()`** — deterministic
+  rubric, no LLM call (there's no ambiguity to resolve): graceful
+  degradation means no raw stack trace leaked, error rate under an
+  operator-set threshold, and latency recovered to baseline within an
+  operator-set SLA. Every violated criterion is named in the result, not
+  just the first one found.
+- **`agents/chaos/probe.py`** — plain HTTP latency/recovery-time
+  measurement, shared by both job kinds. No privileged operations, so
+  unlike the fault-injection mechanism itself this is fully live-testable.
+- **`agents/chaos/inject_script.py`** — mechanical (not LLM-generated)
+  `tc netem`/`iptables` script builder for `chaos_inject`'s four fault
+  types. **Two real bugs were caught and fixed during development**, both
+  found by actually running the generated script's control flow (with the
+  real `tc`/`iptables` commands swapped for a harmless no-op — the real
+  commands were never executed anywhere, on principle: this development
+  machine's own network is not an authorized target regardless of cluster
+  availability): (1) a bare foreground `sleep N` is **not** interruptible
+  by a trap in `sh` — the trap only runs once the foreground command
+  completes, so an early kill signal would have silently waited out the
+  *entire* fault duration before tearing anything down, exactly the
+  opposite of the "guaranteed teardown" the script's own comment claimed.
+  Fixed by backgrounding the sleep and `wait`-ing on it, which makes the
+  wait interruptible. (2) The trap firing doesn't by itself stop an
+  already-backgrounded sibling process — the sleep child was left running
+  as an orphan even after teardown "completed". Fixed by having the trap
+  explicitly `kill` it. Both are locked in by a regression test that sends
+  a real `SIGTERM` mid-run and asserts teardown happens within seconds, not
+  after the full fault duration.
+- **Gating**: `exploit`-tier engagement (both kinds), `ZYVOR_CHAOS_INJECTION_ENABLED`
+  opt-in, and a third, per-run `target_accepts_fault_injection` attestation
+  — distinct from the other two because it's a confirmation *this specific
+  target* consented, not operator-level policy. `control_kind` is
+  allowlisted to `{flow, smoke}` and its params are validated by
+  recursively calling `_validate()` for that kind — passing e.g.
+  `exploit_poc` as the "control" is rejected outright, not silently
+  accepted. `latency_ms`/`packet_loss_pct`/`duration_s` are hard-capped
+  server-side, not relaxable via params.
+
+**Live-verified, with one honest gap** (same shape as Phase 3's): no real
+Kubernetes cluster is reachable in this development environment, so
+`chaos_inject`'s actual `run_chaos()` execution against a real pod is
+unit-tested only (a mocked K8s client that inspects the real `V1Job`/
+`V1SecurityContext` objects built, confirming the `CAP_NET_ADMIN` grant is
+correct). Everything else *is* live-verified, for real:
+- `assess_resilience()` and `looks_like_stack_trace()` against synthetic
+  data covering every branch.
+- `probe.py`'s latency/recovery measurement against a real local HTTP
+  server with a genuine, timed slow-then-fast fault window (not just the
+  trivial already-fast case).
+- `inject_script.py`'s generated shell — syntax-checked for all four fault
+  types, and its control-flow (trap/background/wait/teardown) actually
+  executed as a real subprocess, including sending it a real `SIGTERM`
+  mid-run (the regression test for the two bugs above).
+- `chaos_webhook` end to end, with **zero mocking of the actual mechanics**:
+  a real local mock chaos-experiment webhook server (confirmed it received
+  real `/start` and `/stop` POSTs), a real target HTTP server, and a real
+  Playwright browser running the `flow` control test — both the graceful
+  (2/2 steps passed, no finding) and resilience-gap (steps failed, `high`-
+  severity finding raised) outcomes, run directly and again through the
+  real Mission Control UI against a running `argus serve`.
+- `chaos_inject`'s full `_validate()` → engagement-check → dispatch chain,
+  including all three gates, the `control_kind` allowlist rejecting
+  `exploit_poc`, and every param hard-cap — through both a direct call and
+  the real UI — confirmed it fails at exactly the expected
+  sandbox-unavailable boundary, the one point that genuinely needs a
+  cluster.
+
+New: `agents/chaos/` (`verdict.py`, `probe.py`, `inject_script.py`), new
+`sandbox.run_chaos()`/`chaos_image()`, new "Chaos inject"/"Chaos webhook"
+cards in the Security panel. Tests: `tests/unit/test_chaos_verdict.py`,
+`test_chaos_probe.py`, `test_chaos_inject_script.py`, `test_chaos_jobs.py`;
+extended `test_sandbox.py`, `test_jobs_validate.py`.
+
+**With this, all four phases of the "make Argus one-stop" plan are
+done** — see the top of this section for what each phase covers and what
+each deliberately left out.
 
 ## Test coverage — in progress
 

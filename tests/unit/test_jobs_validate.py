@@ -1009,3 +1009,111 @@ def test_cloud_pentest_happy_path(monkeypatch):
     assert clean["provider"] == "aws"
     assert clean["target"] == "aws-prod-123456789012"
     _disable_exploit_env(monkeypatch)
+
+
+# --- chaos_inject / chaos_webhook: 'exploit'-tier engagement PLUS a
+# separate ZYVOR_CHAOS_INJECTION_ENABLED opt-in PLUS a per-run
+# target_accepts_fault_injection attestation (three gates total).
+
+def _base_chaos_params(**overrides):
+    params = {
+        "url": "https://x.io", "target_accepts_fault_injection": True,
+        "control_kind": "flow", "control_params": {"description": "assert \"x\" is visible"},
+        "engagement_id": "eng-1",
+    }
+    params.update(overrides)
+    return params
+
+
+def test_chaos_kinds_registered():
+    assert "chaos_inject" in VALID_KINDS
+    assert "chaos_webhook" in VALID_KINDS
+
+
+def test_chaos_inject_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("ZYVOR_CHAOS_INJECTION_ENABLED", raising=False)
+    with pytest.raises(ValueError, match="ZYVOR_CHAOS_INJECTION_ENABLED"):
+        _validate("chaos_inject", _base_chaos_params(fault_type="latency"))
+
+
+def test_chaos_webhook_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("ZYVOR_CHAOS_INJECTION_ENABLED", raising=False)
+    with pytest.raises(ValueError, match="ZYVOR_CHAOS_INJECTION_ENABLED"):
+        _validate("chaos_webhook", _base_chaos_params(experiment_webhook_url="https://api.x.io/start"))
+
+
+def test_chaos_inject_requires_target_attestation(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    with pytest.raises(ValueError, match="target_accepts_fault_injection"):
+        _validate("chaos_inject", _base_chaos_params(fault_type="latency", target_accepts_fault_injection=False))
+    with pytest.raises(ValueError, match="target_accepts_fault_injection"):
+        _validate("chaos_inject", {k: v for k, v in _base_chaos_params(fault_type="latency").items()
+                                    if k != "target_accepts_fault_injection"})
+
+
+def test_chaos_inject_rejects_invalid_fault_type(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    with pytest.raises(ValueError, match="fault_type"):
+        _validate("chaos_inject", _base_chaos_params(fault_type="bogus"))
+
+
+def test_chaos_inject_rejects_disallowed_control_kind(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    with pytest.raises(ValueError, match="control_kind"):
+        _validate("chaos_inject", _base_chaos_params(fault_type="latency", control_kind="exploit_poc", control_params={}))
+
+
+def test_chaos_inject_rejects_active_recon_tier_engagement(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="active_recon")
+    with pytest.raises(ValueError, match="insufficient"):
+        _validate("chaos_inject", _base_chaos_params(fault_type="latency"))
+
+
+def test_chaos_inject_caps_are_enforced(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    clean = _validate("chaos_inject", _base_chaos_params(
+        fault_type="latency", latency_ms=99999, packet_loss_pct=999, duration_s=99999,
+    ))
+    assert clean["latency_ms"] == 5000
+    assert clean["packet_loss_pct"] == 100
+    assert clean["duration_s"] == 120
+
+
+def test_chaos_inject_clean_defaults(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    clean = _validate("chaos_inject", _base_chaos_params(fault_type="latency"))
+    assert clean["fault_type"] == "latency"
+    assert clean["control_kind"] == "flow"
+    assert clean["control_params"]["url"].startswith("https://x.io")  # url injected into control_params
+    assert clean["error_rate_threshold_pct"] == 10.0
+    assert clean["recovery_sla_s"] == 30.0
+
+
+def test_chaos_webhook_requires_experiment_webhook_url(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    with pytest.raises(ValueError, match="experiment_webhook_url"):
+        _validate("chaos_webhook", _base_chaos_params())
+
+
+def test_chaos_webhook_rejects_ssrf_target_for_experiment_url(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    with pytest.raises(ValueError):
+        _validate("chaos_webhook", _base_chaos_params(experiment_webhook_url="http://169.254.169.254/start"))
+
+
+def test_chaos_webhook_clean_defaults(monkeypatch):
+    monkeypatch.setenv("ZYVOR_CHAOS_INJECTION_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    clean = _validate("chaos_webhook", _base_chaos_params(
+        experiment_webhook_url="https://api.x.io/start", experiment_stop_webhook_url="https://api.x.io/stop",
+    ))
+    assert clean["experiment_webhook_url"] == "https://api.x.io/start"
+    assert clean["experiment_stop_webhook_url"] == "https://api.x.io/stop"
+    assert clean["settle_s"] == 5
