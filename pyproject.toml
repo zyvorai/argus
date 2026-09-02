@@ -73,6 +73,15 @@ otel = [
     "opentelemetry-sdk>=1.27",
     "opentelemetry-exporter-otlp-proto-http>=1.27",
 ]
+# sca_scan's local-checkout mode (agents/sca/engine.py::scan_local_checkout)
+# subprocess-wraps pip-audit against an operator-local Python checkout -- the
+# same tool already pinned for Argus's own CI in .github/workflows/security.yml.
+# Without this extra, that mode degrades to `skipped: True` rather than
+# erroring; black-box mode (client-side library/license fingerprinting)
+# needs no extra dependency at all.
+sca = [
+    "pip-audit>=2.7",
+]
 
 [project.scripts]
 argus = "orchestrator.cli:main"

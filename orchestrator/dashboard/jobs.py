@@ -42,9 +42,9 @@ VALID_KINDS = {
     "smoke", "full", "generate", "discover", "create", "regression",
     "crawl_test", "audit", "flaky", "screenshot", "compare", "ping",
     "loadtest", "tls", "flow", "route_sweep",
-    "api_contract", "api_contract_diff", "auth_test", "realtime", "vitals", "ai_flow",
+    "api_contract", "api_contract_diff", "contract_verify", "auth_test", "realtime", "vitals", "ai_flow",
     "har_replay", "import_codegen",
-    "misconfig_scan", "cve_lookup", "llm_redteam", "exploit_poc", "attack_chain",
+    "misconfig_scan", "cve_lookup", "sca_scan", "llm_redteam", "exploit_poc", "attack_chain",
     "host_pentest", "cloud_pentest",
 } | PROBE_KINDS
 
@@ -55,6 +55,8 @@ VALID_KINDS = {
 ELEVATED_RISK_KINDS: dict[str, str] = {
     "misconfig_scan": "active_recon",
     "cve_lookup": "active_recon",
+    "sca_scan": "active_recon",
+    "contract_verify": "active_recon",
     "llm_redteam": "active_recon",
     "exploit_poc": "exploit",
     "attack_chain": "exploit",
@@ -358,6 +360,27 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
         clean["spec_b"] = _clean_spec_ref(params.get("spec_b"), "spec_b")
         clean["insecure"] = bool(params.get("insecure"))
         clean["fail_on"] = "any" if params.get("fail_on") == "any" else "breaking"
+    if kind == "contract_verify":
+        url = (params.get("url") or "").strip()
+        if not url.startswith(("http://", "https://")):
+            raise ValueError("url must start with http:// or https://")
+        clean["url"] = url[:500]
+        har = (params.get("har") or "").strip()
+        if not har and not os.environ.get("ZYVOR_HAR_PATH"):
+            raise ValueError("provide a HAR path (or set ZYVOR_HAR_PATH)")
+        clean["har"] = har[:500]
+        clean["insecure"] = bool(params.get("insecure"))
+        clean["max_endpoints"] = max(1, min(int(params.get("max_endpoints") or 60), 200))
+    if kind == "sca_scan":
+        url = (params.get("url") or "").strip()
+        checkout_path = (params.get("checkout_path") or "").strip()
+        if not url and not checkout_path:
+            raise ValueError("provide a url (black-box mode) and/or checkout_path (local-checkout mode)")
+        clean["url"] = url[:500] if url else ""
+        if clean["url"] and not clean["url"].startswith(("http://", "https://")):
+            raise ValueError("url must start with http:// or https://")
+        clean["checkout_path"] = checkout_path[:1000]
+        clean["insecure"] = bool(params.get("insecure"))
     if kind == "vitals":
         url = (params.get("url") or "").strip()
         if not url.startswith(("http://", "https://")):
@@ -606,19 +629,26 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
         clean["url"] = clean["host"]
 
     if kind in ELEVATED_RISK_KINDS:
-        from orchestrator.security.engagement_policy import EngagementPolicy
+        # sca_scan's local-checkout mode reads an operator-local filesystem
+        # path, not a remote target -- no engagement makes sense when there's
+        # nothing being attacked. Black-box mode (a `url` present) still
+        # requires one, same as every other kind in this dict.
+        if kind == "sca_scan" and not clean.get("url"):
+            clean["engagement_id"] = None
+        else:
+            from orchestrator.security.engagement_policy import EngagementPolicy
 
-        clean["engagement_id"] = params.get("engagement_id")
-        # _validate() is a pure param-normalization function shared by every
-        # trigger path (CLI, dashboard, /api/v2/jobs, scheduled jobs) and has
-        # no requester identity in scope — the engagement-use audit row is
-        # logged with an empty actor; who *authorized* the engagement is
-        # already recorded on the engagement record itself.
-        EngagementPolicy.from_env().require(
-            target_url=clean.get("url", ""),
-            min_tier=ELEVATED_RISK_KINDS[kind],  # type: ignore[arg-type]
-            engagement_id=clean["engagement_id"],
-        )
+            clean["engagement_id"] = params.get("engagement_id")
+            # _validate() is a pure param-normalization function shared by every
+            # trigger path (CLI, dashboard, /api/v2/jobs, scheduled jobs) and has
+            # no requester identity in scope — the engagement-use audit row is
+            # logged with an empty actor; who *authorized* the engagement is
+            # already recorded on the engagement record itself.
+            EngagementPolicy.from_env().require(
+                target_url=clean.get("url", ""),
+                min_tier=ELEVATED_RISK_KINDS[kind],  # type: ignore[arg-type]
+                engagement_id=clean["engagement_id"],
+            )
 
     return clean
 
@@ -1784,6 +1814,41 @@ def _job_api_contract_diff(params: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _job_contract_verify(params: dict[str, Any]) -> dict[str, Any]:
+    """Consumer-driven contract verification, HAR-derived -- not Pact (see
+    agents/contract_verify/engine.py's module docstring and ROADMAP.md).
+    Derives per-endpoint expectations from a recorded HAR, replays each
+    against the live provider, diffs status/content-type/top-level JSON
+    key shape. Read-only against the target -- gated at active_recon tier."""
+    import json as _json
+
+    from agents.contract_verify.engine import derive_expectations, verify_expectations
+
+    url = params["url"]
+    har_path = params["har"] or os.environ.get("ZYVOR_HAR_PATH") or ""
+    if har_path and not Path(har_path).is_absolute():
+        har_path = str(_repo_root() / har_path)
+    log_progress(f"contract_verify: reading {har_path}")
+    try:
+        with open(har_path, encoding="utf-8") as fh:
+            har = _json.load(fh)
+    except (OSError, _json.JSONDecodeError) as exc:
+        raise RuntimeError(f"could not read HAR {har_path}: {exc}") from exc
+
+    expectations = derive_expectations(har, max_endpoints=params.get("max_endpoints", 60))
+    log_progress(f"contract_verify: derived {len(expectations)} expectation(s) from the HAR, "
+                 f"replaying against {url}")
+    _check_cancel()
+    checks = verify_expectations(url, expectations, insecure=params.get("insecure", False))
+    passed = sum(1 for c in checks if c["ok"])
+    failed = len(checks) - passed
+    log_progress(f"contract_verify done: {passed}/{len(checks)} checks passed")
+
+    result = {"url": url, "har": har_path, "checks": checks, "passed": passed, "failed": failed, "total": len(checks)}
+    _auto_findings("contract_verify", url, result)
+    return result
+
+
 def _api_contract_report_bundle(url: str, mode: str, rows: list, summary: dict) -> dict[str, str]:
     try:
         from agents.reporter.exports import build_api_contract_bundle
@@ -2185,12 +2250,15 @@ def _auto_findings(kind: str, url: str, data: dict[str, Any]) -> list[dict[str, 
                 if not s.get("ok"):
                     items.append({"severity": "high", "title": f"workflow step failed: {s.get('desc')}",
                                   "detail": s.get("error", ""), "where": f"{s.get('method')} {s.get('path')}"})
-        elif kind in ("realtime", "auth_test", "har_replay"):
-            sev_map = {"auth_test": "high", "realtime": "medium", "har_replay": "medium"}
+        elif kind in ("realtime", "auth_test", "har_replay", "contract_verify"):
+            sev_map = {"auth_test": "high", "realtime": "medium", "har_replay": "medium", "contract_verify": "high"}
             for c in data.get("checks") or []:
                 if not c.get("ok"):
-                    items.append({"severity": sev_map[kind], "title": f"{kind.replace('_', ' ')}: {c.get('name')} failed",
-                                  "detail": c.get("detail", ""), "where": c.get("name", "")})
+                    item = {"severity": sev_map[kind], "title": f"{kind.replace('_', ' ')}: {c.get('name')} failed",
+                            "detail": c.get("detail", ""), "where": c.get("name", "")}
+                    if kind == "contract_verify":
+                        item["category"] = "contract-violation"
+                    items.append(item)
         elif kind == "vitals":
             for name, m in (data.get("metrics") or {}).items():
                 if m.get("grade") in ("poor", "needs-improvement"):
@@ -2246,6 +2314,23 @@ def _auto_findings(kind: str, url: str, data: dict[str, Any]) -> list[dict[str, 
                         "where": f"{result.get('product')}@{result.get('version')}",
                         "category": "outdated-dependency",
                     })
+        elif kind == "sca_scan":
+            for lib in (data.get("blackbox") or {}).get("libraries") or []:
+                if lib.get("risk") != "copyleft-or-restricted":
+                    continue
+                items.append({
+                    "severity": "medium",
+                    "title": f"{lib['product']} uses a non-permissive license: {lib.get('license')}",
+                    "detail": f"{lib['product']}@{lib.get('version', '')}: {lib.get('license')}",
+                    "where": lib["product"], "category": "license-risk",
+                })
+            for vuln in (data.get("local") or {}).get("vulnerabilities") or []:
+                items.append({
+                    "severity": vuln.get("severity", "medium"),
+                    "title": f"known vulnerability {vuln.get('id')} in {vuln.get('product')}@{vuln.get('version')}",
+                    "detail": vuln.get("detail", ""), "where": f"{vuln.get('product')}@{vuln.get('version')}",
+                    "category": "outdated-dependency",
+                })
         elif kind == "api_contract_diff":
             for change in data.get("changes") or []:
                 if change.get("classification") != "breaking":
@@ -2460,6 +2545,26 @@ def _job_cve_lookup(params: dict[str, Any]) -> dict[str, Any]:
     history.append_run(hist, source="dashboard-cve-lookup", duration_s=_time.time() - t0)
     raised = _auto_findings("cve_lookup", url, data)
     return {"url": url, "findings": raised, **data}
+
+
+def _job_sca_scan(params: dict[str, Any]) -> dict[str, Any]:
+    """Dependency/license scanning of the TARGET app, two independent modes:
+    black-box client-side library/license fingerprinting (`url`), and/or a
+    subprocess-wrapped pip-audit/npm audit against an operator-local
+    checkout (`checkout_path`, never fetched over the network -- no target,
+    no SSRF/engagement gating for that mode specifically; see _validate())."""
+    from agents.sca.engine import scan_blackbox, scan_local_checkout
+
+    result: dict[str, Any] = {}
+    if params.get("url"):
+        log_progress(f"sca_scan: fingerprinting client-side libraries at {params['url']}")
+        result["blackbox"] = scan_blackbox(params["url"], insecure=params.get("insecure", False))
+    _check_cancel()
+    if params.get("checkout_path"):
+        log_progress(f"sca_scan: scanning local checkout {params['checkout_path']}")
+        result["local"] = scan_local_checkout(params["checkout_path"])
+    _auto_findings("sca_scan", params.get("url", ""), result)
+    return result
 
 
 def _job_llm_redteam(params: dict[str, Any]) -> dict[str, Any]:
@@ -2973,6 +3078,7 @@ _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "route_sweep": _job_route_sweep,
     "api_contract": _job_api_contract,
     "api_contract_diff": _job_api_contract_diff,
+    "contract_verify": _job_contract_verify,
     "vitals": _job_vitals,
     "realtime": _job_realtime,
     "auth_test": _job_auth_test,
@@ -2994,6 +3100,7 @@ _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "tls": _job_tls,
     "misconfig_scan": _job_misconfig_scan,
     "cve_lookup": _job_cve_lookup,
+    "sca_scan": _job_sca_scan,
     "llm_redteam": _job_llm_redteam,
     "exploit_poc": _job_exploit_poc,
     "attack_chain": _job_attack_chain,

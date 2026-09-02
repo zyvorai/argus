@@ -154,3 +154,37 @@ def test_auto_findings_api_contract_diff_only_raises_breaking_changes(findings, 
     assert L["total"] == 1
     assert L["findings"][0]["category"] == "breaking-api-change"
     assert L["findings"][0]["severity"] == "high"
+
+
+def test_auto_findings_contract_verify_only_raises_failed_checks(findings, monkeypatch):
+    from orchestrator.dashboard import jobs
+
+    monkeypatch.setattr(jobs, "log_progress", lambda *a, **k: None)
+    jobs._auto_findings("contract_verify", "https://x.io", {"checks": [
+        {"name": "GET /users/1", "ok": False, "detail": "missing required key 'email'"},
+        {"name": "GET /users/2", "ok": True, "detail": ""},
+    ]})
+    L = findings.listing()
+    assert L["total"] == 1
+    assert L["findings"][0]["severity"] == "high"
+    assert L["findings"][0]["category"] == "contract-violation"
+
+
+def test_auto_findings_sca_scan_license_and_dependency_findings(findings, monkeypatch):
+    from orchestrator.dashboard import jobs
+
+    monkeypatch.setattr(jobs, "log_progress", lambda *a, **k: None)
+    jobs._auto_findings("sca_scan", "https://x.io", {
+        "blackbox": {"libraries": [
+            {"product": "WordPress", "version": "6.4", "license": "GPL-2.0-or-later", "risk": "copyleft-or-restricted"},
+            {"product": "jQuery", "version": "3.4.1", "license": "MIT", "risk": None},
+        ]},
+        "local": {"vulnerabilities": [
+            {"product": "requests", "version": "2.19.1", "id": "PYSEC-2018-28", "detail": "leaks creds",
+             "severity": "medium"},
+        ]},
+    })
+    L = findings.listing()
+    assert L["total"] == 2
+    categories = {f["category"] for f in L["findings"]}
+    assert categories == {"license-risk", "outdated-dependency"}

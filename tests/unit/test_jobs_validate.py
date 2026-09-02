@@ -567,6 +567,52 @@ def test_cve_lookup_clean_defaults(monkeypatch):
     assert clean["url"].startswith("https://x.io")
 
 
+def test_contract_verify_requires_har(monkeypatch):
+    _allow_engagement(monkeypatch)
+    with pytest.raises(ValueError, match="HAR"):
+        _validate("contract_verify", {"url": "https://x.io", "engagement_id": "eng-1"})
+
+
+def test_contract_verify_clean_defaults(monkeypatch):
+    _allow_engagement(monkeypatch)
+    clean = _validate("contract_verify", {"url": "https://x.io", "har": "/tmp/x.har", "engagement_id": "eng-1"})
+    assert clean["har"] == "/tmp/x.har"
+    assert clean["max_endpoints"] == 60
+
+
+def test_contract_verify_reject_missing_engagement(monkeypatch):
+    monkeypatch.setattr(_store_module, "get_store", lambda: _FakeEngagementStore(None))
+    with pytest.raises(ValueError, match="authorized security engagement"):
+        _validate("contract_verify", {"url": "https://x.io", "har": "/tmp/x.har"})
+
+
+def test_sca_scan_requires_url_or_checkout_path():
+    with pytest.raises(ValueError, match="checkout_path"):
+        _validate("sca_scan", {})
+
+
+def test_sca_scan_blackbox_mode_requires_engagement(monkeypatch):
+    monkeypatch.setattr(_store_module, "get_store", lambda: _FakeEngagementStore(None))
+    with pytest.raises(ValueError, match="authorized security engagement"):
+        _validate("sca_scan", {"url": "https://x.io"})
+
+
+def test_sca_scan_local_checkout_only_mode_needs_no_engagement():
+    """checkout_path reads an operator-local filesystem path -- no target,
+    no engagement, unlike every other kind in ELEVATED_RISK_KINDS."""
+    clean = _validate("sca_scan", {"checkout_path": "/repo/checkout"})
+    assert clean["checkout_path"] == "/repo/checkout"
+    assert clean["url"] == ""
+    assert clean["engagement_id"] is None
+
+
+def test_sca_scan_both_modes_together(monkeypatch):
+    _allow_engagement(monkeypatch)
+    clean = _validate("sca_scan", {"url": "https://x.io", "checkout_path": "/repo", "engagement_id": "eng-1"})
+    assert clean["url"].startswith("https://x.io")
+    assert clean["checkout_path"] == "/repo"
+
+
 def test_llm_redteam_dashboard_ask_needs_no_url(monkeypatch):
     _allow_engagement(monkeypatch, target_pattern="dashboard_ask")
     clean = _validate("llm_redteam", {"engagement_id": "eng-1"})

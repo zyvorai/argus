@@ -8,8 +8,9 @@ detail already lives.
 ## New test-capability families: contract testing, chaos testing, database testing, compliance/SCA scanning
 
 Planned as four phases (see the plan this shipped from); each phase is an
-independently-shippable, real slice, not a stub. Phase 1 is done; phases 2-4
-are still open.
+independently-shippable, real slice, not a stub. Phases 1-2 are done; phases
+3-4 are still open (and the highest-risk ones — credentialed database
+access, a new sandbox capability exception).
 
 ### ~~Phase 1: compliance signals + API contract diffing~~ — done
 
@@ -51,18 +52,49 @@ are still open.
   Separately verified the `git:` mode against a real file in this repo
   (`git show HEAD:package.json`).
 
-### Phase 2: consumer contract verification (`contract_verify`) + SCA scanning (`sca_scan`) — not started
+### ~~Phase 2: consumer contract verification (`contract_verify`) + SCA scanning (`sca_scan`)~~ — done
 
-- `contract_verify`: derive expectations from a recorded HAR (reusing the
-  existing `har_replay` concept) and verify a live provider matches them.
-  Explicitly not Pact — no broker, no publish/subscribe, no contract
-  versioning, no cross-team matrix, no "can-i-deploy" gating. The honest
-  on-ramp, not the destination.
-- `sca_scan`: black-box client-side library/license fingerprinting (reusing
-  `cve_lookup`'s tech fingerprinting) plus an optional local-checkout mode
-  wrapping `pip-audit`/`npm audit` (the same tools already pinned in
-  `.github/workflows/security.yml`) for real dependency-CVE/SBOM data when
-  Argus is pointed at an operator-local checkout rather than a live target.
+- **`contract_verify`** — derives expectations from a recorded HAR (a new
+  `agents/contract_verify/engine.py`, rule-based, not LLM: no ambiguity to
+  resolve) and replays each against a live provider, diffing status,
+  content-type, and top-level JSON key/type shape. Only HAR entries whose
+  recorded response is `application/json` are considered — the rest of a
+  full-page recording (HTML/CSS/JS/images) is noise for this purpose, not
+  signal. Explicitly not Pact — no broker, no publish/subscribe, no contract
+  versioning, no cross-team matrix, no "can-i-deploy" gating; the honest
+  on-ramp, not the destination. Gated at `active_recon` tier (read-only
+  against the target, same tier as `misconfig_scan`/`cve_lookup`). New
+  `action-contract-verify` card in the API panel.
+- **`sca_scan`** — two independent modes. Black-box: reuses `cve_lookup`'s
+  `fingerprint_tech()` client-side library/version fingerprinting,
+  cross-referenced against a small bundled `agents/probes/data/license_map.json`
+  (dozens of well-known libraries, not a real SBOM) to flag copyleft/
+  restricted licenses. Local-checkout: subprocess-wraps `pip-audit`
+  (new optional `sca` extra in `pyproject.toml`) / `npm audit` against an
+  operator-local `checkout_path` — never fetched over the network, so this
+  mode alone needs no SSRF/engagement gating (a special-cased branch in
+  `_validate()`'s elevated-risk enforcement: `sca_scan` without a `url` skips
+  the engagement requirement entirely, unlike every other kind in
+  `ELEVATED_RISK_KINDS`). Tool absence degrades to `skipped: True` with a
+  reason, never a fabricated result.
+  **Real bug caught in live verification and fixed**: the first
+  implementation ran bare `pip-audit --format json` with no `-r`/project-path
+  argument, which silently audits the *running* Python environment instead
+  of the checkout being scanned — a deliberately-vulnerable
+  `requests==2.19.1` fixture produced zero findings until this was caught
+  and fixed (`-r requirements.txt` when present, the checkout path itself
+  otherwise). New `action-sca` card in the Security panel.
+  Live-verified end to end through the real Mission Control UI against a
+  running `argus serve` for every mode: `contract_verify` against a real
+  target server missing a HAR-recorded field (caught correctly, real
+  `high`-severity finding); `sca_scan` local-checkout mode both without
+  `pip-audit` on `PATH` (graceful `skipped` degradation) and with it (a real
+  audit surfacing real transitive-dependency CVEs, e.g. `urllib3`); `sca_scan`
+  black-box mode against a real server serving a WordPress generator tag
+  (correctly flagged `GPL-2.0-or-later` as `copyleft-or-restricted`) and a
+  real jQuery/MIT asset (correctly not flagged). New
+  `tests/unit/test_contract_verify.py`, `test_sca_scan.py`; extended
+  `test_jobs_validate.py`, `test_findings.py`.
 
 ### Phase 3: `db_assert` (database/data-integrity testing) — not started
 

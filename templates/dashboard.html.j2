@@ -1099,6 +1099,20 @@
       </div>
     </div>
 
+<div class="glass card act" id="action-contract-verify" style="grid-column: 1 / -1">
+      <div class="act-title">🤝 Contract verify — replay a recorded HAR against a live provider</div>
+      <div class="d" style="margin-bottom:8px">HAR-derived, not Pact — no broker, no contract versioning. Derives per-endpoint expectations (status, content-type, top-level JSON key shape) from a recorded consumer interaction set and checks the live provider still matches.</div>
+      <div class="act-row">
+        <input class="inp grow" id="cvf-url" placeholder="provider base URL, e.g. https://api.example.com">
+        <input class="inp grow" id="cvf-har" placeholder="HAR path on disk (relative to repo root, or absolute)">
+      </div>
+      <div class="act-row" style="gap:12px">
+        <label class="chk"><input type="checkbox" id="cvf-insecure"> self-signed TLS</label>
+        <select class="inp grow eng-select" id="cvf-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="contract_verify" style="margin-left:auto">🤝 Verify contract</button>
+      </div>
+    </div>
+
 <div class="glass card act" id="action-realtime" style="grid-column: 1 / -1">
       <div class="act-title">📡 Live data — assert WebSocket / SSE streams update, not just load</div>
       <div class="act-row">
@@ -1183,7 +1197,21 @@
         <button class="run-btn act-btn" data-kind="cve_lookup" style="margin-left:auto">🧬 Lookup</button>
       </div>
     </div>
-    
+
+<div class="glass card act" id="action-sca" style="grid-column: 1 / -1">
+      <div class="act-title">📦 SCA scan — client-side license fingerprinting and/or a local-checkout dependency audit</div>
+      <div class="d" style="margin-bottom:8px">Two independent modes: fill the URL for black-box client-side library/license fingerprinting (needs an engagement below), and/or a local checkout path for a real <code>pip-audit</code>/<code>npm audit</code> run (operator-local filesystem, no engagement needed — nothing remote is being touched).</div>
+      <div class="act-row">
+        <input class="inp grow" id="sca-url" placeholder="https://your-app.example.com (black-box mode, optional)">
+        <input class="inp grow" id="sca-checkout" placeholder="/path/to/local/checkout (local-checkout mode, optional)">
+      </div>
+      <div class="act-row">
+        <label class="chk"><input type="checkbox" id="sca-insecure"> self-signed TLS</label>
+        <select class="inp grow eng-select" id="sca-eng"><option value="">— select an authorized engagement — (only needed with a URL)</option></select>
+        <button class="run-btn act-btn" data-kind="sca_scan" style="margin-left:auto">📦 Scan</button>
+      </div>
+    </div>
+
 <div class="glass card act" id="action-llm-redteam" style="grid-column: 1 / -1">
       <div class="act-title">🎭 LLM red-team — attacker/judge battery against Ask Zyra</div>
       <div class="act-row">
@@ -2910,6 +2938,12 @@ function jobParams(kind) {
       fail_on: $("acd-fail-on").value,
     };
   }
+  if (kind === "contract_verify") return {
+    url: $("cvf-url").value.trim(),
+    har: $("cvf-har").value.trim(),
+    insecure: $("cvf-insecure").checked,
+    engagement_id: $("cvf-eng").value,
+  };
   if (kind === "vitals") return {
     url: $("cwv-url").value.trim(),
     device: $("cwv-device").value,
@@ -2963,6 +2997,12 @@ function jobParams(kind) {
     url: $("cve-url").value.trim(),
     insecure: $("cve-insecure").checked,
     engagement_id: $("cve-eng").value,
+  };
+  if (kind === "sca_scan") return {
+    url: $("sca-url").value.trim(),
+    checkout_path: $("sca-checkout").value.trim(),
+    insecure: $("sca-insecure").checked,
+    engagement_id: $("sca-eng").value,
   };
   if (kind === "llm_redteam") return {
     target: $("lr-target").value,
