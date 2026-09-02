@@ -35,7 +35,7 @@ from typing import Any, Iterator
 from orchestrator.security.redaction import redact
 from orchestrator.security.secrets import assert_persistable
 
-_SCHEMA_VERSION = 4
+_SCHEMA_VERSION = 5
 
 DEFAULT_MAX_JOB_ATTEMPTS = 3
 
@@ -205,6 +205,8 @@ class MissionControlStore:
                     quality_score REAL,
                     quality_issues_json TEXT,
                     created_at TEXT NOT NULL,
+                    data_models_json TEXT,
+                    flows_json TEXT,
                     PRIMARY KEY (requirement_id, version)
                 );
 
@@ -230,6 +232,16 @@ class MissionControlStore:
             existing_job_columns = {row["name"] for row in conn.execute("PRAGMA table_info(jobs)")}
             if "trace_context" not in existing_job_columns:
                 conn.execute("ALTER TABLE jobs ADD COLUMN trace_context TEXT")
+            # Same story for requirement_versions.{data_models,flows}_json, added
+            # in schema v5 (agents/requirement_entities/ -- impact analysis by
+            # shared data model / business flow).
+            existing_version_columns = {
+                row["name"] for row in conn.execute("PRAGMA table_info(requirement_versions)")
+            }
+            if "data_models_json" not in existing_version_columns:
+                conn.execute("ALTER TABLE requirement_versions ADD COLUMN data_models_json TEXT")
+            if "flows_json" not in existing_version_columns:
+                conn.execute("ALTER TABLE requirement_versions ADD COLUMN flows_json TEXT")
             conn.execute("UPDATE schema_meta SET version=?", (_SCHEMA_VERSION,))
 
     # Jobs -----------------------------------------------------------------
@@ -639,6 +651,8 @@ class MissionControlStore:
         content: dict[str, Any],
         quality_score: float | None = None,
         quality_issues: list[dict[str, Any]] | None = None,
+        data_models: list[str] | None = None,
+        flows: list[str] | None = None,
     ) -> dict[str, Any]:
         """Insert a new version only if `content` differs from the current
         latest — this is the change-detection primitive impact analysis is
@@ -691,8 +705,9 @@ class MissionControlStore:
             if is_new_version:
                 conn.execute(
                     """INSERT INTO requirement_versions
-                    (requirement_id, version, content_json, content_hash, quality_score, quality_issues_json, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (requirement_id, version, content_json, content_hash, quality_score, quality_issues_json,
+                     created_at, data_models_json, flows_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         requirement_id,
                         version,
@@ -701,6 +716,8 @@ class MissionControlStore:
                         quality_score,
                         _json(quality_issues) if quality_issues is not None else None,
                         now,
+                        _json(data_models) if data_models is not None else None,
+                        _json(flows) if flows is not None else None,
                     ),
                 )
             row = conn.execute("SELECT * FROM requirements WHERE id=?", (requirement_id,)).fetchone()
@@ -722,6 +739,8 @@ class MissionControlStore:
         result = dict(row)
         result["content"] = _loads(version["content_json"], None) if version else None
         result["quality_issues"] = _loads(version["quality_issues_json"], []) if version else []
+        result["data_models"] = _loads(version["data_models_json"], []) if version else []
+        result["flows"] = _loads(version["flows_json"], []) if version else []
         return result
 
     def list_requirements(self, limit: int = 200) -> list[dict[str, Any]]:
@@ -742,6 +761,8 @@ class MissionControlStore:
             item = dict(row)
             item["content"] = _loads(item.pop("content_json"), None)
             item["quality_issues"] = _loads(item.pop("quality_issues_json"), [])
+            item["data_models"] = _loads(item.pop("data_models_json"), [])
+            item["flows"] = _loads(item.pop("flows_json"), [])
             history.append(item)
         return history
 
@@ -770,6 +791,34 @@ class MissionControlStore:
                 (requirement_id, version),
             ).fetchall()
         return [row["test_path"] for row in rows]
+
+    def requirement_impact_graph(self) -> dict[str, Any]:
+        """Groups every requirement's *latest* version by the data models and
+        flows extracted at evaluate_quality time (agents/requirement_entities/):
+        `data_models` maps each entity name to the requirement ids that touch
+        it; `flows` maps each flow name to the requirement ids in it plus the
+        union of tests generated from any of them. Real but bounded impact
+        analysis -- not a full dependency graph (see ROADMAP.md)."""
+        with self.connect() as conn:
+            rows = conn.execute(
+                """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json
+                FROM requirements r
+                JOIN requirement_versions rv
+                  ON rv.requirement_id = r.id AND rv.version = r.latest_version"""
+            ).fetchall()
+        data_models: dict[str, list[str]] = {}
+        flows: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            req_id = row["id"]
+            for model in _loads(row["data_models_json"], []):
+                data_models.setdefault(model, []).append(req_id)
+            for flow in _loads(row["flows_json"], []):
+                bucket = flows.setdefault(flow, {"requirements": [], "tests": []})
+                bucket["requirements"].append(req_id)
+                bucket["tests"].extend(self.linked_tests(req_id, row["version"]))
+        for bucket in flows.values():
+            bucket["tests"] = sorted(set(bucket["tests"]))
+        return {"data_models": data_models, "flows": flows}
 
 
 _default_store: Any | None = None

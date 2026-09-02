@@ -1266,6 +1266,19 @@
     </div>
     <div id="req-detail-body" style="margin-top:10px"></div>
   </div>
+
+  <h2>Impact — shared data models &amp; flows</h2>
+  <p class="d" style="margin-top:-6px">Requirements grouped by the data models and business flow named in each requirement's latest version. Click a requirement id to open its detail above.</p>
+  <div class="qa">
+    <div class="glass card">
+      <div class="k" style="margin-bottom:8px">By data model</div>
+      <div class="feed" id="req-data-models"><span class="d">No shared data models yet.</span></div>
+    </div>
+    <div class="glass card" style="grid-column: span 2">
+      <div class="k" style="margin-bottom:8px">By flow</div>
+      <div class="feed" id="req-flows"><span class="d">No flows tagged yet.</span></div>
+    </div>
+  </div>
 </section>
 
 <section id="panel-operations" class="panel">
@@ -2049,7 +2062,33 @@ async function openRequirementDetail(id) {
   }
 }
 $("req-detail-close").addEventListener("click", () => { $("req-detail-card").style.display = "none"; });
-$("req-refresh").addEventListener("click", loadRequirements);
+$("req-refresh").addEventListener("click", () => { loadRequirements(); loadRequirementImpact(); });
+
+async function loadRequirementImpact() {
+  try {
+    const graph = await fetch("/api/v2/requirements/impact-graph").then((r) => r.json());
+    const models = Object.entries(graph.data_models || {}).filter(([, ids]) => ids.length > 1);
+    const modelsEl = $("req-data-models");
+    modelsEl.innerHTML = models.length
+      ? models.map(([name, ids]) => '<div style="padding:6px 0;border-top:1px solid var(--border)"><b>' + esc(name) + "</b><div class=\"d\" style=\"margin-top:2px\">"
+          + ids.map((id) => '<a href="#requirements" class="req-link" data-id="' + esc(id) + '" style="cursor:pointer;text-decoration:underline">' + esc(id) + "</a>").join(", ")
+          + "</div></div>").join("")
+      : '<span class="d">No data model is shared by more than one requirement yet.</span>';
+
+    const flows = Object.entries(graph.flows || {});
+    const flowsEl = $("req-flows");
+    flowsEl.innerHTML = flows.length
+      ? flows.map(([name, info]) => '<div style="padding:6px 0;border-top:1px solid var(--border)"><b>' + esc(name) + "</b>"
+          + '<div class="d" style="margin-top:2px">requirements: ' + info.requirements.map((id) => '<a href="#requirements" class="req-link" data-id="' + esc(id) + '" style="cursor:pointer;text-decoration:underline">' + esc(id) + "</a>").join(", ") + "</div>"
+          + (info.tests.length ? '<div class="d" style="margin-top:2px">tests: ' + info.tests.map((t) => "<code>" + esc(t) + "</code>").join(", ") + "</div>" : "")
+          + "</div>").join("")
+      : '<span class="d">No requirement has a flow tagged yet.</span>';
+
+    for (const el of document.querySelectorAll("#panel-requirements .req-link")) {
+      el.addEventListener("click", (ev) => { ev.preventDefault(); openRequirementDetail(el.dataset.id); });
+    }
+  } catch (e) { /* offline */ }
+}
 
 /* Forge preset — fill the API-contract card with Forge's defaults (port 24631, key Admin@321) */
 {
@@ -3523,10 +3562,12 @@ loadSchedules();
 loadFindings();
 loadEngagements();
 loadRequirements();
+loadRequirementImpact();
 setInterval(loadSchedules, 15000);
 setInterval(loadFindings, 15000);
 setInterval(loadEngagements, 30000);
 setInterval(loadRequirements, 30000);
+setInterval(loadRequirementImpact, 30000);
 setRefreshRate(parseInt($("refresh-rate").value, 10) || REFRESH);
 
 

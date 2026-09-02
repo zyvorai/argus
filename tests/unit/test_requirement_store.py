@@ -133,6 +133,74 @@ def test_link_requirement_test_and_impact_lookup(tmp_path):
     assert store.linked_tests("req-login", 2) == []
 
 
+def test_data_models_and_flows_round_trip_through_get_and_history(tmp_path):
+    store = MissionControlStore(tmp_path / "req.db")
+    store.upsert_requirement(
+        "req-checkout", source_type="document", origin_id="specs/checkout.md",
+        title="Apply discount", content=_content("v1"),
+        data_models=["Order", "Payment"], flows=["Checkout"],
+    )
+    fetched = store.get_requirement("req-checkout")
+    assert fetched is not None
+    assert fetched["data_models"] == ["Order", "Payment"]
+    assert fetched["flows"] == ["Checkout"]
+
+    history = store.requirement_history("req-checkout")
+    assert history[0]["data_models"] == ["Order", "Payment"]
+    assert history[0]["flows"] == ["Checkout"]
+
+
+def test_data_models_default_to_empty_list_when_not_provided(tmp_path):
+    store = MissionControlStore(tmp_path / "req.db")
+    store.upsert_requirement(
+        "req-login", source_type="github", origin_id="issue-42.md",
+        title="Login page loads", content=_content(),
+    )
+    fetched = store.get_requirement("req-login")
+    assert fetched is not None
+    assert fetched["data_models"] == []
+    assert fetched["flows"] == []
+
+
+def test_requirement_impact_graph_groups_by_shared_data_model_and_flow(tmp_path):
+    store = MissionControlStore(tmp_path / "req.db")
+    store.upsert_requirement(
+        "req-checkout", source_type="document", origin_id="specs/checkout.md",
+        title="Apply discount", content=_content("checkout v1"),
+        data_models=["Order", "Payment"], flows=["Checkout"],
+    )
+    store.link_requirement_test("req-checkout", "tests/e2e/checkout.spec.ts")
+    store.upsert_requirement(
+        "req-order-history", source_type="document", origin_id="specs/orders.md",
+        title="View past orders", content=_content("orders v1"),
+        data_models=["Order"], flows=["Order history"],
+    )
+    store.link_requirement_test("req-order-history", "tests/e2e/orders.spec.ts")
+    # A requirement with no entities must not show up in any group.
+    store.upsert_requirement(
+        "req-untagged", source_type="github", origin_id="7",
+        title="Homepage returns 200", content=_content("untagged"),
+    )
+
+    graph = store.requirement_impact_graph()
+
+    assert set(graph["data_models"]["Order"]) == {"req-checkout", "req-order-history"}
+    assert graph["data_models"]["Payment"] == ["req-checkout"]
+    assert "req-untagged" not in graph["data_models"].get("Order", [])
+    assert graph["flows"]["Checkout"]["requirements"] == ["req-checkout"]
+    assert graph["flows"]["Checkout"]["tests"] == ["tests/e2e/checkout.spec.ts"]
+    assert graph["flows"]["Order history"]["tests"] == ["tests/e2e/orders.spec.ts"]
+
+
+def test_requirement_impact_graph_empty_when_nothing_tagged(tmp_path):
+    store = MissionControlStore(tmp_path / "req.db")
+    store.upsert_requirement(
+        "req-login", source_type="github", origin_id="issue-42.md",
+        title="Login page loads", content=_content(),
+    )
+    assert store.requirement_impact_graph() == {"data_models": {}, "flows": {}}
+
+
 def test_link_requirement_test_unknown_requirement_is_a_noop(tmp_path):
     store = MissionControlStore(tmp_path / "req.db")
     store.link_requirement_test("does-not-exist", "tests/generated/x.spec.ts")

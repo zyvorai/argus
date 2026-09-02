@@ -327,6 +327,18 @@ async def list_requirements(request: Request, limit: int = Query(200, ge=1, le=5
     return {"requirements": get_store().list_requirements(limit)}
 
 
+@router.get("/requirements/impact-graph")
+async def requirement_impact_graph(request: Request) -> dict[str, Any]:
+    """Groups every requirement's latest version by the data models and
+    business flows named in agents/requirement_entities/ output: which
+    requirements share a data model, and which generated tests trace to
+    which flow -- the bounded first slice of impact analysis named as an
+    open gap in ROADMAP.md. Registered before `/{requirement_id}` so
+    "impact-graph" isn't swallowed as a path parameter."""
+    require_scope(request, "requirements:read")
+    return get_store().requirement_impact_graph()
+
+
 @router.get("/requirements/{requirement_id}")
 async def get_requirement(request: Request, requirement_id: str) -> dict[str, Any]:
     """Latest version's full content, quality score, and named quality issues."""

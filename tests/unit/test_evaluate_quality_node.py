@@ -49,6 +49,8 @@ def test_evaluate_quality_scores_and_persists(tmp_path, monkeypatch):
     persisted = store.get_requirement("req-login")
     assert persisted is not None
     assert persisted["latest_version"] == 1
+    assert isinstance(persisted["data_models"], list)
+    assert isinstance(persisted["flows"], list)
 
 
 def test_evaluate_quality_surfaces_impact_when_requirement_changes(tmp_path, monkeypatch):

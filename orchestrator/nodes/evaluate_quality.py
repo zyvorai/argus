@@ -26,6 +26,7 @@ requirement is a no-op here, not noise.
 from __future__ import annotations
 
 from agents.common.models import Requirement
+from agents.requirement_entities.agent import extract_requirement_entities
 from agents.requirement_quality.agent import evaluate_requirement_quality
 from orchestrator.persistence.store import get_store
 from orchestrator.state import PipelineState
@@ -57,6 +58,7 @@ def evaluate_quality(state: PipelineState) -> PipelineState:
     for req in requirements:
         result = evaluate_requirement_quality(req)
         quality[req.id] = result.model_dump()
+        entities = extract_requirement_entities(req)
 
         persisted = store.upsert_requirement(
             req.id,
@@ -66,6 +68,8 @@ def evaluate_quality(state: PipelineState) -> PipelineState:
             content=_content_for_hash(req),
             quality_score=result.score,
             quality_issues=[issue.model_dump() for issue in result.issues],
+            data_models=entities.data_models,
+            flows=entities.flows,
         )
 
         if persisted["is_new_version"] and persisted["previous_version"]:

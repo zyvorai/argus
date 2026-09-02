@@ -184,6 +184,29 @@ def test_requirement_versioning_and_traceability(store):
     assert fetched["quality_score"] == 95.0
 
 
+def test_requirement_impact_graph(store):
+    """Same contract as MissionControlStore's version
+    (tests/unit/test_requirement_store.py) -- PostgresStore is a drop-in."""
+    store.upsert_requirement(
+        "req-checkout", source_type="document", origin_id="specs/checkout.md",
+        title="Apply discount", content={"d": "checkout"},
+        data_models=["Order", "Payment"], flows=["Checkout"],
+    )
+    store.link_requirement_test("req-checkout", "tests/e2e/checkout.spec.ts")
+    store.upsert_requirement(
+        "req-orders", source_type="document", origin_id="specs/orders.md",
+        title="View past orders", content={"d": "orders"},
+        data_models=["Order"], flows=["Order history"],
+    )
+
+    graph = store.requirement_impact_graph()
+
+    assert set(graph["data_models"]["Order"]) == {"req-checkout", "req-orders"}
+    assert graph["data_models"]["Payment"] == ["req-checkout"]
+    assert graph["flows"]["Checkout"]["requirements"] == ["req-checkout"]
+    assert graph["flows"]["Checkout"]["tests"] == ["tests/e2e/checkout.spec.ts"]
+
+
 def test_upsert_requirement_concurrent_first_insert_is_race_free(store):
     errors: list[Exception] = []
 

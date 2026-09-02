@@ -54,7 +54,7 @@ except ImportError as exc:  # pragma: no cover - exercised only without the post
 _SCHEMA_STATEMENTS = [
     """CREATE TABLE IF NOT EXISTS schema_meta (version INTEGER NOT NULL)""",
     """INSERT INTO schema_meta(version)
-       SELECT 4 WHERE NOT EXISTS (SELECT 1 FROM schema_meta)""",
+       SELECT 5 WHERE NOT EXISTS (SELECT 1 FROM schema_meta)""",
     """CREATE TABLE IF NOT EXISTS jobs (
         id TEXT PRIMARY KEY,
         kind TEXT NOT NULL,
@@ -163,8 +163,14 @@ _SCHEMA_STATEMENTS = [
         quality_score DOUBLE PRECISION,
         quality_issues_json TEXT,
         created_at TEXT NOT NULL,
+        data_models_json TEXT,
+        flows_json TEXT,
         PRIMARY KEY (requirement_id, version)
     )""",
+    # Added in schema v5, same "ALTER ... IF NOT EXISTS" no-op-on-old-tables
+    # story as jobs.trace_context in schema v4.
+    """ALTER TABLE requirement_versions ADD COLUMN IF NOT EXISTS data_models_json TEXT""",
+    """ALTER TABLE requirement_versions ADD COLUMN IF NOT EXISTS flows_json TEXT""",
     """CREATE TABLE IF NOT EXISTS requirement_test_links (
         requirement_id TEXT NOT NULL REFERENCES requirements(id),
         requirement_version INTEGER NOT NULL,
@@ -201,7 +207,7 @@ class PostgresStore:
         with self._migration_lock, self.connect() as conn:
             for statement in _SCHEMA_STATEMENTS:
                 conn.execute(statement)
-            conn.execute("UPDATE schema_meta SET version=4")
+            conn.execute("UPDATE schema_meta SET version=5")
 
     # Jobs -----------------------------------------------------------------
     def enqueue_job(
@@ -622,6 +628,8 @@ class PostgresStore:
         content: dict[str, Any],
         quality_score: float | None = None,
         quality_issues: list[dict[str, Any]] | None = None,
+        data_models: list[str] | None = None,
+        flows: list[str] | None = None,
     ) -> dict[str, Any]:
         """Insert a new version only if `content` differs from the current
         latest. `INSERT ... ON CONFLICT DO NOTHING` handles the brand-new-id
@@ -635,6 +643,8 @@ class PostgresStore:
         now = _iso()
         title = str(redact(title))[:300]
         quality_issues_json = _json(quality_issues) if quality_issues is not None else None
+        data_models_json = _json(data_models) if data_models is not None else None
+        flows_json = _json(flows) if flows is not None else None
 
         with self.connect() as conn, conn.transaction():
             inserted = conn.execute(
@@ -675,11 +685,11 @@ class PostgresStore:
                 conn.execute(
                     """INSERT INTO requirement_versions
                     (requirement_id, version, content_json, content_hash, quality_score,
-                     quality_issues_json, created_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                     quality_issues_json, created_at, data_models_json, flows_json)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (requirement_id, version) DO NOTHING""",
                     (requirement_id, version, content_json, content_hash, quality_score,
-                     quality_issues_json, now),
+                     quality_issues_json, now, data_models_json, flows_json),
                 )
 
             row = conn.execute(
@@ -703,6 +713,8 @@ class PostgresStore:
         result = dict(row)
         result["content"] = _loads(version["content_json"], None) if version else None
         result["quality_issues"] = _loads(version["quality_issues_json"], []) if version else []
+        result["data_models"] = _loads(version["data_models_json"], []) if version else []
+        result["flows"] = _loads(version["flows_json"], []) if version else []
         return result
 
     def list_requirements(self, limit: int = 200) -> list[dict[str, Any]]:
@@ -723,6 +735,8 @@ class PostgresStore:
             item = dict(row)
             item["content"] = _loads(item.pop("content_json"), None)
             item["quality_issues"] = _loads(item.pop("quality_issues_json"), [])
+            item["data_models"] = _loads(item.pop("data_models_json"), [])
+            item["flows"] = _loads(item.pop("flows_json"), [])
             history.append(item)
         return history
 
@@ -749,3 +763,27 @@ class PostgresStore:
                 (requirement_id, version),
             ).fetchall()
         return [row["test_path"] for row in rows]
+
+    def requirement_impact_graph(self) -> dict[str, Any]:
+        """Same contract as MissionControlStore's version -- see its
+        docstring."""
+        with self.connect() as conn:
+            rows = conn.execute(
+                """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json
+                FROM requirements r
+                JOIN requirement_versions rv
+                  ON rv.requirement_id = r.id AND rv.version = r.latest_version"""
+            ).fetchall()
+        data_models: dict[str, list[str]] = {}
+        flows: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            req_id = row["id"]
+            for model in _loads(row["data_models_json"], []):
+                data_models.setdefault(model, []).append(req_id)
+            for flow in _loads(row["flows_json"], []):
+                bucket = flows.setdefault(flow, {"requirements": [], "tests": []})
+                bucket["requirements"].append(req_id)
+                bucket["tests"].extend(self.linked_tests(req_id, row["version"]))
+        for bucket in flows.values():
+            bucket["tests"] = sorted(set(bucket["tests"]))
+        return {"data_models": data_models, "flows": flows}

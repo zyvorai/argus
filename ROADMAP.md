@@ -161,13 +161,38 @@ Deliberately not built yet, and not stubbed:
   `source` branch is the extension point — a new source only needs to
   produce `spec_contents: List[str]`, which `parse_requirements` already
   consumes unchanged, exactly like `document` does today.
-- **Business-flow/data/automation-level impact analysis** — today's impact
-  check answers "which generated tests trace to a requirement that
-  changed," which is real but narrow. A flow/dependency graph (which
-  requirements share a data model, which automation depends on which flow)
-  doesn't exist anywhere in this repo yet and would be a separate,
-  significant modeling effort, not an extension of the existing
-  requirement→test join table.
+- ~~**Business-flow/data-model impact analysis**~~ — **done, first slice.**
+  The original change-based impact check ("which generated tests trace to a
+  requirement that changed") is joined by a second, complementary one:
+  "which requirements share a data model" and "which automation depends on
+  which flow." New `agents/requirement_entities/` (mirrors
+  `agents/requirement_quality/`'s LLM+rule-based-fallback shape exactly)
+  names the data models and business flow a requirement touches; the
+  `evaluate_quality` node calls it alongside quality scoring and persists
+  the result on `requirement_versions` (schema v5, `data_models_json`/
+  `flows_json`, `ALTER TABLE`-on-migrate for existing databases in both
+  `MissionControlStore` and `PostgresStore`). `MissionControlStore
+  .requirement_impact_graph()` groups every requirement's latest version by
+  shared entity, exposed read-only at `GET /api/v2/requirements/impact-graph`
+  (registered ahead of `/{requirement_id}` so it isn't swallowed as a path
+  param) and rendered in the Requirements panel's new "Impact — shared data
+  models & flows" section, cross-linked back into the per-requirement detail
+  view. The rule-based fallback (no LLM key configured) is honest about its
+  own crudeness — a capitalized-word heuristic filtered against a
+  sentence-starter stoplist for data models, a document source's file-path
+  stem for flows — the same "cruder floor, not a lie" posture as the quality
+  scorer's own fallback. **Deliberately still not built:** a real dependency
+  graph across entities themselves (e.g. "Order depends on Payment") —
+  today's grouping is by shared name only, not a graph with edges; and any
+  UI/API surface beyond the two groupings above (e.g. a visual graph
+  render). Live-verified end to end in a real browser against a running
+  `argus serve`: ran two real requirements through the actual
+  `evaluate_quality` node (not a mock), confirmed both landed in the
+  "Order" data-model group and their own flow groups with the right linked
+  tests, and clicking a requirement id in the impact section correctly
+  opened its detail drawer. New tests: `tests/unit/test_requirement_entities_agent.py`,
+  extended `tests/unit/test_requirement_store.py`, `test_postgres_store.py`
+  (live Postgres), `test_requirements_route.py`, `test_evaluate_quality_node.py`.
 - ~~**A dashboard/UI surface for requirement history and quality scores**~~
   — **done, for Mission Control (OSS).** A new **Requirements** panel
   (`templates/dashboard.html.j2`, `data-panel="requirements"`) lists every
