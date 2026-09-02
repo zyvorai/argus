@@ -708,7 +708,7 @@ IMAGE_TAG=$(cat "${REMOTE_STAGING}/.zyvor-argus-image-tag" 2>/dev/null || echo "
 # pod always runs the freshly built code and never hits a registry.
 WORK=$(mktemp -d)
 for f in configmap secret rbac pvc deployment service cronjob; do
-    sed -E "s|^([[:space:]]*)image: ghcr.io/hypersdk/zyvor-argus:latest|\1image: ${IMAGE_TAG}\n\1imagePullPolicy: Never|" \
+    sed -E "s|^([[:space:]]*)image: ghcr.io/zyvorai/zyvor-argus:latest|\1image: ${IMAGE_TAG}\n\1imagePullPolicy: Never|" \
         "kubernetes/${f}.yaml" > "${WORK}/${f}.yaml"
 done
 $KUBECTL apply -f "${WORK}/configmap.yaml" -f "${WORK}/secret.yaml" -f "${WORK}/rbac.yaml" \

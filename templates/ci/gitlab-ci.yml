@@ -6,7 +6,7 @@
 # so `script` must call `argus` explicitly (a plain `docker run` would not need this).
 argus-smoke:
   stage: test
-  image: ghcr.io/hypersdk/zyvor-argus:v0.9.1
+  image: ghcr.io/zyvorai/zyvor-argus:v0.9.1
   variables:
     ZYVOR_BASE_URL: "$STAGING_URL"        # set STAGING_URL as a CI/CD variable
     ZYVOR_ENV: "development"              # "production" enforces ZYVOR_TARGET_ALLOWLIST for private targets

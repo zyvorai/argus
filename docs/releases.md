@@ -9,7 +9,7 @@ Tagged releases are published automatically by [`.github/workflows/release.yml`]
 Pushing a tag matching `v*.*.*` (e.g. `v0.9.1`) to the [`zyvorai/argus`](https://github.com/zyvorai/argus) repo:
 
 1. Builds the container image from [`docker/Dockerfile`](../docker/Dockerfile).
-2. Pushes it to GHCR as `ghcr.io/hypersdk/zyvor-argus:<tag>` and `:latest`.
+2. Pushes it to GHCR as `ghcr.io/zyvorai/zyvor-argus:<tag>` and `:latest`.
 3. Builds the macOS desktop app (`desktop/`, on a `macos-latest` runner) and attaches the unsigned `.dmg` to the release.
 4. Creates a GitHub Release on the tag with release notes.
 
@@ -20,12 +20,12 @@ Download the `.dmg` from the [latest release](https://github.com/zyvorai/argus/r
 ## Pulling the image
 
 ```bash
-docker pull ghcr.io/hypersdk/zyvor-argus:v0.9.1
+docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1
 # or track latest
-docker pull ghcr.io/hypersdk/zyvor-argus:latest
+docker pull ghcr.io/zyvorai/zyvor-argus:latest
 
-docker run --rm --env-file .env ghcr.io/hypersdk/zyvor-argus:v0.9.1 test
-docker run --rm -p 8080:8080 --env-file .env ghcr.io/hypersdk/zyvor-argus:v0.9.1 serve --port 8080 --host 0.0.0.0
+docker run --rm --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.1 test
+docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.1 serve --port 8080 --host 0.0.0.0
 ```
 
 The image entrypoint is `argus`. Pass any subcommand as the container command.
@@ -33,7 +33,7 @@ The image entrypoint is `argus`. Pass any subcommand as the container command.
 Single Pod example:
 
 ```bash
-kubectl run argus --image=ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+kubectl run argus --image=ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
   --env="ZYVOR_BASE_URL=https://zyvor.dev" \
   -- serve --port 8080 --host 0.0.0.0
 ```
@@ -59,6 +59,6 @@ The tag push triggers the release workflow (also `workflow_dispatch` with an exi
 ## Verify after release
 
 ```bash
-docker pull ghcr.io/hypersdk/zyvor-argus:v0.9.1
+docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1
 node scripts/e2e-remote-dashboard.mjs   # Chrome smoke against deployed Mission Control
 ```

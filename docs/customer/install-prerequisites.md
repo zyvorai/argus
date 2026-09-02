@@ -8,7 +8,7 @@ of the setup is configuration, not hunting for missing tools.
 
 ```text
 1. Toolchain          Docker (or Podman) · kubectl · Helm · (Python/Node if building from source)
-2. Community Argus    ghcr.io/hypersdk/zyvor-argus  OR  git clone + make install
+2. Community Argus    ghcr.io/zyvorai/zyvor-argus  OR  git clone + make install
 3. OSS service token  so Watchfloor (or CI) can call /api/v2
 4. Watchfloor         only if you need Argus Enterprise — customer package / Helm
 5. Sign in & use      claim → SSO/demo login → register target → smoke
@@ -73,7 +73,7 @@ Watchfloor does **not** replace this. Every Enterprise target is an `argus serve
 ### Option A — Container (fastest)
 
 ```bash
-docker pull ghcr.io/hypersdk/zyvor-argus:latest
+docker pull ghcr.io/zyvorai/zyvor-argus:latest
 # pin a release if you prefer, e.g. :v0.9.1
 
 mkdir -p ~/argus-target && cd ~/argus-target
@@ -87,7 +87,7 @@ docker run -d --name argus-serve \
   -p 8080:8080 \
   --env-file .env \
   -v "$(pwd)/reports:/app/reports" \
-  ghcr.io/hypersdk/zyvor-argus:latest \
+  ghcr.io/zyvorai/zyvor-argus:latest \
   serve --port 8080 --host 0.0.0.0
 
 curl -s http://127.0.0.1:8080/health

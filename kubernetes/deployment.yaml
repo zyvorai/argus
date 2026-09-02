@@ -19,7 +19,7 @@ spec:
       serviceAccountName: argus
       containers:
         - name: argus
-          image: ghcr.io/hypersdk/zyvor-argus:latest
+          image: ghcr.io/zyvorai/zyvor-argus:latest
           command: ["argus", "serve", "--port", "8080", "--host", "0.0.0.0"]
           ports:
             - containerPort: 8080

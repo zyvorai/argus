@@ -7,7 +7,7 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-container: ghcr.io/hypersdk/zyvor-argus:v0.9.1
+container: ghcr.io/zyvorai/zyvor-argus:v0.9.1
 
 variables:
   ZYVOR_BASE_URL: $(STAGING_URL)   # define STAGING_URL as a pipeline variable/secret

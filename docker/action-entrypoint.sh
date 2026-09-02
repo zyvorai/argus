@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Entrypoint for the `hypersdk/zyvor-argus` GitHub Action (see action.yml).
+# Entrypoint for the `zyvorai/argus` GitHub Action (see action.yml).
 #
 # GitHub Actions always sets ACTION_* even when an input was left at its empty
 # default, so this only forwards a value into the real argus env var when

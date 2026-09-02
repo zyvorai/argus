@@ -42,11 +42,11 @@ def test_record_job_truncates_brief_and_rounds_duration():
 
 
 def test_record_webhook_truncates_detail():
-    activity.record_webhook("push", "hypersdk/zyvor-argus", detail="y" * 200)
+    activity.record_webhook("push", "zyvorai/argus", detail="y" * 200)
     (entry,) = activity._webhooks
     assert entry["type"] == "webhook"
     assert entry["event"] == "push"
-    assert entry["repo"] == "hypersdk/zyvor-argus"
+    assert entry["repo"] == "zyvorai/argus"
     assert len(entry["detail"]) == 120
 
 

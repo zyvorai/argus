@@ -78,7 +78,7 @@ argus test run --source github --spec docs/specs/billing-upgrade.md
       -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
       -e ZYVOR_ENV=development \
       -v "$PWD/reports:/app/reports" \
-      ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+      ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
       run --source github --spec docs/specs/billing-upgrade.md
 ```
 
@@ -98,7 +98,7 @@ docker run --rm \
   -e ZYVOR_BASE_URL="$STAGING_URL" \
   -v "$PWD/qa/flows:/flows:ro" \
   -v "$PWD/reports:/app/reports" \
-  ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+  ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
   flow "$STAGING_URL" --steps /flows/billing.flow --video
 ```
 

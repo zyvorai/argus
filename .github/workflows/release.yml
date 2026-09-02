@@ -11,7 +11,7 @@ on:
         required: true
 
 env:
-  IMAGE: ghcr.io/hypersdk/zyvor-argus
+  IMAGE: ghcr.io/zyvorai/zyvor-argus
 
 jobs:
   publish-image:
@@ -148,10 +148,10 @@ jobs:
           generate_release_notes: true
           files: dist/*.dmg
           body: |
-            Image: `ghcr.io/hypersdk/zyvor-argus:${{ needs.publish-image.outputs.tag }}`
+            Image: `ghcr.io/zyvorai/zyvor-argus:${{ needs.publish-image.outputs.tag }}`
 
             ```bash
-            docker pull ghcr.io/hypersdk/zyvor-argus:${{ needs.publish-image.outputs.tag }}
+            docker pull ghcr.io/zyvorai/zyvor-argus:${{ needs.publish-image.outputs.tag }}
             ```
 
             macOS desktop app: download the `.dmg` below (unsigned — right-click → Open on first launch). See [Tutorial 17](https://github.com/zyvorai/argus/blob/main/docs/tutorials/17-desktop-app.md) and `desktop/README.md`.

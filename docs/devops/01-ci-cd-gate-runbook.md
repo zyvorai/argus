@@ -14,18 +14,18 @@
 | Runner can reach that URL (DNS, SG, VPN, mesh) | Otherwise every run is a false red |
 | Linux runner (`ubuntu-latest` or equiv.) | GitHub Action is **Docker-type** — macOS/Windows runners will not work |
 | Artifact store available | You will upload `reports/` every time |
-| Image pull works | `ghcr.io/hypersdk/zyvor-argus:v0.9.1` (public) |
+| Image pull works | `ghcr.io/zyvorai/zyvor-argus:v0.9.1` (public) |
 
 Smoke test from a jump host before wiring CI:
 
 ```bash
 curl -fsS -o /dev/null -w '%{http_code}\n' https://staging.example.com/
-docker pull ghcr.io/hypersdk/zyvor-argus:v0.9.1
+docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1
 docker run --rm \
   -e ZYVOR_BASE_URL=https://staging.example.com \
   -e ZYVOR_ENV=development \
   -v "$PWD/reports:/app/reports" \
-  ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+  ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
   test --grep @smoke
 echo exit:$?
 jq . reports/summary.json
@@ -129,7 +129,7 @@ docker run --rm \
   -e ZYVOR_GREP='@smoke' \
   -v "$CI_PROJECT_DIR/reports:/app/reports" \
   -v "$CI_PROJECT_DIR/test-results:/app/test-results" \
-  ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+  ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
   test --grep @smoke
 ```
 

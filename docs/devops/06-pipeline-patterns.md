@@ -71,7 +71,7 @@ jobs:
             -e ZYVOR_IGNORE_HTTPS_ERRORS=true \
             -v "$PWD/qa/flows:/flows:ro" \
             -v "$PWD/reports:/app/reports" \
-            ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+            ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
             flow "${{ vars.STAGING_URL }}" --steps /flows/checkout.flow --video
       - if: always()
         uses: actions/upload-artifact@v4

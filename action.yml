@@ -76,7 +76,7 @@ outputs:
 
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/hypersdk/zyvor-argus:v0.9.1'
+  image: 'docker://ghcr.io/zyvorai/zyvor-argus:v0.9.1'
   entrypoint: '/action-entrypoint.sh'
   args:
     - ${{ inputs.command }}

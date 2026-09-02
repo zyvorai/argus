@@ -23,7 +23,7 @@ DevOps owns the **runner** (Action/container image pin, secrets, target policy, 
 
 ```text
 Image / Action:  zyvorai/argus@v0.9.1
-Container:       ghcr.io/hypersdk/zyvor-argus:v0.9.1
+Container:       ghcr.io/zyvorai/zyvor-argus:v0.9.1
 ```
 
 Do **not** use `:latest` in production gates. Bump the pin in a dedicated PR when you intentionally upgrade.

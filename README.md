@@ -58,8 +58,8 @@ argus serve --port 8080         # → http://localhost:8080/dashboard
 Container:
 
 ```bash
-docker pull ghcr.io/hypersdk/zyvor-argus:v0.9.1
-docker run --rm -p 8080:8080 --env-file .env ghcr.io/hypersdk/zyvor-argus:v0.9.1 serve --port 8080 --host 0.0.0.0
+docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1
+docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.1 serve --port 8080 --host 0.0.0.0
 ```
 
 ---

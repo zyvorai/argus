@@ -28,7 +28,7 @@ Run `argus` as a QA gate inside **your own** repo's pipeline — GitHub Actions,
     path: reports/
 ```
 
-The Action is defined in [`action.yml`](../../action.yml) at the repo root — see its `inputs`/`outputs` for the full list (target-policy knobs, LLM keys, `fail-on-error`). It's a **Docker-type Action**, so it only runs on Linux (`ubuntu-latest`) runners, and it wraps the same `ghcr.io/hypersdk/zyvor-argus` image described below rather than reinstalling Python/Node/Playwright on every run.
+The Action is defined in [`action.yml`](../../action.yml) at the repo root — see its `inputs`/`outputs` for the full list (target-policy knobs, LLM keys, `fail-on-error`). It's a **Docker-type Action**, so it only runs on Linux (`ubuntu-latest`) runners, and it wraps the same `ghcr.io/zyvorai/zyvor-argus` image described below rather than reinstalling Python/Node/Playwright on every run.
 
 Outputs `exit-code`, `passed`, `failed`, `summary-path` are populated from `reports/summary.json` (§4) and can be read in a later step via `${{ steps.<id>.outputs.passed }}`.
 
@@ -38,7 +38,7 @@ Outputs `exit-code`, `passed`, `failed`, `summary-path` are populated from `repo
 docker run --rm \
   -e ZYVOR_BASE_URL=https://staging.example.com \
   -v "$PWD/reports:/app/reports" \
-  ghcr.io/hypersdk/zyvor-argus:v0.9.1 \
+  ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
   test --grep @smoke
 ```
 
@@ -144,6 +144,6 @@ Upload `reports/` (and `test-results/`, `screenshots/`, `videos/`, `traces/` if 
 ## 7. Troubleshooting
 
 - **"target rejected by policy"** — `ZYVOR_ENV=production` with an unlisted private/internal target. Either add it to `ZYVOR_TARGET_ALLOWLIST` or drop back to `ZYVOR_ENV=development` for CI runs against non-public infrastructure you already trust.
-- **Missing browsers / Playwright errors when not using the container** — install via `npx playwright install --with-deps chromium`, or just use the `ghcr.io/hypersdk/zyvor-argus` image, which already bundles them.
+- **Missing browsers / Playwright errors when not using the container** — install via `npx playwright install --with-deps chromium`, or just use the `ghcr.io/zyvorai/zyvor-argus` image, which already bundles them.
 - **`ai-test`/`run`/`create` fail immediately** — these require an LLM provider key; there's no rule-based fallback for them.
 - **A `.env` you committed to your repo isn't being read** — see §2; use CI env vars/secrets instead.

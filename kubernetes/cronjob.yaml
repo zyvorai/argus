@@ -12,7 +12,7 @@ spec:
         spec:
           containers:
             - name: argus
-              image: ghcr.io/hypersdk/zyvor-argus:latest
+              image: ghcr.io/zyvorai/zyvor-argus:latest
               command: ["argus", "test", "exec"]
               envFrom:
                 - configMapRef:
