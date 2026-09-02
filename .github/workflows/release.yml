@@ -123,7 +123,7 @@ jobs:
           cp desktop/src-tauri/target/release/bundle/dmg/*.dmg \
             "dist/ZyvorArgus-${{ needs.publish-image.outputs.tag }}-macos-arm64.dmg"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-macos-dmg
           path: dist/*.dmg
