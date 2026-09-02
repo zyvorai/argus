@@ -80,6 +80,15 @@ def cloud_pentest_image() -> str | None:
     return os.environ.get("ZYVOR_SANDBOX_CLOUD_IMAGE", "").strip() or None
 
 
+def db_image() -> str | None:
+    """Image for `db_assert` (needs `psycopg`/`pymysql` — not in the default
+    image; sqlite3 is stdlib but the same image serves all three engines,
+    simpler than one image per engine). None if not configured —
+    db_assert fails closed rather than running with a generic image that
+    lacks database drivers."""
+    return os.environ.get("ZYVOR_SANDBOX_DB_IMAGE", "").strip() or None
+
+
 def available() -> bool:
     """True when a cluster is reachable AND a dedicated sandbox namespace is
     explicitly configured. The namespace requirement is deliberate: refusing

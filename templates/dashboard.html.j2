@@ -1286,7 +1286,49 @@
         <button class="run-btn act-btn" data-kind="host_pentest" style="margin-left:auto">🖥 Generate &amp; verify</button>
       </div>
     </div>
-    
+
+<div class="glass card act" id="action-db-assert" style="grid-column: 1 / -1">
+      <div class="act-title">🗄 DB assert — read-only, SELECT-only assertion against a database</div>
+      <div class="d" style="margin-bottom:8px">Needs a second gate — <code>ZYVOR_DB_TESTING_ENABLED=true</code> — and <code>ZYVOR_SANDBOX_DB_IMAGE</code> configured server-side. Deterministic, not LLM-generated — the query runs verbatim via a fixed script (SELECT-only, enforced server-side). <b>The connection string must reference a server-side env var — the value is never sent</b>, only the env var <i>name</i>.</div>
+      <div class="act-row">
+        <select class="inp" id="dba-engine" style="max-width:130px">
+          <option value="postgres">postgres</option>
+          <option value="mysql">mysql</option>
+          <option value="sqlite">sqlite</option>
+        </select>
+        <input class="inp grow" id="dba-target" placeholder="target label for engagement scope, e.g. staging-orders-db">
+        <input class="inp grow" id="dba-secretenv" placeholder="server env var name holding the connection string, e.g. DB_DSN_STAGING">
+        <input class="inp" id="dba-timeout" type="number" value="30" min="5" max="120" style="width:90px" title="sandbox timeout (s)">
+      </div>
+      <div class="act-row"><textarea class="inp grow" id="dba-query" rows="2" placeholder="SELECT ... (SELECT-only, enforced server-side)"></textarea></div>
+      <div class="act-row">
+        <input class="inp grow" id="dba-query-params" placeholder='query bind params as a JSON array, e.g. ["ord_123"] (optional)'>
+      </div>
+      <div class="act-row" style="gap:10px">
+        <select class="inp" id="dba-mode" style="max-width:150px">
+          <option value="row_count">row_count</option>
+          <option value="cell_equals">cell_equals</option>
+          <option value="column_values">column_values</option>
+        </select>
+        <select class="inp" id="dba-op" style="max-width:100px">
+          <option value="==">==</option>
+          <option value="!=">!=</option>
+          <option value=">">&gt;</option>
+          <option value=">=">&gt;=</option>
+          <option value="<">&lt;</option>
+          <option value="<=">&lt;=</option>
+          <option value="all_equal">all_equal</option>
+        </select>
+        <input class="inp" id="dba-row" type="number" value="0" min="0" style="width:70px" title="row index (cell_equals only)">
+        <input class="inp" id="dba-column" placeholder="column (cell_equals/column_values)" style="max-width:200px">
+        <input class="inp grow" id="dba-value" placeholder='expected value (JSON, e.g. 1, "completed", true)'>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="dba-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="db_assert" style="margin-left:auto">🗄 Run assertion</button>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1595,6 +1637,7 @@ const PANEL_FOR_KIND = {
   api_contract: "api", realtime: "api", auth_test: "api",
   misconfig_scan: "security", cve_lookup: "security", llm_redteam: "security",
   exploit_poc: "security", attack_chain: "security", host_pentest: "security", cloud_pentest: "security",
+  db_assert: "security",
 };
 function showPanel(id, opts) {
   opts = opts || {};
@@ -3037,6 +3080,31 @@ function jobParams(kind) {
       engagement_id: $("hp-eng").value,
     };
   }
+  if (kind === "db_assert") {
+    let queryParams = [];
+    const qpText = $("dba-query-params").value.trim();
+    if (qpText) {
+      try { queryParams = JSON.parse(qpText); }
+      catch (e) { toast("db_assert", false, "query params must be a JSON array"); throw e; }
+    }
+    const valText = $("dba-value").value.trim();
+    let value = null;
+    try { value = valText ? JSON.parse(valText) : null; } catch (e) { value = valText; }  // bare unquoted strings allowed too
+    const mode = $("dba-mode").value;
+    const assertion = { mode, op: $("dba-op").value, value };
+    if (mode !== "row_count") assertion.column = $("dba-column").value.trim();
+    if (mode === "cell_equals") assertion.row = parseInt($("dba-row").value, 10) || 0;
+    return {
+      engine: $("dba-engine").value,
+      target: $("dba-target").value.trim(),
+      db_secret: { "$secret": "env:" + $("dba-secretenv").value.trim() },
+      query: $("dba-query").value.trim(),
+      query_params: queryParams,
+      assertion,
+      timeout_s: parseInt($("dba-timeout").value, 10) || 30,
+      engagement_id: $("dba-eng").value,
+    };
+  }
   if (kind === "cloud_pentest") {
     let creds = {};
     const raw = $("cp-creds").value.trim();
@@ -3112,10 +3180,12 @@ const KIND_LABELS = { smoke: "smoke tests", full: "full pipeline", generate: "ge
   redirects: "redirect chain", headers: "HTTP headers", cookies: "cookie audit", robots: "robots/sitemap",
   security_paths: "exposed paths", api_check: "API check", sitemap_test: "sitemap URLs", dns_records: "DNS records",
   cors: "CORS check", transport: "compression", flow: "flow test", route_sweep: "route sweep",
-  api_contract: "API contract", auth_test: "auth & session", realtime: "live data", vitals: "web vitals", ai_flow: "AI test",
+  api_contract: "API contract", api_contract_diff: "API contract diff", contract_verify: "contract verify",
+  auth_test: "auth & session", realtime: "live data", vitals: "web vitals", ai_flow: "AI test",
   har_replay: "HAR record/replay", import_codegen: "import codegen",
-  misconfig_scan: "misconfig scan", cve_lookup: "CVE lookup", llm_redteam: "LLM red-team",
-  exploit_poc: "exploit PoC", attack_chain: "attack chain", host_pentest: "host pentest", cloud_pentest: "cloud pentest" };
+  misconfig_scan: "misconfig scan", cve_lookup: "CVE lookup", sca_scan: "SCA scan", llm_redteam: "LLM red-team",
+  exploit_poc: "exploit PoC", attack_chain: "attack chain", host_pentest: "host pentest", cloud_pentest: "cloud pentest",
+  db_assert: "DB assert" };
 
 let lastToastKey = "";
 function renderRunStatus(st) {

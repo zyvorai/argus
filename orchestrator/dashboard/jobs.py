@@ -45,7 +45,7 @@ VALID_KINDS = {
     "api_contract", "api_contract_diff", "contract_verify", "auth_test", "realtime", "vitals", "ai_flow",
     "har_replay", "import_codegen",
     "misconfig_scan", "cve_lookup", "sca_scan", "llm_redteam", "exploit_poc", "attack_chain",
-    "host_pentest", "cloud_pentest",
+    "host_pentest", "cloud_pentest", "db_assert",
 } | PROBE_KINDS
 
 # Job kinds gated behind an authorized security engagement
@@ -57,6 +57,7 @@ ELEVATED_RISK_KINDS: dict[str, str] = {
     "cve_lookup": "active_recon",
     "sca_scan": "active_recon",
     "contract_verify": "active_recon",
+    "db_assert": "active_recon",
     "llm_redteam": "active_recon",
     "exploit_poc": "exploit",
     "attack_chain": "exploit",
@@ -582,6 +583,58 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("target is required — an account/project identifier, e.g. 'aws-prod-123456789012'")
         clean["target"] = target[:200]
         clean["url"] = clean["target"]  # engagement target-pattern matches on this
+    if kind == "db_assert":
+        # One explicit fail-closed opt-in, not exploit_poc's three-gate
+        # stack -- this is read-only and makes no destructive claim, but it
+        # does touch live data with real credentials, which warrants more
+        # than the probe kinds get.
+        if os.environ.get("ZYVOR_DB_TESTING_ENABLED", "false").strip().lower() not in {"1", "true", "yes", "on"}:
+            raise ValueError("db_assert is disabled — set ZYVOR_DB_TESTING_ENABLED=true to enable it")
+
+        engine = (params.get("engine") or "").strip().lower()
+        if engine not in ("postgres", "mysql", "sqlite"):
+            raise ValueError("engine must be 'postgres', 'mysql', or 'sqlite'")
+        clean["engine"] = engine
+
+        from orchestrator.security.secrets import SecretReferenceError, assert_persistable, is_secret_ref
+
+        db_secret = params.get("db_secret")
+        if not is_secret_ref(db_secret):
+            raise ValueError("db_secret is required and must be a {'$secret': 'env:NAME'} reference")
+        try:
+            assert_persistable(db_secret, parent_key="db_secret")
+        except SecretReferenceError as exc:
+            raise ValueError(str(exc)) from exc
+        clean["db_secret"] = db_secret
+
+        # target is a declarative label for engagement-scope matching/audit
+        # only -- the real connection endpoint is inside db_secret's
+        # resolved DSN, which isn't available at validation time (secrets
+        # are resolved only at execution time, inside the sandbox). Same
+        # shape as cloud_pentest's `target` (an opaque account/project
+        # identifier, not a literal validated hostname).
+        target = (params.get("target") or "").strip()
+        if not target:
+            raise ValueError("target is required — a label identifying the database, e.g. 'staging-orders-db'")
+        clean["target"] = target[:200]
+        clean["url"] = clean["target"]
+
+        from orchestrator.security.sql_guard import SqlGuardError, validate_select_only
+
+        query = (params.get("query") or "").strip()
+        try:
+            clean["query"] = validate_select_only(query)
+        except SqlGuardError as exc:
+            raise ValueError(str(exc)) from exc
+
+        raw_query_params = params.get("query_params")
+        clean["query_params"] = raw_query_params[:50] if isinstance(raw_query_params, list) else []
+
+        assertion = params.get("assertion")
+        if not isinstance(assertion, dict) or assertion.get("mode") not in {"row_count", "cell_equals", "column_values"}:
+            raise ValueError("assertion must be a dict with mode in row_count|cell_equals|column_values")
+        clean["assertion"] = assertion
+        clean["timeout_s"] = max(5, min(int(params.get("timeout_s") or 30), 120))
     if kind in PROBE_KINDS:
         target = (params.get("url") or params.get("host") or "").strip()
         if kind == "dns_records":
@@ -3072,6 +3125,93 @@ def _job_cloud_pentest(params: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _job_db_assert(params: dict[str, Any]) -> dict[str, Any]:
+    """Run one read-only, SELECT-only assertion against a database, inside
+    the Kubernetes sandbox (never in this process). Unlike exploit_poc/
+    host_pentest/cloud_pentest, the "code" is NOT LLM-generated -- it's a
+    single fixed script checked into the repo
+    (agents/db_assert/runner_script.py); the query and assertion are
+    declarative data passed via env vars, so there's no per-run code to
+    hash-and-audit -- the auditable artifact is the query + assertion text
+    themselves."""
+    import json as _json
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.db_assert.engine import load_runner_script
+    from orchestrator.dashboard import findings, history
+    from orchestrator.persistence.store import get_store
+    from orchestrator.security import sandbox
+    from orchestrator.security.secrets import resolve_secret_refs
+
+    t0 = _time.time()
+    engine = params["engine"]
+    target = params["target"]
+    query = params["query"]
+    query_params = params["query_params"]
+    assertion = params["assertion"]
+
+    if not sandbox.available():
+        raise RuntimeError(
+            "exploit sandbox unavailable — set ZYVOR_SANDBOX_NAMESPACE and ensure "
+            "the cluster is reachable (see kubernetes/sandbox.yaml)"
+        )
+    image = sandbox.db_image()
+    if not image:
+        raise RuntimeError(
+            "db_assert needs a sandbox image with psycopg/pymysql installed — "
+            "set ZYVOR_SANDBOX_DB_IMAGE (see docs/enterprise-v2.md)"
+        )
+
+    resolved_secret = resolve_secret_refs(params["db_secret"])
+    env = {
+        "ZYVOR_DB_ENGINE": engine,
+        "ZYVOR_DB_SECRET": str(resolved_secret),
+        "ZYVOR_DB_QUERY": query,
+        "ZYVOR_DB_QUERY_PARAMS": _json.dumps(query_params),
+        "ZYVOR_DB_ASSERTION": _json.dumps(assertion),
+        "ZYVOR_DB_TIMEOUT_S": str(params["timeout_s"]),
+    }
+
+    get_store().audit(
+        "db_assert.run", resource_type="db_assert", resource_id=target,
+        detail={"engine": engine, "target": target, "query": query, "assertion": assertion},
+    )
+    log_progress(f"db_assert: running against {target} ({engine}, timeout {params['timeout_s']}s)…")
+    result = sandbox.run_python(
+        load_runner_script(), timeout_s=params["timeout_s"], env=env, image=image,
+    )
+    _check_cancel()
+
+    verified, reason = _parse_verified_output(result.stdout)
+    log_progress(
+        f"db_assert: {'PASSED' if verified else 'FAILED'}"
+        + (f" — {reason}" if reason else "")
+        + (" (timed out)" if result.timed_out else "")
+    )
+
+    raised: list[dict[str, Any]] = []
+    if not verified:
+        # A failed assertion is a *test* failure, not a vulnerability
+        # confirmation -- severity never defaults to critical/high the way
+        # the pentest kinds do.
+        title = f"db_assert failed on {target}: {reason or 'assertion not satisfied'}"
+        findings.add("db_assert", "medium", title, detail=reason, url=target, category="db-assertion-failed")
+        raised.append({"severity": "medium", "title": title, "detail": reason, "category": "db-assertion-failed"})
+
+    hist = PipelineReport(
+        summary=f"db_assert against {target}: {'passed' if verified else 'failed'}",
+        passed=1 if verified else 0, failed=0 if verified else 1, total=1,
+    )
+    history.append_run(hist, source="dashboard-db-assert", duration_s=_time.time() - t0)
+
+    return {
+        "target": target, "engine": engine, "query": query, "assertion": assertion,
+        "passed": verified, "reason": reason, "timed_out": result.timed_out,
+        "exit_code": result.exit_code, "stdout": (result.stdout or "")[:2000], "findings": raised,
+    }
+
+
 _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "smoke": _job_smoke,
     "flow": _job_flow,
@@ -3106,6 +3246,7 @@ _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "attack_chain": _job_attack_chain,
     "host_pentest": _job_host_pentest,
     "cloud_pentest": _job_cloud_pentest,
+    "db_assert": _job_db_assert,
 }
 
 

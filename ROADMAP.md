@@ -8,9 +8,9 @@ detail already lives.
 ## New test-capability families: contract testing, chaos testing, database testing, compliance/SCA scanning
 
 Planned as four phases (see the plan this shipped from); each phase is an
-independently-shippable, real slice, not a stub. Phases 1-2 are done; phases
-3-4 are still open (and the highest-risk ones — credentialed database
-access, a new sandbox capability exception).
+independently-shippable, real slice, not a stub. Phases 1-3 are done; Phase
+4 is still open, and the highest-risk one — a new sandbox capability
+exception (`CAP_NET_ADMIN`) for fault injection.
 
 ### ~~Phase 1: compliance signals + API contract diffing~~ — done
 
@@ -96,18 +96,84 @@ access, a new sandbox capability exception).
   `tests/unit/test_contract_verify.py`, `test_sca_scan.py`; extended
   `test_jobs_validate.py`, `test_findings.py`.
 
-### Phase 3: `db_assert` (database/data-integrity testing) — not started
+### ~~Phase 3: `db_assert` (database/data-integrity testing)~~ — done
 
-Nothing in Argus touches a database today. First slice: one job kind,
-read-only `SELECT`-only assertion (row count / cell value / column values)
-against a real connection, gated by a new `orchestrator/security/sql_guard.py`
-(mirrors `target_policy.py`'s validate-before-execute shape — a keyword
-denylist, not a claim of being unbypassable; the real backstop is that the
-DB role behind the credential must itself be read-only, an IAM control
-outside Argus's ability to verify). Migration testing and seed/teardown
-fixtures are explicitly deferred to a later pass, same "smaller honest
-slice, don't half-build the risky one" posture as `cloud_pentest` deferring
-AD/Kerberos tooling.
+First real database access Argus has ever had. One job kind, read-only
+`SELECT`-only assertion (`row_count` / `cell_equals` / `column_values`,
+each with a comparison op) against `postgres`/`mysql`/`sqlite`.
+
+- **`orchestrator/security/sql_guard.py`** — `validate_select_only()`,
+  mirrors `target_policy.py`'s validate-before-execute shape: strips
+  comments, rejects multi-statement input, requires a `SELECT`/`WITH ...
+  SELECT` prefix, denylists mutating keywords anywhere in the body. A
+  keyword/shape check, not a real SQL parser — documented explicitly as
+  defense-in-depth, not a claim of being unbypassable. The real backstop is
+  that the DB role behind the `db_secret` credential must itself be
+  read-only, an IAM control outside Argus's ability to verify (same posture
+  `host_pentest` takes toward SSH account scoping). A naming-convention
+  safety net (e.g. requiring `-staging` in the DSN) was considered and
+  rejected as security theater — trivially spoofable, false confidence.
+- **`agents/db_assert/runner_script.py`** — deliberately **not**
+  LLM-generated (unlike `exploit_poc`/`host_pentest`/`cloud_pentest`'s
+  `poc_generator.py`): a single fixed script checked into the repo. The
+  query and assertion are declarative data passed in via env vars, never
+  embedded in generated code, so there's no per-run code to hash-and-audit
+  — the auditable artifact is the query + assertion text themselves
+  (`orchestrator/dashboard/jobs.py::_job_db_assert`'s audit call records
+  them in full, unlike credential values).
+- **Gating**: one explicit fail-closed opt-in
+  (`ZYVOR_DB_TESTING_ENABLED=true`), not `exploit_poc`'s three-gate stack —
+  this is read-only and makes no destructive claim, but does touch live
+  data with real credentials, warranting more than the probe kinds get.
+  `active_recon`-tier engagement (not `exploit`). New `sandbox.db_image()`
+  (`ZYVOR_SANDBOX_DB_IMAGE`), same fail-closed pattern as
+  `host_pentest_image()`/`cloud_pentest_image()`.
+- **Deliberately deferred**: migration testing and seed/teardown fixtures,
+  same "smaller honest slice, don't half-build the risky one" posture as
+  `cloud_pentest` deferring AD/Kerberos tooling.
+
+**Live-verified, with one honest gap.** No real Kubernetes cluster is
+reachable in this development environment (same situation `cloud_pentest`
+was built under — no cloud credentials were available for that pass
+either), so the actual K8s sandbox execution of `db_assert` is
+**unit-tested only** (mocked `sandbox.run_python`), not live-run inside a
+real pod. Everything else *is* live-verified, for real:
+- `sql_guard.validate_select_only()` — run directly against real
+  accept/reject query strings.
+- `agents/db_assert/runner_script.py` — the actual script that would run
+  inside the sandbox, invoked exactly as the sandbox invokes it
+  (`python3 runner_script.py` as a subprocess with env vars), against both
+  a real local SQLite database and a real local Postgres 14 instance: row
+  count / cell / column-values assertions passing and failing correctly, a
+  connection failure degrading to `VERIFIED: false` instead of crashing,
+  and confirmed a planted secret value never appears in the script's
+  stdout even on a connection error.
+- The full `_validate()` → engagement-check → `_job_db_assert` dispatch
+  chain, through a real browser driving the real Mission Control UI against
+  a running `argus serve`: created a real engagement via the API, filled
+  the new "DB assert" card, clicked "Run assertion", and confirmed the
+  request reaches exactly the expected `RuntimeError` at the one boundary
+  that genuinely needs a cluster — not a validation error, not a crash.
+  This incidentally also confirmed something the unit tests didn't cover
+  directly: `db_secret` shows as `"***"` in the persisted job's params via
+  the real `/api/dashboard/jobs/status` endpoint, i.e. redaction holds at
+  the store/API level, not just inside the job function.
+
+New: `orchestrator/security/sql_guard.py`, `agents/db_assert/`
+(`runner_script.py`, `engine.py`), new "DB assert" card in the Security
+panel. Tests: `tests/unit/test_sql_guard.py`, `test_db_assert_runner.py`
+(includes real-subprocess-against-real-SQLite cases), `test_db_assert_job.py`
+(mirrors `test_pentest_jobs.py`'s secret-non-leak shape); extended
+`test_jobs_validate.py`.
+
+**Also noticed, not fixed (pre-existing, out of scope for this pass):**
+`cloud_pentest`'s Mission Control card doesn't actually exist —
+`jobParams("cloud_pentest")` in `templates/dashboard.html.j2` references
+DOM elements (`cp-eng`, `cp-creds`, `cp-provider`, `cp-target`, `cp-finding`,
+`cp-timeout`) that aren't present anywhere in the template, only reachable
+via the command palette entry which hits the same missing elements.
+`cloud_pentest` is presumably only usable via direct API calls today, not
+through the dashboard UI.
 
 ### Phase 4: `chaos_inject` / `chaos_webhook` (fault-injection testing) — not started
 

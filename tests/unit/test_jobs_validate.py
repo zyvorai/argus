@@ -613,6 +613,103 @@ def test_sca_scan_both_modes_together(monkeypatch):
     assert clean["checkout_path"] == "/repo"
 
 
+# --- db_assert: 'active_recon' engagement tier PLUS a separate,
+# independent ZYVOR_DB_TESTING_ENABLED opt-in (fail-closed default). Read-
+# only, but touches live data with real credentials -- one gate, not
+# exploit_poc's three-gate stack.
+
+def _db_assert_params(**overrides):
+    params = {
+        "engine": "postgres", "target": "staging-orders-db",
+        "db_secret": {"$secret": "env:DB_DSN"}, "query": "SELECT * FROM orders",
+        "assertion": {"mode": "row_count", "op": "==", "value": 1}, "engagement_id": "eng-1",
+    }
+    params.update(overrides)
+    return params
+
+
+def test_db_assert_registered():
+    assert "db_assert" in VALID_KINDS
+
+
+def test_db_assert_disabled_by_default(monkeypatch):
+    monkeypatch.delenv("ZYVOR_DB_TESTING_ENABLED", raising=False)
+    with pytest.raises(ValueError, match="ZYVOR_DB_TESTING_ENABLED"):
+        _validate("db_assert", _db_assert_params())
+
+
+def test_db_assert_rejects_invalid_engine(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    with pytest.raises(ValueError, match="engine"):
+        _validate("db_assert", _db_assert_params(engine="mssql"))
+
+
+def test_db_assert_requires_secret_ref_not_raw_value(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    with pytest.raises(ValueError, match="db_secret"):
+        _validate("db_assert", _db_assert_params(db_secret="postgresql://user:pass@host/db"))
+
+
+def test_db_assert_rejects_non_select_query(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    with pytest.raises(ValueError, match="SELECT"):
+        _validate("db_assert", _db_assert_params(query="DELETE FROM orders"))
+
+
+def test_db_assert_requires_target_label(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    with pytest.raises(ValueError, match="target"):
+        _validate("db_assert", _db_assert_params(target=""))
+
+
+def test_db_assert_rejects_invalid_assertion_shape(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    with pytest.raises(ValueError, match="assertion"):
+        _validate("db_assert", _db_assert_params(assertion={"mode": "bogus"}))
+    with pytest.raises(ValueError, match="assertion"):
+        _validate("db_assert", _db_assert_params(assertion="not a dict"))
+
+
+def test_db_assert_clean_defaults(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    clean = _validate("db_assert", _db_assert_params())
+    assert clean["engine"] == "postgres"
+    assert clean["target"] == "staging-orders-db"
+    assert clean["db_secret"] == {"$secret": "env:DB_DSN"}
+    assert clean["query"] == "SELECT * FROM orders"
+    assert clean["query_params"] == []
+    assert clean["timeout_s"] == 30
+
+
+def test_db_assert_timeout_clamped(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    clean = _validate("db_assert", _db_assert_params(timeout_s=9999))
+    assert clean["timeout_s"] == 120
+
+
+def test_db_assert_query_params_must_be_a_list(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    _allow_engagement(monkeypatch)
+    clean = _validate("db_assert", _db_assert_params(query_params="not-a-list"))
+    assert clean["query_params"] == []  # silently normalized, matching workflow/path_params dict-shape precedent
+
+
+def test_db_assert_rejects_missing_engagement(monkeypatch):
+    """Sanity check that db_assert really is gated at the engagement layer,
+    independent of the ZYVOR_DB_TESTING_ENABLED opt-in above."""
+    monkeypatch.setenv("ZYVOR_DB_TESTING_ENABLED", "true")
+    monkeypatch.setattr(_store_module, "get_store", lambda: _FakeEngagementStore(None))
+    with pytest.raises(ValueError, match="authorized security engagement"):
+        _validate("db_assert", _db_assert_params(engagement_id=None))
+
+
 def test_llm_redteam_dashboard_ask_needs_no_url(monkeypatch):
     _allow_engagement(monkeypatch, target_pattern="dashboard_ask")
     clean = _validate("llm_redteam", {"engagement_id": "eng-1"})
