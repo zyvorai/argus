@@ -411,6 +411,12 @@ whole-suite coverage metric from 47% to 50%. `jobs.py`'s `_job_*`/
 genuinely low-marginal-value remainder — real subprocess/Playwright/network
 calls, not logic worth unit-testing in isolation.
 
+**Update**: the four test-capability phases above (`api_contract_diff`/
+`contract_verify`/`sca_scan`/`db_assert`/`chaos_inject`/`chaos_webhook`) added
+several heavily-tested new packages, moving measured whole-suite coverage to
+**53.47%**. CI's `--cov-fail-under` raised 47 → 50 to match, keeping the same
+~3-point cushion below the real floor as every prior raise (36 → 40 → 47 → 50).
+
 The CI gate (`.github/workflows/security.yml`) enforces
 `--cov-fail-under=40` (raised from 36, itself raised from an original,
 never-actually-met 70% target) — still a deliberate few points below the
