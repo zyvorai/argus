@@ -94,3 +94,22 @@ def test_requirement_history_returns_every_version(tmp_path, monkeypatch):
     assert resp.status_code == 200
     versions = resp.json()["versions"]
     assert [v["version"] for v in versions] == [1, 2]
+
+
+def test_requirement_history_includes_linked_tests_per_version(tmp_path, monkeypatch):
+    store = MissionControlStore(tmp_path / "req.db")
+    store.upsert_requirement(
+        "req-login", source_type="document", origin_id="spec.md",
+        title="Login page loads", content={"description": "v1"},
+    )
+    store.link_requirement_test("req-login", "tests/e2e/login.spec.ts")
+    store.upsert_requirement(
+        "req-login", source_type="document", origin_id="spec.md",
+        title="Login page loads", content={"description": "v2"},
+    )
+    store.link_requirement_test("req-login", "tests/e2e/login-v2.spec.ts")
+    client = _client_with_store(monkeypatch, store)
+
+    versions = client.get("/api/v2/requirements/req-login/history").json()["versions"]
+    assert versions[0]["linked_tests"] == ["tests/e2e/login.spec.ts"]
+    assert versions[1]["linked_tests"] == ["tests/e2e/login-v2.spec.ts"]

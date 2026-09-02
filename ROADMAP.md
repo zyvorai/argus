@@ -168,12 +168,26 @@ Deliberately not built yet, and not stubbed:
   doesn't exist anywhere in this repo yet and would be a separate,
   significant modeling effort, not an extension of the existing
   requirement→test join table.
-- **A dashboard/UI surface for requirement history and quality scores** —
-  the OSS API now exposes this read-only (`GET /api/v2/requirements`,
-  `/{id}`, `/{id}/history`, gated by a new `requirements:read` scope), but
-  nothing renders it yet. Natural next step is an Argus Enterprise proxy
-  route + Watchfloor panel, matching the pattern already used for
-  engagement-policy and artifacts.
+- ~~**A dashboard/UI surface for requirement history and quality scores**~~
+  — **done, for Mission Control (OSS).** A new **Requirements** panel
+  (`templates/dashboard.html.j2`, `data-panel="requirements"`) lists every
+  requirement (title, source, latest version, color-coded quality score,
+  last-updated), and a click-through detail view pulls `GET
+  /api/v2/requirements/{id}` + `/{id}/history` for the description, named
+  quality issues, and full version history — each version now also carries
+  `linked_tests` (the route enriches `requirement_history()`'s response with
+  `MissionControlStore.linked_tests()`, previously computed but never
+  exposed over HTTP), so a version's generated tests show inline instead of
+  needing a second lookup. Polls every 30s alongside the panel's siblings
+  (findings, engagements). Live-verified in a real browser against a
+  running `argus serve` (not just `TestClient`): seeded two requirements
+  (one two-version history with a per-version linked test, one single-version
+  with a quality issue) via a real `MissionControlStore`, confirmed the list
+  renders, the detail drawer opens with the right content for both rows,
+  quality-issue text and linked-test paths appear correctly, and the browser
+  console is clean. New `tests/unit/test_requirements_route.py` case for the
+  `linked_tests` enrichment. **Still open:** an Argus Enterprise/Watchfloor
+  proxy route + panel (separate commercial product, not this repo).
 
 ## ~~Observability: tracing~~ — done (within-process and cross-replica)
 

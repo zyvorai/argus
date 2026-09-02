@@ -340,9 +340,17 @@ async def get_requirement(request: Request, requirement_id: str) -> dict[str, An
 @router.get("/requirements/{requirement_id}/history")
 async def requirement_history(request: Request, requirement_id: str) -> dict[str, Any]:
     """Every version on record -- the raw material for a real diff view, and
-    for answering "what changed" when a requirement's quality score moves."""
+    for answering "what changed" when a requirement's quality score moves.
+    Each version is enriched with `linked_tests` -- the generated tests that
+    trace to it (`link_requirement_test`) -- so a caller can see, per
+    version, what was actually generated from it without a second round
+    trip per version."""
     require_scope(request, "requirements:read")
-    return {"versions": get_store().requirement_history(requirement_id)}
+    store = get_store()
+    versions = store.requirement_history(requirement_id)
+    for version in versions:
+        version["linked_tests"] = store.linked_tests(requirement_id, version["version"])
+    return {"versions": versions}
 
 
 @router.get("/metrics", include_in_schema=False)

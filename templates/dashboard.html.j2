@@ -633,6 +633,10 @@
         <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/></svg>
         <span class="rail-link-label">Probes</span>
       </button>
+      <button type="button" class="rail-link" data-panel="requirements" title="Requirements">
+        <svg class="rail-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="1.5" width="11" height="13" rx="1"/><path d="M5 5h6M5 8h6M5 11h3.5"/></svg>
+        <span class="rail-link-label">Requirements</span>
+      </button>
     </div>
     <div class="rail-group">
       <div class="rail-group-label">Security</div>
@@ -1243,6 +1247,27 @@
   </div>
 </section>
 
+<section id="panel-requirements" class="panel">
+  <div class="panel-head">
+    <h1>Requirements</h1>
+    <p>Every requirement the pipeline has ingested — source, quality score, and version history. Read-only: written by the pipeline's own <code>fetch → parse → evaluate_quality</code> chain.</p>
+  </div>
+  <h2 style="display:flex;align-items:center;gap:10px">Requirements
+    <span id="req-count" class="d" style="font-weight:400"></span>
+    <button class="dl-btn" id="req-refresh" style="margin-left:auto">↻</button>
+  </h2>
+  <div class="glass card" style="margin-bottom:14px">
+    <div id="requirements"><span class="d">No requirements yet — run a pipeline against a <code>github</code> or <code>document</code> source and they'll collect here.</span></div>
+  </div>
+  <div class="glass card" id="req-detail-card" style="display:none">
+    <div class="k" style="display:flex;align-items:center;gap:10px">
+      <span id="req-detail-title">—</span>
+      <button class="dl-btn" id="req-detail-close" style="margin-left:auto">✕ close</button>
+    </div>
+    <div id="req-detail-body" style="margin-top:10px"></div>
+  </div>
+</section>
+
 <section id="panel-operations" class="panel">
   <div class="panel-head">
     <h1>Operations</h1>
@@ -1501,7 +1526,7 @@ $("theme-toggle")?.addEventListener("click", toggleTheme);
 applyTheme(document.documentElement.getAttribute("data-theme") || "dark");
 
 /* Side-rail panel navigation */
-const PANELS = ["overview", "pipeline", "visual", "quality", "probes", "journeys", "api", "security", "operations", "ask"];
+const PANELS = ["overview", "pipeline", "visual", "quality", "probes", "requirements", "journeys", "api", "security", "operations", "ask"];
 const PANEL_FOR_KIND = {
   smoke: "pipeline", full: "pipeline", generate: "pipeline", discover: "pipeline", create: "pipeline",
   regression: "visual", compare: "visual", screenshot: "visual", route_sweep: "visual",
@@ -1955,6 +1980,77 @@ $("eng-create").addEventListener("click", async () => {
   loadEngagements();
 });
 
+/* Requirements — versioned requirement store (read-only; written by the
+   pipeline's fetch -> parse -> evaluate_quality chain). */
+function scoreColor(score) {
+  if (score == null) return "";
+  if (score >= 80) return "#3ecf6b";
+  if (score >= 60) return "#e0b32a";
+  return "#f05a5a";
+}
+async function loadRequirements() {
+  try {
+    const data = await fetch("/api/v2/requirements").then((r) => r.json());
+    const list = data.requirements || [];
+    $("req-count").textContent = list.length ? list.length + " tracked" : "";
+    const el = $("requirements");
+    if (!list.length) {
+      el.innerHTML = '<span class="d">No requirements yet — run a pipeline against a <code>github</code> or <code>document</code> source and they\'ll collect here.</span>';
+      return;
+    }
+    el.innerHTML = '<div style="overflow-x:auto"><table class="runs-table"><tbody>'
+      + "<tr><th>title</th><th>source</th><th>version</th><th>quality</th><th>updated</th></tr>"
+      + list.map((r) => '<tr class="req-row" data-id="' + esc(r.id) + '" style="cursor:pointer">'
+        + "<td>" + esc(r.title) + '<div class="d"><code>' + esc(r.id) + "</code></div></td>"
+        + '<td class="d">' + esc(r.source_type) + (r.origin_id ? ' <span class="d">· ' + esc(r.origin_id) + "</span>" : "") + "</td>"
+        + '<td class="d">v' + esc(r.latest_version) + "</td>"
+        + '<td><span class="chip" style="color:' + scoreColor(r.quality_score) + '">' + (r.quality_score != null ? Math.round(r.quality_score) : "—") + "</span></td>"
+        + '<td class="d">' + relIso(r.updated_at) + "</td></tr>").join("")
+      + "</tbody></table></div>";
+    for (const row of el.querySelectorAll(".req-row")) {
+      row.addEventListener("click", () => openRequirementDetail(row.dataset.id));
+    }
+  } catch (e) { /* offline */ }
+}
+async function openRequirementDetail(id) {
+  const card = $("req-detail-card"), body = $("req-detail-body");
+  card.style.display = "block";
+  $("req-detail-title").textContent = id;
+  body.innerHTML = '<span class="d">loading…</span>';
+  card.scrollIntoView({ behavior: "smooth", block: "start" });
+  try {
+    const [detail, hist] = await Promise.all([
+      fetch("/api/v2/requirements/" + encodeURIComponent(id)).then((r) => r.json()),
+      fetch("/api/v2/requirements/" + encodeURIComponent(id) + "/history").then((r) => r.json()),
+    ]);
+    $("req-detail-title").textContent = detail.title || id;
+    const issues = (detail.quality_issues || []);
+    const issuesHtml = issues.length
+      ? '<ul style="margin:4px 0 0 18px;padding:0">' + issues.map((i) =>
+          "<li>" + esc(i.reason || i.kind || JSON.stringify(i)) + "</li>").join("") + "</ul>"
+      : '<span class="d">none</span>';
+    const versions = (hist.versions || []).slice().reverse();
+    const versionsHtml = versions.map((v) => {
+      const tests = v.linked_tests || [];
+      return '<div style="padding:8px 0;border-top:1px solid var(--border)">'
+        + '<div><b>v' + esc(v.version) + '</b> <span class="d">' + relIso(v.created_at) + '</span>'
+        + ' <span class="chip" style="color:' + scoreColor(v.quality_score) + '">score ' + (v.quality_score != null ? Math.round(v.quality_score) : "—") + "</span></div>"
+        + (tests.length
+            ? '<div class="d" style="margin-top:4px">generated tests: ' + tests.map((t) => "<code>" + esc(t) + "</code>").join(", ") + "</div>"
+            : "")
+        + "</div>";
+    }).join("");
+    body.innerHTML = '<div class="d">' + esc(detail.source_type || "") + (detail.origin_id ? " · " + esc(detail.origin_id) : "") + "</div>"
+      + '<div style="margin-top:10px"><b>Description</b><div class="d" style="white-space:pre-wrap;margin-top:2px">' + esc((detail.content && detail.content.description) || "") + "</div></div>"
+      + '<div style="margin-top:10px"><b>Quality issues</b>' + issuesHtml + "</div>"
+      + '<div style="margin-top:10px"><b>Version history</b>' + (versionsHtml || '<span class="d">none</span>') + "</div>";
+  } catch (e) {
+    body.innerHTML = '<span class="d">failed to load — ' + esc(String(e)) + "</span>";
+  }
+}
+$("req-detail-close").addEventListener("click", () => { $("req-detail-card").style.display = "none"; });
+$("req-refresh").addEventListener("click", loadRequirements);
+
 /* Forge preset — fill the API-contract card with Forge's defaults (port 24631, key Admin@321) */
 {
   const fp = document.getElementById("api-preset-forge");
@@ -2191,6 +2287,7 @@ $("drawer").addEventListener("mouseleave", () => { drawerHover = false; });
 /* ⌘K / Ctrl-K command palette */
 const PALETTE_CMDS = [
   { label: "Ask Zyra (knowledge QA)", action: () => focusAskZyvor() },
+  { label: "Requirements (quality & history)", action: () => showPanel("requirements") },
   { label: "Run smoke tests", kind: "smoke" },
   { label: "Run full pipeline", kind: "full" },
   { label: "Site audit", kind: "audit" },
@@ -3425,9 +3522,11 @@ loadTestHealth();
 loadSchedules();
 loadFindings();
 loadEngagements();
+loadRequirements();
 setInterval(loadSchedules, 15000);
 setInterval(loadFindings, 15000);
 setInterval(loadEngagements, 30000);
+setInterval(loadRequirements, 30000);
 setRefreshRate(parseInt($("refresh-rate").value, 10) || REFRESH);
 
 
