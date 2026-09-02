@@ -29,7 +29,7 @@
     "axe-core": "^4.13.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^26.4.0",
     "typescript": "^5.7.0"
   }
