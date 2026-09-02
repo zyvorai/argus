@@ -42,7 +42,7 @@ VALID_KINDS = {
     "smoke", "full", "generate", "discover", "create", "regression",
     "crawl_test", "audit", "flaky", "screenshot", "compare", "ping",
     "loadtest", "tls", "flow", "route_sweep",
-    "api_contract", "auth_test", "realtime", "vitals", "ai_flow",
+    "api_contract", "api_contract_diff", "auth_test", "realtime", "vitals", "ai_flow",
     "har_replay", "import_codegen",
     "misconfig_scan", "cve_lookup", "llm_redteam", "exploit_poc", "attack_chain",
     "host_pentest", "cloud_pentest",
@@ -344,6 +344,20 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
         clean["workflow"] = workflow if isinstance(workflow, list) else None
         clean["auth"] = params.get("auth") if isinstance(params.get("auth"), dict) else None
         clean["path_params"] = params.get("path_params") if isinstance(params.get("path_params"), dict) else None
+    if kind == "api_contract_diff":
+        def _clean_spec_ref(value: Any, label: str) -> Any:
+            if isinstance(value, dict):
+                return value
+            if isinstance(value, str) and value.strip():
+                v = value.strip()
+                if v.startswith(("http://", "https://")) or v.startswith("git:"):
+                    return v[:1000]
+            raise ValueError(f"{label} must be an inline object, an http(s) URL, or 'git:<ref>:<path>'")
+
+        clean["spec_a"] = _clean_spec_ref(params.get("spec_a"), "spec_a")
+        clean["spec_b"] = _clean_spec_ref(params.get("spec_b"), "spec_b")
+        clean["insecure"] = bool(params.get("insecure"))
+        clean["fail_on"] = "any" if params.get("fail_on") == "any" else "breaking"
     if kind == "vitals":
         url = (params.get("url") or "").strip()
         if not url.startswith(("http://", "https://")):
@@ -572,6 +586,10 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
     spec_value = clean.get("spec")
     if isinstance(spec_value, str) and spec_value.startswith(("http://", "https://")):
         clean["spec"] = policy.validate_url(spec_value)
+    for key in ("spec_a", "spec_b"):
+        value = clean.get(key)
+        if isinstance(value, str) and value.startswith(("http://", "https://")):
+            clean[key] = policy.validate_url(value)
     if kind == "tls" and clean.get("host"):
         clean["host"] = policy.validate_host(clean["host"], int(clean.get("port") or 443))
     if kind == "host_pentest" and clean.get("host"):
@@ -1728,6 +1746,44 @@ def _job_api_contract(params: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _spec_ref_label(ref: Any) -> str:
+    if isinstance(ref, dict):
+        return "inline"
+    text = str(ref)
+    return text if len(text) <= 60 else text[:57] + "..."
+
+
+def _job_api_contract_diff(params: dict[str, Any]) -> dict[str, Any]:
+    """Static OpenAPI breaking-change diff between two spec references
+    (inline object, http(s) URL, or 'git:<ref>:<path>'). No live target
+    interaction, so this kind is not gated by a security engagement --
+    same class as import_codegen."""
+    from agents.contract_diff.engine import BREAKING, diff_specs
+    from agents.contract_diff.loader import load_spec
+
+    spec_a_ref, spec_b_ref = params["spec_a"], params["spec_b"]
+    log_progress(f"api_contract_diff: loading spec_a ({_spec_ref_label(spec_a_ref)})")
+    spec_a = load_spec(spec_a_ref, insecure=params.get("insecure", False))
+    log_progress(f"api_contract_diff: loading spec_b ({_spec_ref_label(spec_b_ref)})")
+    spec_b = load_spec(spec_b_ref, insecure=params.get("insecure", False))
+    _check_cancel()
+
+    changes = diff_specs(spec_a, spec_b)
+    breaking = [c for c in changes if c["classification"] == BREAKING]
+    log_progress(f"api_contract_diff: {len(changes)} change(s), {len(breaking)} breaking")
+
+    fail_on = params.get("fail_on", "breaking")
+    passed = not breaking if fail_on == "breaking" else not changes
+
+    label = f"{_spec_ref_label(spec_a_ref)} vs {_spec_ref_label(spec_b_ref)}"
+    result = {
+        "spec_a": _spec_ref_label(spec_a_ref), "spec_b": _spec_ref_label(spec_b_ref),
+        "changes": changes, "breaking_count": len(breaking), "total_count": len(changes), "passed": passed,
+    }
+    _auto_findings("api_contract_diff", label, result)
+    return result
+
+
 def _api_contract_report_bundle(url: str, mode: str, rows: list, summary: dict) -> dict[str, str]:
     try:
         from agents.reporter.exports import build_api_contract_bundle
@@ -2162,6 +2218,24 @@ def _auto_findings(kind: str, url: str, data: dict[str, Any]) -> list[dict[str, 
             for issue in data.get("dns", {}).get("issues") or []:
                 items.append({"severity": "low", "title": f"DNS hygiene: {issue}", "detail": issue, "where": "dns",
                               "category": "dns-misconfiguration"})
+            compliance = data.get("compliance", {})
+            sec_txt = compliance.get("security_txt", {})
+            # `issues` already contains the "not found" message when `found` is
+            # False (see check_security_txt) -- iterating it covers both cases
+            # (not found at all, or found but missing a required field) without
+            # double-reporting the not-found case.
+            for issue in sec_txt.get("issues") or []:
+                items.append({"severity": "low", "title": f"security.txt: {issue}", "detail": issue,
+                              "where": "security.txt", "category": "missing-security-txt"})
+            consent = compliance.get("consent", {})
+            if consent.get("checked") and not consent.get("found"):
+                items.append({"severity": "low", "title": "no cookie-consent mechanism detected",
+                              "detail": "No known consent-management-platform marker found in initial HTML "
+                                        "(heuristic, not a legal determination)",
+                              "where": "consent", "category": "no-consent-mechanism"})
+            for issue in compliance.get("pii", {}).get("issues") or []:
+                items.append({"severity": "high", "title": f"possible PII exposure: {issue}", "detail": issue,
+                              "where": "response body", "category": "pii-exposure"})
         elif kind == "cve_lookup":
             for result in data.get("results") or []:
                 for match in result.get("matches") or []:
@@ -2172,6 +2246,17 @@ def _auto_findings(kind: str, url: str, data: dict[str, Any]) -> list[dict[str, 
                         "where": f"{result.get('product')}@{result.get('version')}",
                         "category": "outdated-dependency",
                     })
+        elif kind == "api_contract_diff":
+            for change in data.get("changes") or []:
+                if change.get("classification") != "breaking":
+                    continue
+                items.append({
+                    "severity": "high",
+                    "title": f"breaking API change: {change.get('message')}",
+                    "detail": change.get("message", ""),
+                    "where": change.get("where", ""),
+                    "category": "breaking-api-change",
+                })
     except Exception:
         return []
     if items:
@@ -2887,6 +2972,7 @@ _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "flow": _job_flow,
     "route_sweep": _job_route_sweep,
     "api_contract": _job_api_contract,
+    "api_contract_diff": _job_api_contract_diff,
     "vitals": _job_vitals,
     "realtime": _job_realtime,
     "auth_test": _job_auth_test,

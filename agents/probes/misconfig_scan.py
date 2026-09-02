@@ -193,6 +193,86 @@ def grade_security_headers(headers: dict[str, str]) -> dict[str, Any]:
     return {"issues": issues, "status": status}
 
 
+_CONSENT_MARKERS = (
+    "onetrust", "cookiebot", "cookie-consent", "cookieconsent", "cookie-banner",
+    "cookie_banner", "gdpr-consent", "trustarc", "quantcast", "osano", "cookieyes",
+    "iubenda", "cookie-notice", "cc-window",  # cookieconsent.js's default class
+)
+
+_SSN_RE = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
+_CC_CANDIDATE_RE = re.compile(r"\b(?:\d[ -]?){13,19}\b")
+
+
+def check_security_txt(url: str, *, insecure: bool = False) -> dict[str, Any]:
+    """RFC 9116 security.txt presence + required-field check:
+    `/.well-known/security.txt` (preferred), falling back to the legacy
+    `/security.txt`. Degrades gracefully (`checked: False`) if unreachable,
+    same posture as `check_dns_hygiene`."""
+    origin = _origin(url)
+    try:
+        with _client(insecure=insecure) as c:
+            resp = c.get(f"{origin}/.well-known/security.txt")
+            if resp.status_code != 200 or not resp.text.strip():
+                resp = c.get(f"{origin}/security.txt")
+    except Exception:
+        return {"checked": False, "found": False, "issues": []}
+
+    if resp.status_code != 200 or not resp.text.strip():
+        return {
+            "checked": True, "found": False,
+            "issues": ["no security.txt found at /.well-known/security.txt or /security.txt"],
+        }
+
+    body = resp.text
+    issues = []
+    if "Contact:" not in body:
+        issues.append("security.txt missing required Contact field")
+    if "Expires:" not in body:
+        issues.append("security.txt missing required Expires field")
+    return {"checked": True, "found": True, "issues": issues}
+
+
+def check_consent_signals(body: str) -> dict[str, Any]:
+    """Heuristic-only: looks for common consent-management-platform script/DOM
+    markers in the page's initial HTML. Not a legal/compliance determination —
+    a false negative doesn't mean the site lacks a real consent mechanism (it
+    may load one after JS execution this black-box check doesn't wait for),
+    and a false positive doesn't mean the mechanism is correctly configured."""
+    lowered = body.lower()
+    found = [m for m in _CONSENT_MARKERS if m in lowered]
+    return {"checked": True, "found": bool(found), "markers": found}
+
+
+def _luhn_valid(digits: str) -> bool:
+    total = 0
+    for i, ch in enumerate(reversed(digits)):
+        d = int(ch)
+        if i % 2 == 1:
+            d *= 2
+            if d > 9:
+                d -= 9
+        total += d
+    return total % 10 == 0
+
+
+def scan_pii_patterns(body: str) -> dict[str, Any]:
+    """Regex sweep for SSN-shaped and Luhn-valid credit-card-shaped strings
+    appearing verbatim in a response body. Deliberately does NOT scan for bare
+    email addresses — a support/contact address in a footer is normal on
+    almost every real site and would make this check pure noise; SSN-shaped
+    and Luhn-valid card-shaped values are rare enough in legitimate content
+    to be a genuinely low-noise signal."""
+    issues: list[str] = []
+    if _SSN_RE.search(body):
+        issues.append("SSN-shaped value (###-##-####) found in response body")
+    for match in _CC_CANDIDATE_RE.finditer(body):
+        digits = re.sub(r"[ -]", "", match.group(0))
+        if 13 <= len(digits) <= 19 and _luhn_valid(digits):
+            issues.append("Luhn-valid credit-card-shaped value found in response body")
+            break
+    return {"checked": True, "issues": issues}
+
+
 def check_dns_hygiene(host: str, *, insecure: bool = False) -> dict[str, Any]:
     """SPF/DMARC/CAA presence via Google's DNS-over-HTTPS JSON API — reuses
     `httpx` (already a dependency) instead of adding a DNS library. Degrades
@@ -246,4 +326,15 @@ def run_misconfig_scan(
     host = urlparse(url).hostname or ""
     dns_hygiene = check_dns_hygiene(host, insecure=insecure) if host else {"checked": False, "issues": []}
 
-    return {"url": url, "tech": tech, "headers": headers_grade, "paths": paths, "dns": dns_hygiene}
+    if log:
+        log("misconfig_scan: checking compliance signals (security.txt, consent, PII patterns)")
+    compliance = {
+        "security_txt": check_security_txt(url, insecure=insecure),
+        "consent": check_consent_signals(header_response.text),
+        "pii": scan_pii_patterns(header_response.text),
+    }
+
+    return {
+        "url": url, "tech": tech, "headers": headers_grade, "paths": paths, "dns": dns_hygiene,
+        "compliance": compliance,
+    }

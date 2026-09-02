@@ -160,6 +160,56 @@ def test_api_contract_max_endpoints_clamped():
     assert clean["max_endpoints"] == 200
 
 
+def test_api_contract_diff_accepts_inline_specs():
+    clean = _validate("api_contract_diff", {"spec_a": {"paths": {}}, "spec_b": {"paths": {}}})
+    assert clean["spec_a"] == {"paths": {}}
+    assert clean["fail_on"] == "breaking"
+
+
+def test_api_contract_diff_validates_and_ssrf_checks_url_refs():
+    clean = _validate("api_contract_diff", {
+        "spec_a": "https://api.x.io/openapi.json", "spec_b": {"paths": {}},
+    })
+    assert clean["spec_a"] == "https://api.x.io/openapi.json"
+
+
+def test_api_contract_diff_rejects_ssrf_target_for_url_ref():
+    with pytest.raises(ValueError):
+        _validate("api_contract_diff", {"spec_a": "http://169.254.169.254/openapi.json", "spec_b": {"paths": {}}})
+
+
+def test_api_contract_diff_accepts_git_ref():
+    clean = _validate("api_contract_diff", {"spec_a": "git:main:openapi.json", "spec_b": {"paths": {}}})
+    assert clean["spec_a"] == "git:main:openapi.json"
+
+
+def test_api_contract_diff_rejects_missing_spec():
+    with pytest.raises(ValueError):
+        _validate("api_contract_diff", {"spec_a": {"paths": {}}})
+
+
+def test_api_contract_diff_rejects_unsupported_spec_shape():
+    with pytest.raises(ValueError):
+        _validate("api_contract_diff", {"spec_a": 12345, "spec_b": {"paths": {}}})
+
+
+def test_api_contract_diff_fail_on_any():
+    clean = _validate("api_contract_diff", {
+        "spec_a": {"paths": {}}, "spec_b": {"paths": {}}, "fail_on": "any",
+    })
+    assert clean["fail_on"] == "any"
+
+
+def test_api_contract_diff_is_not_elevated_risk():
+    """Pure static diff, no live target interaction -- unlike misconfig_scan/
+    cve_lookup, this kind must not require an engagement."""
+    from orchestrator.dashboard.jobs import ELEVATED_RISK_KINDS
+
+    assert "api_contract_diff" not in ELEVATED_RISK_KINDS
+    # and _validate() must succeed with no engagement_id at all
+    _validate("api_contract_diff", {"spec_a": {"paths": {}}, "spec_b": {"paths": {}}})
+
+
 def test_vitals_requires_url_scheme():
     with pytest.raises(ValueError):
         _validate("vitals", {"url": "x.io"})

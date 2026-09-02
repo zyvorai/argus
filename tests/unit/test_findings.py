@@ -98,3 +98,59 @@ def test_auto_findings_auth_failures_are_high(findings, monkeypatch):
     ]})
     L = findings.listing()
     assert L["total"] == 1 and L["findings"][0]["severity"] == "high"
+
+
+def test_auto_findings_misconfig_scan_compliance_signals(findings, monkeypatch):
+    """The three compliance checks (security.txt, consent, PII) each raise
+    at most one finding per real issue -- in particular, a not-found
+    security.txt must not double-count (its own "not found" message already
+    lives in `issues`, see the fix in _auto_findings)."""
+    from orchestrator.dashboard import jobs
+
+    monkeypatch.setattr(jobs, "log_progress", lambda *a, **k: None)
+    jobs._auto_findings("misconfig_scan", "https://x.io", {
+        "paths": {"exposed": []}, "headers": {"issues": [], "status": "ok"}, "dns": {"issues": []},
+        "compliance": {
+            "security_txt": {"checked": True, "found": False,
+                              "issues": ["no security.txt found at /.well-known/security.txt or /security.txt"]},
+            "consent": {"checked": True, "found": False, "markers": []},
+            "pii": {"checked": True, "issues": ["Luhn-valid credit-card-shaped value found in response body"]},
+        },
+    })
+    L = findings.listing()
+    assert L["total"] == 3
+    categories = {f["category"] for f in L["findings"]}
+    assert categories == {"missing-security-txt", "no-consent-mechanism", "pii-exposure"}
+    pii = next(f for f in L["findings"] if f["category"] == "pii-exposure")
+    assert pii["severity"] == "high"
+
+
+def test_auto_findings_misconfig_scan_security_txt_found_and_complete_raises_nothing(findings, monkeypatch):
+    from orchestrator.dashboard import jobs
+
+    monkeypatch.setattr(jobs, "log_progress", lambda *a, **k: None)
+    jobs._auto_findings("misconfig_scan", "https://x.io", {
+        "paths": {"exposed": []}, "headers": {"issues": [], "status": "ok"}, "dns": {"issues": []},
+        "compliance": {
+            "security_txt": {"checked": True, "found": True, "issues": []},
+            "consent": {"checked": True, "found": True, "markers": ["onetrust"]},
+            "pii": {"checked": True, "issues": []},
+        },
+    })
+    assert findings.listing()["total"] == 0
+
+
+def test_auto_findings_api_contract_diff_only_raises_breaking_changes(findings, monkeypatch):
+    from orchestrator.dashboard import jobs
+
+    monkeypatch.setattr(jobs, "log_progress", lambda *a, **k: None)
+    jobs._auto_findings("api_contract_diff", "spec_a vs spec_b", {"changes": [
+        {"classification": "breaking", "rule": "removed-endpoint", "where": "GET /users",
+         "message": "GET /users removed"},
+        {"classification": "non_breaking", "rule": "added-endpoint", "where": "GET /orders",
+         "message": "GET /orders added"},
+    ]})
+    L = findings.listing()
+    assert L["total"] == 1
+    assert L["findings"][0]["category"] == "breaking-api-change"
+    assert L["findings"][0]["severity"] == "high"

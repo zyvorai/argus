@@ -5,6 +5,89 @@ scattered across runbooks, docstrings, and CI config comments. This is
 inventory, not a promise sheet — no dates, just what's open and where the
 detail already lives.
 
+## New test-capability families: contract testing, chaos testing, database testing, compliance/SCA scanning
+
+Planned as four phases (see the plan this shipped from); each phase is an
+independently-shippable, real slice, not a stub. Phase 1 is done; phases 2-4
+are still open.
+
+### ~~Phase 1: compliance signals + API contract diffing~~ — done
+
+- **Compliance signal checks**, folded into the existing `misconfig_scan` job
+  (no new job kind) — `agents/probes/misconfig_scan.py` gained
+  `check_security_txt()` (RFC 9116 `/.well-known/security.txt` presence +
+  required-field check), `check_consent_signals()` (heuristic scan for known
+  consent-management-platform markers — explicitly not a legal/compliance
+  determination), and `scan_pii_patterns()` (SSN-shaped and Luhn-valid
+  credit-card-shaped strings in the response body — deliberately *not* a bare
+  email-address scan, which would flag a normal contact address on almost
+  every real site and be pure noise). New finding categories:
+  `missing-security-txt` (low), `no-consent-mechanism` (low), `pii-exposure`
+  (high). Live-verified against a real local HTTP server serving a page with
+  a planted Luhn-valid card number and no security.txt/consent marker — all
+  three correctly detected, with no duplicate findings (an early version
+  double-counted the "security.txt not found" case; fixed and covered by a
+  regression test).
+- **`api_contract_diff`** — pure-Python OpenAPI breaking-change diff between
+  two spec references (inline object, `http(s)://` URL, or
+  `git:<ref>:<path>` resolved against this repo's own checkout via `git
+  show`). New `agents/contract_diff/` package (`loader.py` + `engine.py`).
+  Not gated by a security engagement (`ELEVATED_RISK_KINDS`) — pure static
+  analysis, no live target interaction, same class as `import_codegen`.
+  Classifies changes as `breaking` (removed endpoint/response-code/field,
+  new required request param, request param type change, response field
+  type change, enum value removed) or `non_breaking` (added
+  endpoint/response-code/field, new optional param, removed param, enum
+  value added). **Deliberately out of scope for this first slice, named
+  rather than silently skipped:** no `oneOf`/`allOf`/`discriminator`
+  semantic diffing, no vendor extensions, no `$ref`s that point outside the
+  document being diffed (external file/URL refs resolve to an empty schema
+  rather than erroring). Live-verified end to end through the real Mission
+  Control UI (a new "API contract diff" card in the API panel) against a
+  running `argus serve`: pasted two inline specs with a real breaking change
+  (new required param + removed response field), clicked "Diff specs",
+  confirmed both changes were correctly classified and landed as `high`
+  severity findings in the real Findings panel — not just unit-tested.
+  Separately verified the `git:` mode against a real file in this repo
+  (`git show HEAD:package.json`).
+
+### Phase 2: consumer contract verification (`contract_verify`) + SCA scanning (`sca_scan`) — not started
+
+- `contract_verify`: derive expectations from a recorded HAR (reusing the
+  existing `har_replay` concept) and verify a live provider matches them.
+  Explicitly not Pact — no broker, no publish/subscribe, no contract
+  versioning, no cross-team matrix, no "can-i-deploy" gating. The honest
+  on-ramp, not the destination.
+- `sca_scan`: black-box client-side library/license fingerprinting (reusing
+  `cve_lookup`'s tech fingerprinting) plus an optional local-checkout mode
+  wrapping `pip-audit`/`npm audit` (the same tools already pinned in
+  `.github/workflows/security.yml`) for real dependency-CVE/SBOM data when
+  Argus is pointed at an operator-local checkout rather than a live target.
+
+### Phase 3: `db_assert` (database/data-integrity testing) — not started
+
+Nothing in Argus touches a database today. First slice: one job kind,
+read-only `SELECT`-only assertion (row count / cell value / column values)
+against a real connection, gated by a new `orchestrator/security/sql_guard.py`
+(mirrors `target_policy.py`'s validate-before-execute shape — a keyword
+denylist, not a claim of being unbypassable; the real backstop is that the
+DB role behind the credential must itself be read-only, an IAM control
+outside Argus's ability to verify). Migration testing and seed/teardown
+fixtures are explicitly deferred to a later pass, same "smaller honest
+slice, don't half-build the risky one" posture as `cloud_pentest` deferring
+AD/Kerberos tooling.
+
+### Phase 4: `chaos_inject` / `chaos_webhook` (fault-injection testing) — not started
+
+Highest-risk phase: `chaos_inject` needs a new, narrow `sandbox.run_chaos()`
+entry point granting `CAP_NET_ADMIN` (for `tc`/`iptables` fault shaping) — a
+deliberate, callout-worthy exception to the sandbox's normal "drop ALL
+capabilities" invariant, scoped only to the chaos image/kind, never the
+generic PoC path. Real target-cluster pod-kill/infra chaos is explicitly out
+of scope — Argus never holds privileged access to a customer's own cluster;
+`chaos_webhook` covers that case by triggering the *customer's own* chaos
+tooling (Chaos Mesh/Litmus) instead.
+
 ## Test coverage — in progress
 
 Overall unit-test coverage (as measured by the CI gate's own command,
