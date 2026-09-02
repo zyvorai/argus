@@ -217,7 +217,7 @@ _Wires into GitHub, your chat tools, your LLM of choice, and your cluster._
 4. **Open Mission Control** — `argus serve` then browse to `/dashboard` (side rail + ⌘K) to run any of the 20+ actions live. Optional: enable [Ask Zyra](tutorials/14-ask-zyra-knowledge.md).
 5. **Wire up GitHub** — Set `ZYVOR_PRODUCT_REPO`, authenticate `gh`, then `argus test run --source github --spec docs/specs/my-feature.md`.
 6. **Add an LLM (optional)** — Set `LLM_PROVIDER` and the matching API key to unlock AI generation, analysis, and natural-language tests.
-7. **Pull the container** — `docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1` — see [Releases](releases.md).
+7. **Pull the container** — `docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.2` — see [Releases](releases.md).
 
 > **Good to know:** Many features are opt-in behind flags (regression, autofix, coverage expansion, V8 coverage, multi-browser, Rust diff) and are off by default. Without an LLM key the agent still runs but uses rule-based fallbacks for parsing, generation, analysis, and summaries; only `argus test create` strictly requires an LLM. API validation checks HTTP statuses and OpenAPI schemas rather than full business logic. The Mission Control dashboard reads pod logs, so it is intentionally not exposed through the ingress and should be protected with a password. Kubernetes panels require a reachable cluster; without one they show an offline state while everything else keeps working. Multi-browser and load testing are best-effort in-pod and capped to avoid resource exhaustion.
 

@@ -1,6 +1,6 @@
 {
   "name": "zyvor-argus",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "private": true,
   "description": "Playwright test execution layer for Zyvor Argus",
   "workspaces": [

@@ -11,7 +11,7 @@ Run `argus` as a QA gate inside **your own** repo's pipeline — GitHub Actions,
 ### (a) GitHub Actions — the reusable Action
 
 ```yaml
-- uses: zyvorai/argus@v0.9.1
+- uses: zyvorai/argus@v0.9.2
   with:
     command: test
     target-url: https://staging.example.com
@@ -38,7 +38,7 @@ Outputs `exit-code`, `passed`, `failed`, `summary-path` are populated from `repo
 docker run --rm \
   -e ZYVOR_BASE_URL=https://staging.example.com \
   -v "$PWD/reports:/app/reports" \
-  ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
+  ghcr.io/zyvorai/zyvor-argus:v0.9.2 \
   test --grep @smoke
 ```
 

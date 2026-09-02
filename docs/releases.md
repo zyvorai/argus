@@ -2,11 +2,11 @@
 
 Tagged releases are published automatically by [`.github/workflows/release.yml`](../.github/workflows/release.yml).
 
-**Current release:** [v0.9.1](https://github.com/zyvorai/argus/releases/tag/v0.9.1)
+**Current release:** [v0.9.2](https://github.com/zyvorai/argus/releases/tag/v0.9.2)
 
 ## What happens on a release
 
-Pushing a tag matching `v*.*.*` (e.g. `v0.9.1`) to the [`zyvorai/argus`](https://github.com/zyvorai/argus) repo:
+Pushing a tag matching `v*.*.*` (e.g. `v0.9.2`) to the [`zyvorai/argus`](https://github.com/zyvorai/argus) repo:
 
 1. Builds the container image from [`docker/Dockerfile`](../docker/Dockerfile).
 2. Pushes it to GHCR as `ghcr.io/zyvorai/zyvor-argus:<tag>` and `:latest`.
@@ -20,12 +20,12 @@ Download the `.dmg` from the [latest release](https://github.com/zyvorai/argus/r
 ## Pulling the image
 
 ```bash
-docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1
+docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.2
 # or track latest
 docker pull ghcr.io/zyvorai/zyvor-argus:latest
 
-docker run --rm --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.1 test
-docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.1 serve --port 8080 --host 0.0.0.0
+docker run --rm --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 test
+docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 serve --port 8080 --host 0.0.0.0
 ```
 
 The image entrypoint is `argus`. Pass any subcommand as the container command.
@@ -33,7 +33,7 @@ The image entrypoint is `argus`. Pass any subcommand as the container command.
 Single Pod example:
 
 ```bash
-kubectl run argus --image=ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
+kubectl run argus --image=ghcr.io/zyvorai/zyvor-argus:v0.9.2 \
   --env="ZYVOR_BASE_URL=https://zyvor.dev" \
   -- serve --port 8080 --host 0.0.0.0
 ```
@@ -47,11 +47,11 @@ GHCR packages inherit repo visibility — if the repo is private, `docker login 
 ```bash
 # 1. Bump pyproject.toml + package.json to match the tag
 # 2. Update CHANGELOG.md
-git add -A && git commit -m "Release v0.9.1: …"
-git tag v0.9.1
+git add -A && git commit -m "Release v0.9.2: …"
+git tag v0.9.2
 git push origin main
-git push origin v0.9.1
-gh release create v0.9.1 --repo zyvorai/argus --title "v0.9.1" --notes-file RELEASE_NOTES.md
+git push origin v0.9.2
+gh release create v0.9.2 --repo zyvorai/argus --title "v0.9.2" --notes-file RELEASE_NOTES.md
 ```
 
 The tag push triggers the release workflow (also `workflow_dispatch` with an existing tag to re-publish). See [CHANGELOG.md](../CHANGELOG.md).
@@ -59,6 +59,6 @@ The tag push triggers the release workflow (also `workflow_dispatch` with an exi
 ## Verify after release
 
 ```bash
-docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.1
+docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.2
 node scripts/e2e-remote-dashboard.mjs   # Chrome smoke against deployed Mission Control
 ```

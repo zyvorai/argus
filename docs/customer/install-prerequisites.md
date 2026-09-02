@@ -74,7 +74,7 @@ Watchfloor does **not** replace this. Every Enterprise target is an `argus serve
 
 ```bash
 docker pull ghcr.io/zyvorai/zyvor-argus:latest
-# pin a release if you prefer, e.g. :v0.9.1
+# pin a release if you prefer, e.g. :v0.9.2
 
 mkdir -p ~/argus-target && cd ~/argus-target
 cat > .env <<'EOF'

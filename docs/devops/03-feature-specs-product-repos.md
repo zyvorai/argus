@@ -12,7 +12,7 @@
 | `qa/flows/*.flow` journeys | Product repo | QA |
 | OpenAPI URL / file | Product / API repo | API owners |
 | Workflow calling argus | Product repo `.github/` | DevOps |
-| Image pin `v0.9.1` | Workflow | DevOps |
+| Image pin `v0.9.2` | Workflow | DevOps |
 | Optional long-lived agent checkout with `tests/manual/` | Platform repo or fork | QA + DevOps |
 
 ---
@@ -78,7 +78,7 @@ argus test run --source github --spec docs/specs/billing-upgrade.md
       -e GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} \
       -e ZYVOR_ENV=development \
       -v "$PWD/reports:/app/reports" \
-      ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
+      ghcr.io/zyvorai/zyvor-argus:v0.9.2 \
       run --source github --spec docs/specs/billing-upgrade.md
 ```
 
@@ -98,7 +98,7 @@ docker run --rm \
   -e ZYVOR_BASE_URL="$STAGING_URL" \
   -v "$PWD/qa/flows:/flows:ro" \
   -v "$PWD/reports:/app/reports" \
-  ghcr.io/zyvorai/zyvor-argus:v0.9.1 \
+  ghcr.io/zyvorai/zyvor-argus:v0.9.2 \
   flow "$STAGING_URL" --steps /flows/billing.flow --video
 ```
 

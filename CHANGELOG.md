@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.9.2](https://github.com/zyvorai/argus/releases/tag/v0.9.2) — 2026-09-02
+
 ### Added
 - **Compliance signal checks in `misconfig_scan`** — RFC 9116 `security.txt` presence/required-field check, a heuristic consent-management-platform marker scan, and an SSN/Luhn-valid-credit-card pattern scan over response bodies. New finding categories `missing-security-txt`, `no-consent-mechanism`, `pii-exposure`. Live-verified against a real local server. New `tests/unit/test_misconfig_scan.py`; extended `tests/unit/test_findings.py`.
 - **`api_contract_diff`** — pure-Python OpenAPI breaking-change diff between two spec references (inline object, `http(s)://` URL, or `git:<ref>:<path>`). New `agents/contract_diff/` package, new Mission Control card in the API panel, no engagement gating (pure static analysis). Live-verified end to end through the real dashboard UI against a running `argus serve` — a real breaking change (new required param + removed response field) correctly detected and landed in the Findings panel. New `tests/unit/test_contract_diff.py`; extended `test_jobs_validate.py`, `test_findings.py`. See `ROADMAP.md` for what's deliberately deferred (`oneOf`/`allOf`/`discriminator` diffing, external `$ref`s).

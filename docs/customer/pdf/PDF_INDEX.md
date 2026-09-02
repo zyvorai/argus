@@ -1,6 +1,6 @@
 # Zyvor Argus customer PDFs
 
-Generated: 2026-09-01
+Generated: 2026-09-02
 
 Rebuild: `node scripts/customer-docs/build-customer-pdfs.mjs`
 
