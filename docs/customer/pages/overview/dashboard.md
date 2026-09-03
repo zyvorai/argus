@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.
+Live Mission Control console — grouped side rail (Console / Testing / Security / Operations), dark theme, status hero, workloads, pods, category action panels, requirements, schedules, findings, and QA run history.
 
 ## When to use it
 
@@ -18,11 +18,12 @@ Live Mission Control console — Apple-style side rail, dark theme, status hero,
 ## Operate from the console (UX)
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
-2. **Overview** — hero stat tiles, workloads, pods, QA runs.
-3. **Pipeline / Visual / Quality / …** — run jobs from category panels; one job at a time with a live Terminal-style log panel.
+2. **Overview** — hero stat tiles, workloads, pods, live job terminal.
+3. **Testing panels** — Pipeline, Visual, Quality, Journeys, API, Probes, Requirements — run jobs one at a time with a live Terminal-style log.
 4. **Ask Zyra** — optional citation-first knowledge Q&A ([Tutorial 14](../../../tutorials/14-ask-zyra-knowledge.md)).
-5. **Operations** — schedules, findings, run history, videos.
-6. **⌘K** or header **Search** — command palette to jump anywhere.
+5. **Security testing** — engagements, recon, SCA, DB assert, chaos, sandboxed exploit tiers.
+6. **Runs & schedules** — schedules, findings, run history, videos, test health.
+7. **⌘K** or header **Search** — command palette to jump anywhere.
 
 Use the **theme toggle** (moon/sun) for light mode; **Collapse** on the rail for icons-only.
 

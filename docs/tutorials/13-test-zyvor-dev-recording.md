@@ -77,11 +77,11 @@ open http://localhost:8080/dashboard
 
 | Cue | What it means |
 |-----|----------------|
-| **Side rail** | Category panels — Overview, Ask Zyra, Pipeline, … |
+| **Grouped side rail** | Console · Testing · Security · Operations (Overview, Ask Zyra, Pipeline, Requirements, Security testing, Runs & schedules, …) |
 | **Dark theme** | Charcoal default; moon/sun toggle in header |
 | **Overview hero** | Status lamp + stat tiles |
 | **⌘K / Search** | Command palette — jump to Flow, HAR, Ask Zyra, … |
-| **Live Terminal panel** | macOS-style log while a job runs |
+| **Live Terminal panel** | macOS-style log (Copy / Save / Stop) while a job runs |
 | **Collapse rail** | Icons-only mode at bottom of side rail |
 
 ---

@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <em>Side rail · dark theme · Ask Zyra · macOS Terminal live logs · 20+ QA actions from one console</em>
+  <em>Grouped side rail · dark theme · Ask Zyra · macOS Terminal live job · Search / ⌘K · 25+ actions</em>
 </p>
 
 ---
@@ -26,11 +26,12 @@
 
 | Without Argus | With Argus |
 |---------------|------------|
-| Specs drift from tests | Requirements are **versioned, scored, and traced** to every generated test |
+| Specs drift from tests | Requirements are **versioned, scored, and traced** to every generated test — plus **impact** by shared data models & flows |
 | “Run smoke” is a tribal ritual | **One command** or one dashboard click — same LangGraph pipeline every time |
 | Flaky selectors waste afternoons | **Self-healing autofix** suggests and applies repairs, then re-runs |
-| Security checks live in spreadsheets | **Authorized** misconfig/CVE/LLM-red-team jobs with audit trail and sandboxed PoC |
-| Five tools for E2E, API, vitals, probes | **Mission Control** — pipeline, journeys, visual, quality, API, probes, security, schedules |
+| API/OpenAPI drift is tribal knowledge | **Contract test, OpenAPI breaking-change diff, and HAR consumer verify** from Mission Control |
+| Security checks live in spreadsheets | **Authorized** misconfig/CVE/SCA/LLM-red-team/chaos jobs with audit trail and sandboxed PoC |
+| Five tools for E2E, API, vitals, probes | **Mission Control** — Console / Testing / Security / Operations rail, every action one click away |
 
 No LLM key required for smoke tests, rule-based parsing, and most dashboard actions. Add a provider when you want richer generation and analysis.
 
@@ -68,24 +69,31 @@ docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 
 
 `argus serve` exposes **Mission Control** at `/dashboard` — the operator console for everything Argus can do.
 
-**Layout**
+**Shell**
 
-- **Side rail** — Overview, **Ask Zyra**, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations
-- **Dark theme default** — charcoal surfaces, blue accent buttons; light mode via header toggle
-- **Live job panel** — macOS Terminal chrome, syntax-colored logs, per-test ✓/✗ chips, Stop, HTML/PDF/Markdown/CSV reports
-- **⌘K / Search** — command palette to jump to any action
-- **Hash routes** — `#pipeline`, `#ask`, `#operations` — bookmarkable panels
+- **Grouped side rail** — collapse to icons; groups and labels match the UI:
+  - **Console** — Overview · **Ask Zyra**
+  - **Testing** — Pipeline · Visual · Quality · Journeys · API · Probes · Requirements
+  - **Security** — Security testing
+  - **Operations** — Runs & schedules
+- **Header** — Knowledge lamp · dark/light theme toggle · **Search** (also **⌘K** / Ctrl-K command palette)
+- **Overview** — hero status + stats (pods/replicas when on a cluster, last QA run, pass rate, next smoke, knowledge) · live **macOS Terminal** job panel (Copy / Save / Stop, per-test chips, colored logs)
+- **Hash routes** — `#pipeline`, `#ask`, `#requirements`, `#operations`, …
 
-**What you can run from the UI**
+**Panels → actions (as labeled in the UI)**
 
-| Category | Actions |
-|----------|---------|
-| **Testing** | Smoke & full pipeline · generate & discover tests · English → test · codegen import |
-| **Journeys** | **Flow journeys** (one video + trace) · HAR record/replay |
-| **Visual & quality** | Visual regression & route sweeps · site audit (a11y/SEO/perf/security grade) · Core Web Vitals · flaky detection |
-| **Network** | 10 network probes · load & TLS · API contract & auth/session · WebSocket/SSE |
-| **Security** | **Engagements** — misconfig, CVE, LLM red-team, sandboxed PoC (authorized targets only) |
-| **Ops** | Recurring **schedules** · **Ask Zyra** (optional citation-first RAG) |
+| Rail panel | What you run |
+|------------|--------------|
+| **Pipeline** | ▶ Run tests (smoke / full) · ⚙ Generate · 🔎 Discover coverage · ✨ Create from English |
+| **Visual** | 👁 Visual regression · 🔀 Compare two URLs · 📸 Screenshot · 🗺 Route sweep |
+| **Quality** | 🔬 Site audit · 🎲 Flaky check · 📊 Web Vitals · 🌐 Crawl & test all pages |
+| **Journeys** | 🎬 Flow test (one video) · 📼 HAR record/replay · 📥 Import codegen · 🤖 AI test |
+| **API** | 🔌 OpenAPI contract · 🆚 **Contract diff** · 🤝 **Contract verify** (HAR) · 📡 Live data (WS/SSE) · 🔐 Auth & session |
+| **Probes** | 📡 Uptime ping · ⏱ Load test · 🔒 TLS · 🧰 Ten one-shot checks (redirects, headers, cookies, robots, exposed paths, API, sitemap, DNS, CORS, compression) |
+| **Requirements** | Versioned list + quality scores + linked tests · **Impact — shared data models & flows** |
+| **Security testing** | 🔏 Engagements · 🕵️ Misconfig · 🧬 CVE · 📦 **SCA** · 🎭 LLM red-team · 💣 Exploit PoC · ⛓ Attack chain · 🖥 Host / ☁️ Cloud pentest · 🗄 **DB assert** · 💥 **Chaos inject** · 🌐 **Chaos webhook** |
+| **Runs & schedules** | Recurring schedules · 🐞 Findings · QA run history + videos · Test health |
+| **Ask Zyra** | Citation-first Q&A over product docs (optional knowledge extra) |
 
 → [Dashboard tutorial](docs/tutorials/10-mission-control-dashboard.md) · [Customer manual](docs/customer/README.md)
 
@@ -103,7 +111,8 @@ GitHub / local spec / PDF  →  fetch  →  parse  →  evaluate_quality  →  g
 argus test run --source github --spec docs/specs/feature.md
 argus test run --source document --spec requirements/checkout.pdf
 argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --video
-curl localhost:8080/api/v2/requirements   # versioned requirements + quality scores
+curl localhost:8080/api/v2/requirements              # versioned requirements + quality scores
+curl localhost:8080/api/v2/requirements/impact-graph  # shared data models & flows
 ```
 
 Full command reference: [`docs/test-authoring.md`](docs/test-authoring.md)
@@ -130,6 +139,7 @@ Full command reference: [`docs/test-authoring.md`](docs/test-authoring.md)
 | [Configuration](docs/configuration.md) | Every env var |
 | [Remote deploy](docs/remote-deploy.md) | VM, container, or k3s |
 | [Ask Zyra (RAG)](docs/tutorials/14-ask-zyra-knowledge.md) | Optional Qdrant knowledge Q&A |
+| [Release notes](RELEASE_NOTES.md) | What’s new in the latest tag |
 
 Official site: [zyvor.dev/docs](https://zyvor.dev/docs)
 
@@ -138,12 +148,12 @@ Official site: [zyvor.dev/docs](https://zyvor.dev/docs)
 ## Project layout
 
 ```
-orchestrator/     LangGraph pipeline, Mission Control API, persistence
-agents/           Parser, generator, autofix, probes, red-team, reporter
+orchestrator/     LangGraph pipeline, Mission Control API, persistence, tracing
+agents/           Parser, generator, autofix, probes, SCA, contracts, chaos, DB assert, reporter
 templates/        Mission Control + login (Jinja2)
 playwright/       Test runner, crawl, visual diff
 knowledge/        Ask Zyra RAG (optional [knowledge] extra)
-kubernetes/       Deployment, CronJob, RBAC
+kubernetes/       Deployment, CronJob, RBAC, sandbox Jobs
 scripts/          deploy-remote.sh, customer-docs, e2e smoke
 ```
 

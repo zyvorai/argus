@@ -1,8 +1,13 @@
 # Tutorial 10 — Mission Control Dashboard
 
-A live, self-refreshing operations console served by the webhook server. It shows Kubernetes pod health and logs, QA run history with trends, and category panels that run 20+ QA capabilities — every CLI command plus web-quality, security, and performance checks — with live-streamed output and downloadable HTML/PDF/Markdown/CSV reports.
+A live, self-refreshing operations console served by the webhook server. It shows Kubernetes pod health and logs, QA run history with trends, versioned **Requirements**, and category panels that run **25+** QA capabilities — every CLI command plus web-quality, API contracts, security, chaos, and performance checks — with live-streamed output and downloadable HTML/PDF/Markdown/CSV reports.
 
-**UX:** Apple-style **side rail** (Overview, Ask Zyra, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations), **dark theme by default** (charcoal surfaces, minimal blue `#2997ff` accent buttons), collapsible icons-only rail, global header with knowledge lamp + theme toggle + **Search** (⌘K palette), hash routing (`#overview`, `#ask`, `#pipeline`, …), and a **macOS Terminal** live job console with syntax-colored logs. Reduced-motion aware.
+**UX:** Grouped **side rail** —
+**Console** (Overview, Ask Zyra) ·
+**Testing** (Pipeline, Visual, Quality, Journeys, API, Probes, Requirements) ·
+**Security** (Security testing) ·
+**Operations** (Runs & schedules) —
+**dark theme by default** (charcoal surfaces, minimal blue `#2997ff` accent buttons), collapsible icons-only rail, global header with knowledge lamp + theme toggle + **Search** (⌘K palette), hash routing (`#overview`, `#ask`, `#pipeline`, `#requirements`, …), and a **macOS Terminal** live job console (Copy / Save / Stop) with syntax-colored logs. Reduced-motion aware.
 
 **Watch:** Record a journey locally — [`docs/assets/zyvor-dev-demo.steps`](../assets/zyvor-dev-demo.steps) against https://zyvor.dev ([Tutorial 13](13-test-zyvor-dev-recording.md)).
 
@@ -27,9 +32,9 @@ What you'll see on **Overview**:
   - `CLUSTER OFFLINE` — no Kubernetes API reachable (normal on a laptop)
 - **Workloads** — per-deployment replica readiness; per-cronjob schedule, last run, and countdown
 - **Pods** — one card per pod: phase, ready containers, restart count, age, node, image, recent Warning events. **Click a pod** to open the log drawer (last 100 lines, live-refreshing; hover pauses refresh).
-- **QA Runs** — latest result, pass-rate sparkline over the last 30 runs (hover for per-run detail), and a recent-runs table
+- **Live job** — when a card is running, the macOS Terminal panel streams here (also visible while you switch panels)
 
-**Navigation:** use the **side rail** to switch panels, or **⌘K** (Ctrl-K) / header **Search** for the command palette. **Theme toggle** (moon/sun) switches dark ↔ light; preference is saved in the browser. **Collapse** at the bottom of the rail for icons-only mode.
+**Navigation:** use the **grouped side rail** to switch panels, or **⌘K** (Ctrl-K) / header **Search** for the command palette. **Theme toggle** (moon/sun) switches dark ↔ light; preference is saved in the browser. **Collapse** at the bottom of the rail for icons-only mode.
 
 Keyboard: `r` refreshes immediately, `esc` closes the log drawer or palette. Everything auto-refreshes every 5 seconds (configurable in the footer).
 
@@ -99,7 +104,7 @@ Login and dashboard share the same **dark theme** design system (light mode avai
 Action cards live in category panels (**Pipeline**, **Visual**, **Quality**, etc.). Click any card to start a job; one runs at a time. A **live panel** appears immediately with:
 
 - macOS Terminal chrome, streaming Playwright/probe output with syntax colors, **per-test ✓/✗ chips** and a running pass/fail tally
-- an elapsed timer, a **⏹ Stop** button that kills the run mid-flight, and copy-log / download-`.txt`
+- an elapsed timer, **Copy** / **Save** log, and a **Stop** button that kills the run mid-flight
 - when it finishes: a full result table with error text, a **💡 likely-cause hint** per failure, 🎬 video and 🔍 trace links, and a **Download HTML · PDF · Markdown · CSV** row — Markdown also gets a one-click **⧉ Copy MD** button
 
 Press **⌘K** (Ctrl-K) or click **Search** for the command palette that launches any action or jumps to **Ask Zyra**.
@@ -118,6 +123,17 @@ Press **⌘K** (Ctrl-K) or click **Search** for the command palette that launche
 | 📼 HAR record / replay | `argus api har-replay <url> --mode record\|replay --har <path> [--routes …]` |
 | 📥 Import codegen | `argus test import-codegen <file> [--run --url …]` |
 | 🗺 Route sweep | `argus vision route-sweep <url> --routes "/,/pricing" [--mobile --update-baselines --insecure]` |
+
+### Dashboard-only (API / security families)
+
+| Card | Panel | Notes |
+|------|-------|-------|
+| 🆚 API contract diff | API | Static OpenAPI breaking-change diff — no engagement |
+| 🤝 Contract verify | API | HAR consumer expectations vs live provider — engagement |
+| 📦 SCA scan | Security testing | Client-side licenses and/or local `pip-audit`/`npm audit` |
+| 🗄 DB assert | Security testing | SELECT-only assertions; `ZYVOR_DB_TESTING_ENABLED` |
+| 💥 Chaos inject / 🌐 Chaos webhook | Security testing | Fault injection + resilience rubric; consent + opt-in |
+| Requirements + Impact | Requirements | Versioned scores, linked tests, shared data models & flows |
 
 ### Web-quality & site actions
 
@@ -173,21 +189,21 @@ Plus **⏱ Load test** (fire N requests at C concurrency → p50/p95/p99 latency
 
 ### Schedules — run on a loop
 
-The **Operations → Schedules** panel turns any job into a recurring monitor (5 min – 6 h). A background thread re-triggers due schedules (respecting single-flight). Add a smoke run every 15 min, an audit every hour, a TLS check daily — add/remove from the panel or the ⌘K palette.
+The **Runs & schedules → Schedules** section turns any supported job into a recurring monitor (5 min – 6 h). A background thread re-triggers due schedules (respecting single-flight). Add a smoke run every 15 min, an audit every hour, a TLS check daily — add/remove from the panel or the ⌘K palette.
 
 Local `spec` and any URL parameters are validated; local paths are restricted to files inside the repository.
 
 ## 7. Ask Zyra (optional knowledge panel)
 
-Citation-first Q&A over ingested product docs — see [Tutorial 14](14-ask-zyra-knowledge.md). Side rail → **Ask Zyra**, or ⌘K → “Ask Zyra”. The knowledge lamp in the header shows ready / degraded / offline.
+Citation-first Q&A over ingested product docs — see [Tutorial 14](14-ask-zyra-knowledge.md). Side rail **Console → Ask Zyra**, or ⌘K → “Ask Zyra”. The knowledge lamp in the header shows ready / degraded / offline.
 
 ## 8. Reports, videos & test health
 
 - Every executed job writes an **HTML / PDF / Markdown / CSV bundle** to `reports/jobs/<ts>-<kind>/` (PVC-backed on K8s) and exposes it in the result panel — Markdown needs no external renderer, so it's always produced even with `ENABLE_PDF_REPORT=false`.
-- **Operations → Videos** lists every recorded test video; **⬇ all videos (zip)** downloads them in one shot.
-- **Test health** (Operations) ranks the worst-offender tests (fail count, fail %, flaky badge) from a per-test index every run appends to.
+- **Runs & schedules → Videos** lists every recorded test video; **⬇ all videos (zip)** downloads them in one shot.
+- **Test health** (Runs & schedules) ranks the worst-offender tests (fail count, fail %, flaky badge) from a per-test index every run appends to.
 - **QA Runs** shows the pass-rate sparkline, expandable run rows, and **⬇ export** (runs as JSON).
-
+- **Requirements** panel lists versioned requirements + quality scores; **Impact** groups them by shared data models and flows (`GET /api/v2/requirements`, `…/impact-graph`).
 ## 9. Cluster ops
 
 - **Pods** cards show CPU/memory (metrics-server), restarts, warnings, and a **⟳ restart** button.

@@ -6,14 +6,15 @@ Zyvor Argus’s **Mission Control** is a single live console at `/dashboard` (lo
 
 | Element | Purpose |
 |---------|---------|
-| **Side rail** | Category navigation: Overview, Ask Zyra, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations — collapsible to icons-only |
+| **Grouped side rail** | **Console** (Overview, Ask Zyra) · **Testing** (Pipeline, Visual, Quality, Journeys, API, Probes, Requirements) · **Security** (Security testing) · **Operations** (Runs & schedules) — collapsible to icons-only |
 | **Global header** | Knowledge lamp, dark/light theme toggle, **Search** (opens ⌘K palette) |
 | **Overview hero** | Health banner + stat tiles (pods, replicas, last run, pass rate, cron, knowledge) |
-| **Panel viewport** | One active category at a time; hash URLs (`#pipeline`, `#ask`, …) are bookmarkable |
+| **Panel viewport** | One active category at a time; hash URLs (`#pipeline`, `#ask`, `#requirements`, …) are bookmarkable |
 | **Workloads / Pods** | K8s strip and pod cards with log drawer (needs kube SA or kubeconfig) |
-| **Action cards** | Job cards inside each category panel — smoke, flow, HAR, probes, security, … |
-| **Live job panel** | macOS Terminal chrome — syntax-colored streaming log, case chips, Stop, copy/download log |
-| **Operations** | Schedules, Findings, QA Runs, Videos |
+| **Action cards** | Job cards inside each category panel — smoke, flow, HAR, contract diff, SCA, chaos, … |
+| **Live job panel** | macOS Terminal chrome — syntax-colored streaming log, case chips, Copy / Save / Stop |
+| **Runs & schedules** | Schedules, Findings, QA Runs, Videos, Test health |
+| **Requirements** | Versioned scores + linked tests + impact by shared data models & flows |
 | **Command palette** | ⌘K / Ctrl-K or header **Search** — jump to any action or Ask Zyra |
 
 ## Theme
@@ -30,7 +31,7 @@ See [Test zyvor.dev (with recording)](test-zyvor-dev.md) for smoke + flow video 
 
 ## Ask Zyra
 
-Optional citation-first knowledge Q&A — side rail **Ask Zyra** or ⌘K. See [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md).
+Optional citation-first knowledge Q&A — side rail **Ask Zyra** (Console group) or ⌘K. See [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md).
 
 ## Related
 

@@ -2,7 +2,7 @@
 
 > **AI-first autonomous testing, security, and requirements-quality platform that turns requirements into tests and validates every deploy.**
 
-Zyvor Argus reads requirements from GitHub issues/PRs or from local documents (including PDFs), scores each one for gaps and ambiguity, generates Playwright tests, runs them after every deployment, detects regressions, and files plain-English reports — all coordinated by a LangGraph state machine. Every requirement is persisted with a full version history and traced to the tests generated from it, so a changed requirement surfaces exactly which tests may need review. Beyond the pipeline it ships Mission Control, a live web console that runs 20+ capabilities on demand: end-to-end journey tests, API-contract and auth checks, real-time stream assertions, Core Web Vitals, visual sweeps, security probes and authorized security testing, and recurring monitors. It is LLM-provider agnostic and degrades gracefully to rule-based fallbacks when no key is configured.
+Zyvor Argus reads requirements from GitHub issues/PRs or from local documents (including PDFs), scores each one for gaps and ambiguity, generates Playwright tests, runs them after every deployment, detects regressions, and files plain-English reports — all coordinated by a LangGraph state machine. Every requirement is persisted with a full version history and traced to the tests generated from it, so a changed requirement surfaces exactly which tests may need review — plus an impact view by shared data models and flows. Beyond the pipeline it ships Mission Control, a live web console that runs 25+ capabilities on demand: end-to-end journey tests, API-contract / contract-diff / HAR verify, real-time stream assertions, Core Web Vitals, visual sweeps, security probes and authorized security testing (SCA, DB assert, chaos), and recurring monitors. It is LLM-provider agnostic and degrades gracefully to rule-based fallbacks when no key is configured.
 
 **20+** QA actions in Mission Control · **5** LLM providers supported · **3** browser engines (Chromium/Firefox/WebKit) · **10** network & security probes
 
@@ -121,6 +121,10 @@ _Validation that goes past the page — into your REST contracts, sessions, and 
 
 - **API Contract Tests** — Validates REST endpoints against their OpenAPI schema and runs ordered multi-step API workflows with bearer or API-key auth. — _Catches contract drift and broken endpoints before the UI ever sees them._
   - **How:** CLI: `argus api test  --spec  [--token "$JWT" --include-writes]` for schema validation, or `--workflow .json` for ordered create→poll→delete steps with `{{variable}}` interpolation. Dashboard: the 🔌 API contract card (base URL, spec URL or inline JSON, optional bearer token).
+- **API Contract Diff** — Pure-Python OpenAPI breaking-change diff between two specs (URL, `git:<ref>:<path>`, or inline JSON). — _Flags removed fields and new required params before merge._
+  - **How:** Mission Control → **API** → 🆚 API contract diff (no engagement; static analysis only).
+- **Contract Verify** — HAR-derived consumer expectations checked against a live provider. — _Honest on-ramp to consumer contracts without a Pact broker._
+  - **How:** Mission Control → **API** → 🤝 Contract verify (HAR path + provider URL; needs an engagement).
 - **Auth & Session Tests** — Logs in, saves a reusable session, and asserts logout, expiry, and negative-auth behavior. — _Verifies access control works — and hands other tests a ready session to reuse._
   - **How:** CLI: `argus api auth-test  --api-login /api/v1/auth/login | --login-url /login --username  --password  [--protected /dashboard --logout-url …]`, or the 🔐 Auth & session card. A passed run saves the session to `reports/artifacts/auth/.json` for reuse via flow/realtime `--session`.
 - **Live-Data Assertions** — Confirms WebSocket and SSE streams are actually delivering messages, covering reconnect, bearer/subprotocol/ticket auth, and live-region updates. — _Proves real-time dashboards are live, not just loading._
@@ -177,12 +181,14 @@ _A live console that runs every capability on demand and watches your cluster wh
 
 - **Live Status Console** — A self-refreshing dashboard with a glanceable verdict, stat tiles, and streamed per-test pass/fail output for the running job. — _One screen tells you whether everything is green right now._
   - **How:** Run `argus serve` and open `/dashboard` — side rail, dark theme, status hero (ALL SYSTEMS GO / DEGRADED / SYSTEMS DOWN / CLUSTER OFFLINE). Auto-refreshes every 5 s (press `r` to refresh now). Scriptable via `GET /api/dashboard/overview`.
-- **Console UX** — Side-rail category panels, collapsible rail, theme toggle, macOS Terminal live logs, ⌘K / Search palette — reduced-motion aware. — _Clean Apple-style ops console, not a generic admin form._
-  - **How:** Navigate via the side rail or `#pipeline` / `#ask` hash URLs; ⌘K (Ctrl-K) or header **Search** for the palette; moon/sun for light mode. Details: [Using the Dashboard](customer/using-the-dashboard.md).
-- **On-Demand Actions Panel** — Launch any of 20+ QA capabilities from a category panel or the ⌘K command palette, with a stop button and live log. — _Run any check without touching a terminal._
-  - **How:** Open a category (Pipeline, Visual, …), click an action card, or press ⌘K; one job runs at a time with a ⏹ Stop button and live terminal log. Scriptable via `POST /api/dashboard/jobs {kind, params}`, `GET /jobs/status`, `POST /jobs/cancel`. Try Flow + HAR against zyvor.dev: [Test zyvor.dev](customer/test-zyvor-dev.md).
+- **Console UX** — Grouped side rail (Console / Testing / Security / Operations), collapsible rail, theme toggle, macOS Terminal live logs, ⌘K / Search palette — reduced-motion aware. — _Clean Apple-style ops console, not a generic admin form._
+  - **How:** Navigate via the rail or `#pipeline` / `#ask` / `#requirements` hash URLs; ⌘K (Ctrl-K) or header **Search** for the palette; moon/sun for light mode. Details: [Using the Dashboard](customer/using-the-dashboard.md).
+- **On-Demand Actions Panel** — Launch any of 25+ QA capabilities from a category panel or the ⌘K command palette, with Copy / Save / Stop and a live log. — _Run any check without touching a terminal._
+  - **How:** Open a category (Pipeline, Visual, Security testing, …), click an action card, or press ⌘K; one job runs at a time with a live terminal log. Scriptable via `POST /api/dashboard/jobs {kind, params}`, `GET /jobs/status`, `POST /jobs/cancel`. Try Flow + HAR against zyvor.dev: [Test zyvor.dev](customer/test-zyvor-dev.md).
+- **Requirements panel** — Versioned requirements with quality scores, linked tests, and an impact view by shared data models & flows. — _See what the pipeline ingested and what a change might touch._
+  - **How:** Side rail **Requirements**; APIs `GET /api/v2/requirements` and `GET /api/v2/requirements/impact-graph`.
 - **Recurring Schedules** — Turns any job into a recurring monitor from 5 minutes to 6 hours, re-triggered by a background scheduler. — _Smoke every 15 minutes, audit hourly, TLS daily — set and forget._
-  - **How:** Add/remove schedules from the dashboard's Schedules panel or the ⌘K palette (interval 5 min – 6 h; a background thread re-triggers due jobs, single-flight). Scriptable via `GET/POST/DELETE /api/dashboard/schedules[/{id}]`.
+  - **How:** Add/remove schedules from **Runs & schedules → Schedules** or the ⌘K palette (interval 5 min – 6 h; a background thread re-triggers due jobs, single-flight). Scriptable via `GET/POST/DELETE /api/dashboard/schedules[/{id}]`.
 - **Kubernetes Pod Health** — Shows per-pod phase, restarts, events, CPU/memory, and live log tails, with a restart button and namespace events. — _Watch the platform under test and the agent's own pods in one place._
   - **How:** Activates automatically when a cluster is reachable (in-cluster service account, else local kubeconfig). Scope it with `DASHBOARD_NAMESPACE` and `DASHBOARD_POD_SELECTOR` in `.env`. Scriptable via `GET /api/dashboard/pods`, `…/pods/{name}/logs`, `DELETE …/pods/{name}` (restart).
 - **Authenticated & TLS-Ready** — Optional password login (rate-limited, signed-cookie sessions) gates the dashboard, API, and artifacts; serve over HTTPS with a self-signed cert. — _Safe to expose a console that can read pod logs._
@@ -214,7 +220,7 @@ _Wires into GitHub, your chat tools, your LLM of choice, and your cluster._
 1. **Install** — Copy `.env.example` to `.env` and run `make install` (needs Python 3.9+ and Node.js 20+).
 2. **Run a smoke test** — `argus test exec --grep @smoke` against your target (try `ZYVOR_BASE_URL=https://zyvor.dev`) — no LLM key required.
 3. **Watch / re-record a journey** — open the [Mission Control demo GIF](assets/zyvor-dev-mission-control-demo.gif), then `argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --video` — see [Test zyvor.dev](customer/test-zyvor-dev.md).
-4. **Open Mission Control** — `argus serve` then browse to `/dashboard` (side rail + ⌘K) to run any of the 20+ actions live. Optional: enable [Ask Zyra](tutorials/14-ask-zyra-knowledge.md).
+4. **Open Mission Control** — `argus serve` then browse to `/dashboard` (grouped side rail + ⌘K) to run any of the 25+ actions live. Optional: enable [Ask Zyra](tutorials/14-ask-zyra-knowledge.md).
 5. **Wire up GitHub** — Set `ZYVOR_PRODUCT_REPO`, authenticate `gh`, then `argus test run --source github --spec docs/specs/my-feature.md`.
 6. **Add an LLM (optional)** — Set `LLM_PROVIDER` and the matching API key to unlock AI generation, analysis, and natural-language tests.
 7. **Pull the container** — `docker pull ghcr.io/zyvorai/zyvor-argus:v0.9.2` — see [Releases](releases.md).

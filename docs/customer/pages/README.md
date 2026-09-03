@@ -8,8 +8,10 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 
 | Page | What it covers |
 |------|----------------|
+| [API contract diff](api/dashboard-actions-api-contract-diff.md) | Static OpenAPI breaking-change diff between two specs (URL, git:<ref>:<path>, or inline JSON) — no live target, no engagement gate. |
 | [API contract](api/dashboard-actions-api-contract.md) | Validate REST endpoints against an OpenAPI schema (Forge preset available). |
 | [Auth & session](api/dashboard-actions-auth.md) | Login → reusable session file → logout / expiry / negative auth checks. |
+| [Contract verify](api/dashboard-actions-contract-verify.md) | HAR-derived consumer contract verification against a live provider (status, content-type, top-level JSON keys) — requires an active_recon engagement. |
 | [Live data](api/dashboard-actions-realtime.md) | Assert WebSocket / SSE streams and optional live-region updates. |
 
 ## Console
@@ -34,6 +36,7 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [Findings](operations/dashboard-findings.md) | Collected issues from API, auth, live-data, vitals, and audit jobs with export/clear. |
 | [QA Runs](operations/dashboard-runs.md) | History table of QA runs with pass/fail chips and sparkline trends. |
 | [Schedules](operations/dashboard-schedules.md) | Turn smoke, audit, ping, TLS, flow, route sweep, API, realtime, or vitals into a 5 min–6 h loop. |
+| [Test health](operations/dashboard-test-health.md) | Worst-offender ranking by fail count, fail %, and flaky badge from the per-test index. |
 | [Videos](operations/dashboard-videos.md) | Browse and download recorded journey videos / traces from recent jobs. |
 
 ## Overview
@@ -45,7 +48,7 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [Live job panel](overview/dashboard-job-live.md) | Live panel for the running job — macOS Terminal chrome, syntax-colored streaming log, per-test chips, Stop / download. |
 | [Pods](overview/dashboard-pods.md) | Pod cards with phase, restarts, and click-through logs; optional cluster events toggle. |
 | [Workloads](overview/dashboard-workloads.md) | Deployment and CronJob strip for the argus namespace (when kube access is available). |
-| [Mission Control](overview/dashboard.md) | Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history. |
+| [Mission Control](overview/dashboard.md) | Live Mission Control console — grouped side rail (Console / Testing / Security / Operations), dark theme, status hero, workloads, pods, category action panels, requirements, schedules, findings, and QA run history. |
 | [Login](overview/login.md) | Mission Control sign-in when `DASHBOARD_PASSWORD` is set. Uses the same dark/light design system as the dashboard (charcoal default, blue accent buttons). Argus Enterprise uses Keycloak/OIDC with demo accounts `demo`/`demo` and `ssouser`/`Sso@321` (see the Enterprise SSO chapter in this manual). |
 
 ## Pipeline
@@ -75,17 +78,28 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [Flaky check](quality/dashboard-actions-flaky.md) | Re-run the suite N times and surface unstable tests. |
 | [Web Vitals](quality/dashboard-actions-vitals.md) | Measure Core Web Vitals (LCP / CLS / INP) with optional device and network throttle. |
 
+## Requirements
+
+| Page | What it covers |
+|------|----------------|
+| [Requirements impact](requirements/dashboard-requirements-impact.md) | Impact view — requirements grouped by shared data models and business flows extracted during evaluate_quality. |
+| [Requirements](requirements/dashboard-requirements.md) | Versioned requirements the pipeline ingested — source, quality score, named issues, linked tests, and version history (read-only). |
+
 ## Security
 
 | Page | What it covers |
 |------|----------------|
 | [Attack chain](security/dashboard-actions-attack-chain.md) | Chains exploit-PoC steps via an LLM planner to confirm a multi-step escalation path — same sandbox and opt-ins as Exploit PoC. |
+| [Chaos inject](security/dashboard-actions-chaos-inject.md) | Client-side fault injection (latency / loss / reset / dependency timeout) while a flow or smoke control test observes — needs ZYVOR_CHAOS_INJECTION_ENABLED, exploit engagement, and target consent. |
+| [Chaos webhook](security/dashboard-actions-chaos-webhook.md) | Trigger a customer-owned chaos experiment webhook, then run a control test with the same resilience rubric and gates as Chaos inject. |
 | [Cloud pentest](security/dashboard-actions-cloud-pentest.md) | Credentialed AWS/GCP/Azure CLI enumeration of a described finding in the sandbox — same opt-ins and credential-reference rules as Host pentest. |
 | [CVE lookup](security/dashboard-actions-cve-lookup.md) | Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement. |
+| [DB assert](security/dashboard-actions-db-assert.md) | Read-only SELECT-only assertion (row_count / cell_equals / column_values) against Postgres, MySQL, or SQLite — needs ZYVOR_DB_TESTING_ENABLED and an engagement; DSN is an env-var reference. |
 | [Exploit PoC](security/dashboard-actions-exploit-poc.md) | LLM-generated, non-destructive verification of a described finding, executed in a locked-down Kubernetes sandbox — requires an exploit-tier engagement and an execution opt-in. |
 | [Host pentest](security/dashboard-actions-host-pentest.md) | Credentialed SSH enumeration of a described finding via paramiko in the sandbox — needs a third, independent credentialed-pentest opt-in; credentials are always env-var references, never raw values. |
 | [LLM red-team](security/dashboard-actions-llm-redteam.md) | Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement. |
 | [Misconfig scan](security/dashboard-actions-misconfig-scan.md) | Tech/version fingerprinting, wordlist-driven path discovery, security-header value grading, and DNS hygiene checks — requires a security engagement. |
+| [SCA scan](security/dashboard-actions-sca-scan.md) | Client-side library/license fingerprinting and/or local-checkout pip-audit/npm audit — URL mode needs an engagement; checkout mode is operator-local. |
 | [Security engagements](security/dashboard-actions-security-engagements.md) | Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, or LLM red-team. |
 
 ## Visual
@@ -99,4 +113,4 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 
 ---
 
-43 guides. Regenerate: `node scripts/customer-docs/generate-guide-index.mjs`.
+52 guides. Regenerate: `node scripts/customer-docs/generate-guide-index.mjs`.

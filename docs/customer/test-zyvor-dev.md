@@ -45,11 +45,11 @@ argus serve --port 8080
 
 | Cue | How |
 |-----|-----|
-| Side rail | Switch category panels (Pipeline, Journeys, …) |
+| Grouped side rail | Console / Testing / Security / Operations (Pipeline, Journeys, Requirements, …) |
 | Dark theme | Default; header moon/sun for light mode |
 | ⌘K / Search | Command palette |
-| Live job panel | Terminal-style log while jobs run |
-| Ask Zyra | Side rail → citation-first Q&A (optional) |
+| Live job panel | Terminal-style log (Copy / Save / Stop) while jobs run |
+| Ask Zyra | Console → citation-first Q&A (optional) |
 
 ## Related
 

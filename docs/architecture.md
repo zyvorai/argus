@@ -186,18 +186,25 @@ GitHub repo ──► download discovery files ──► extract candidates ─�
 ## Security testing
 
 Beyond the 10 read-only network/security probes and the `audit` site grade,
-seven job kinds do deeper, potentially-invasive security testing and are
-gated behind an authorized **security engagement**:
+deeper security and resilience job kinds are gated behind an authorized
+**security engagement** (and, for some kinds, independent opt-in flags):
 
 | Job kind | Tier | What it does |
 |----------|------|--------------|
-| `misconfig_scan` | `active_recon` | Tech/version fingerprinting, wordlist-driven path discovery (`agents/probes/data/misconfig_paths.txt`), security-header *value* grading, DNS hygiene (SPF/DMARC/CAA) — `agents/probes/misconfig_scan.py` |
+| `misconfig_scan` | `active_recon` | Tech/version fingerprinting, wordlist-driven path discovery, security-header *value* grading, DNS hygiene, plus compliance signals (`security.txt`, consent markers, PII patterns) — `agents/probes/misconfig_scan.py` |
 | `cve_lookup` | `active_recon` | Read-only: fingerprints tech/versions, checks them against OSV.dev — `agents/probes/cve_lookup.py`. No PoC is generated or run |
+| `sca_scan` | `active_recon` (URL mode) | Client-side library/license fingerprinting and/or local-checkout `pip-audit`/`npm audit` — checkout mode needs no engagement |
+| `contract_verify` | `active_recon` | HAR-derived consumer contract verification against a live provider |
 | `llm_redteam` | `active_recon` | Attacker→judge loop against Ask Zyra (curated battery, `agents/redteam/`) — prompt injection, system-prompt exfiltration, excessive agency, jailbreaks, PII/secret exfiltration |
+| `db_assert` | `active_recon` | Read-only SELECT-only assertions against Postgres/MySQL/SQLite — also requires `ZYVOR_DB_TESTING_ENABLED`; DSN via `$secret` |
 | `exploit_poc` | `exploit` | Generates a non-destructive verification script via LLM for a described finding and runs it in a sandboxed Kubernetes Job (`orchestrator/security/sandbox.py`, `kubernetes/sandbox.yaml`) — never in-process. Also requires `ZYVOR_EXPLOIT_EXECUTION_ENABLED=true` |
 | `attack_chain` | `exploit` | Repeatedly plan-and-verifies one escalation step at a time (LLM planner + `exploit_poc`'s exact PoC-generation/sandbox machinery), stopping the moment a step fails or the planner has nothing safe left to propose (max 5 steps). Same gates as `exploit_poc` |
 | `host_pentest` | `exploit` | Non-destructive SSH enumeration (`paramiko`) via a specially-imaged sandbox (`ZYVOR_SANDBOX_HOST_IMAGE`). Also requires `ZYVOR_CREDENTIALED_PENTEST_ENABLED=true`; creds must be `$secret` refs |
 | `cloud_pentest` | `exploit` | Non-destructive `aws`/`gcloud`/`az` CLI enumeration via a specially-imaged sandbox (`ZYVOR_SANDBOX_CLOUD_IMAGE`). Same additional credentialed-pentest gate as `host_pentest` |
+| `chaos_inject` | `exploit` | Client-side egress fault injection while a flow/smoke control observes — also requires `ZYVOR_CHAOS_INJECTION_ENABLED` and per-run consent |
+| `chaos_webhook` | `exploit` | Trigger a customer-owned chaos experiment webhook, then observe with the same resilience rubric |
+
+`api_contract_diff` (API panel) is pure static OpenAPI analysis and needs **no** engagement.
 
 **Engagement gating** (`orchestrator/security/engagement_policy.py`): an
 admin creates a target-scoped, tier-ranked attestation via
@@ -223,8 +230,7 @@ restriction is attempted but best-effort — only enforced on
 NetworkPolicy-capable CNIs; see `kubernetes/sandbox.yaml`'s CNI caveat.
 
 Full design rationale — including what's still deliberately *not* built
-(attack chaining, credentialed host/cloud pentesting) and why — lives in
-`ROADMAP.md`.
+and why — lives in `ROADMAP.md`.
 
 ---
 

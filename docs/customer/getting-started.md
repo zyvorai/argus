@@ -22,7 +22,7 @@ Full env table: [Admin basics](admin-basics.md) · repo [`.env.example`](../../.
 
 ```bash
 git clone https://github.com/zyvorai/argus.git
-cd Zyvor Argus
+cd argus
 cp .env.example .env   # set ZYVOR_BASE_URL at minimum
 make install           # argus CLI + Playwright browsers
 ```
@@ -49,9 +49,9 @@ install, smoke-test with `demo` / `demo` or `ssouser` / `Sso@321` — full guide
 ## 4. Orient yourself
 
 1. **Overview hero** — pods, replicas, last QA run, pass rate, knowledge (Ask Zyra).
-2. **Side rail** — Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations, **Ask Zyra**.
-3. **Live job panel** — macOS Terminal log, ✓/✗ chips, Stop.
-4. **Schedules / Findings / QA Runs** — Operations panel.
+2. **Grouped side rail** — Console (Overview, Ask Zyra) · Testing (Pipeline … Requirements) · Security testing · Runs & schedules.
+3. **Live job panel** — macOS Terminal log, ✓/✗ chips, Copy / Save / Stop.
+4. **Runs & schedules** — Schedules, Findings, QA Runs, Videos, Test health.
 5. **⌘K / Search** — jump to any action; **theme toggle** for light mode.
 
 ## 5. First workflows

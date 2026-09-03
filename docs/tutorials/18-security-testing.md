@@ -1,8 +1,8 @@
 # Tutorial 18 — Security testing: engagements, recon, red-teaming, and sandboxed exploitation
 
-Go beyond the 10 read-only probes: misconfig/recon scanning, CVE lookups, LLM red-teaming of Ask Zyra, a CI/CD security gate, attack-graph reporting, and — behind extra gates — sandboxed PoC verification, attack chaining, and credentialed host/cloud pentesting.
+Go beyond the 10 read-only probes: misconfig/recon scanning (including compliance signals), CVE lookups, SCA, HAR contract verify, LLM red-teaming of Ask Zyra, DB assertions, a CI/CD security gate, attack-graph reporting, and — behind extra gates — sandboxed PoC verification, attack chaining, credentialed host/cloud pentesting, and chaos inject/webhook.
 
-**Prerequisites:** [Tutorial 1](01-getting-started.md), [Tutorial 10](10-mission-control-dashboard.md). For the sandboxed-exploitation sections (§6–§8) you'll also need a Kubernetes cluster reachable from wherever `argus serve` runs.
+**Prerequisites:** [Tutorial 1](01-getting-started.md), [Tutorial 10](10-mission-control-dashboard.md). For the sandboxed-exploitation sections (§6–§8) and chaos inject you'll also need a Kubernetes cluster reachable from wherever `argus serve` runs. DB assert and chaos have additional opt-in flags (`ZYVOR_DB_TESTING_ENABLED`, `ZYVOR_CHAOS_INJECTION_ENABLED`).
 
 ---
 
@@ -10,7 +10,7 @@ Go beyond the 10 read-only probes: misconfig/recon scanning, CVE lookups, LLM re
 
 Every job kind in this tutorial is refused (`400`) unless the request cites a live, sufficiently-scoped **security engagement** — an admin-issued attestation that you're actually authorized to test the target. This is separate from (and in addition to) the SSRF-focused target policy that already guards every network-capable job: target policy blocks *unsafe* destinations (private ranges, cloud metadata); engagements answer *is this specific test run actually authorized*.
 
-Create one from Mission Control (**🔏 Security engagements** card) or the API:
+Create engagements from Mission Control → **Security testing** → **🔏 Security engagements**, or the API:
 
 ```bash
 curl -X POST http://localhost:8080/api/v2/engagements \
@@ -34,7 +34,7 @@ Tech/version fingerprinting, a ~150-path wordlist sweep (vs. the `security_paths
 argus guard misconfig-scan https://your-app.example.com --engagement-id <id> --fail-on high
 ```
 
-Or from Mission Control: the **🕵️ Misconfig scan** card. Findings show up in the **🐞 Findings** panel with a `category` like `admin-panel-exposure`, `missing-security-header`, or `dns-misconfiguration`.
+Or from Mission Control → **Security testing**: the **🕵️ Misconfig scan** card. Findings show up in **Runs & schedules → 🐞 Findings** with a `category` like `admin-panel-exposure`, `missing-security-header`, `dns-misconfiguration`, `missing-security-txt`, `no-consent-mechanism`, or `pii-exposure`.
 
 ## 3. CVE lookup
 
@@ -133,16 +133,29 @@ argus guard cloud-pentest aws-prod-123456789012 \
   --engagement-id <exploit-tier-id>
 ```
 
-From Mission Control, the **🖥 Host pentest** card builds the same `$secret` reference from a username + auth-method dropdown + a text field for the *env var name* (never the value) — the **☁️ Cloud pentest** card takes the same raw creds JSON the CLI does, so both surfaces share one contract.
+From Mission Control → **Security testing**, the **🖥 Host pentest** card builds the same `$secret` reference from a username + auth-method dropdown + a text field for the *env var name* (never the value) — the **☁️ Cloud pentest** card takes the same raw creds JSON the CLI does, so both surfaces share one contract.
 
-## 9. What's still not built
+## 9. SCA, DB assert & chaos (Mission Control)
+
+These ship as dashboard cards under **Security testing** (also via `POST /api/v2/jobs`):
+
+| Card | Gates | Notes |
+|------|-------|-------|
+| 📦 **SCA scan** | Engagement for URL mode; none for local checkout | Client-side license fingerprint and/or `pip-audit`/`npm audit` |
+| 🗄 **DB assert** | `active_recon` engagement + `ZYVOR_DB_TESTING_ENABLED` | SELECT-only; DSN is an env-var name, never a raw secret |
+| 💥 **Chaos inject** | `exploit` engagement + `ZYVOR_CHAOS_INJECTION_ENABLED` + consent | Client-side egress faults while flow/smoke observes |
+| 🌐 **Chaos webhook** | Same as inject | POSTs your Chaos Mesh/Litmus (etc.) start/stop webhooks |
+
+Also on the **API** panel (not engagement-gated for the static path): 🆚 **API contract diff**. 🤝 **Contract verify** needs an `active_recon` engagement.
+
+## 10. What's still not built
 
 Attack Directory-specific tooling (Kerberos/LDAP enumeration, WinRM) beyond generic SSH, and any lateral-movement/persistence logic, are explicitly out of scope — every job kind in this tutorial is read-only enumeration or non-destructive verification, never real exploitation. See [`ROADMAP.md`](../../ROADMAP.md) for the full design rationale.
 
-## 10. Security notes
+## 11. Security notes
 
-- All eight job kinds funnel through one choke-point (`orchestrator/dashboard/jobs.py`'s `_validate()`) regardless of trigger path — dashboard, CLI, `/api/v2/jobs`, or a schedule — so the engagement/opt-in gates can't be bypassed by picking a different entry point.
-- `misconfig_scan`/`cve_lookup`/`llm_redteam` need only an `active_recon`-tier engagement. `exploit_poc`/`attack_chain` additionally need `ZYVOR_EXPLOIT_EXECUTION_ENABLED`. `host_pentest`/`cloud_pentest` additionally need `ZYVOR_CREDENTIALED_PENTEST_ENABLED` and a properly-imaged sandbox — three independent gates, all fail-closed by default.
+- All elevated job kinds funnel through one choke-point (`orchestrator/dashboard/jobs.py`'s `_validate()`) regardless of trigger path — dashboard, CLI, `/api/v2/jobs`, or a schedule — so the engagement/opt-in gates can't be bypassed by picking a different entry point.
+- `misconfig_scan`/`cve_lookup`/`llm_redteam`/`sca_scan` (URL)/`contract_verify`/`db_assert` need an `active_recon`-tier engagement (plus opt-ins where noted). `exploit_poc`/`attack_chain`/`chaos_*` additionally need their exploit/opt-in gates. `host_pentest`/`cloud_pentest` additionally need `ZYVOR_CREDENTIALED_PENTEST_ENABLED` and a properly-imaged sandbox — independent gates, all fail-closed by default.
 - Per-Job network-egress restriction is attempted in the sandbox (a NetworkPolicy scoped to the target's resolved IPs) but is explicitly best-effort — it has no effect on CNIs that don't enforce NetworkPolicy (notably k3s's default Flannel). The pod security hardening (dropped capabilities, non-root, read-only rootfs) is what actually holds regardless of CNI.
 
 **See also:** [`docs/enterprise-v2.md`](../enterprise-v2.md) for the full environment-variable reference and RBAC role details, [`docs/architecture.md`](../architecture.md) for how these job kinds fit into the pipeline, and [`ROADMAP.md`](../../ROADMAP.md) for design rationale and what's deliberately deferred.
