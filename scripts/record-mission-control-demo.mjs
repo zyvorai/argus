@@ -13,7 +13,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const base = (process.argv[2] || "http://175.110.122.71:30080").replace(/\/$/, "");
+const base = (process.argv[2] || process.env.ZQA_MC_URL || "http://127.0.0.1:30080").replace(/\/$/, "");
 const outWebm =
   process.argv[3] ||
   path.join(root, "docs/assets/guestkit-mission-control-demo.webm");

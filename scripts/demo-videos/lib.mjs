@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-export const BASE = process.env.ZQA_MC_URL || "http://175.110.122.71:30080";
+export const BASE = process.env.ZQA_MC_URL || "http://127.0.0.1:30080";
 export const USER = process.env.ZQA_MC_USER || "admin";
 export const PASS = process.env.ZQA_MC_PASS || "Admin@321";
 

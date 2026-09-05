@@ -2,7 +2,7 @@
 /** One-off Chrome E2E smoke for remote Mission Control deploy. */
 import { chromium } from "@playwright/test";
 
-const BASE = process.env.ARGUS_BASE_URL || "http://212.8.248.187:30080";
+const BASE = process.env.ARGUS_BASE_URL || "http://127.0.0.1:30080";
 const USER = process.env.ARGUS_DASH_USER || "admin";
 const PASS = process.env.ARGUS_DASH_PASS || "Admin@321";
 

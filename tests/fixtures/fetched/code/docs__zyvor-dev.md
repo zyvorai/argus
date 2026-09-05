@@ -1,6 +1,6 @@
 # zyvor.dev on your server
 
-Point **`zyvor.dev`** at your web server IP (**e.g. `212.8.252.194`**) and serve the same marketing site (or a dedicated build) with HTTPS.
+Point **`zyvor.dev`** at your web server IP (**e.g. `YOUR_SERVER_IP`**) and serve the same marketing site (or a dedicated build) with HTTPS.
 
 ## Security: private keys
 
@@ -15,10 +15,10 @@ At your domain registrar / DNS host:
 
 | Type | Name | Value           | TTL |
 |------|------|-----------------|-----|
-| A    | `@` (or `zyvor.dev`) | `212.8.252.194` | 300–3600 |
-| A    | `www` | `212.8.252.194` (optional) | same |
+| A    | `@` (or `zyvor.dev`) | `YOUR_SERVER_IP` | 300–3600 |
+| A    | `www` | `YOUR_SERVER_IP` (optional) | same |
 
-Wait for DNS to propagate before testing HTTPS. The IP **`66.116.209.111`** (if shown in a control panel) is unrelated to this A record unless you intentionally use it—visitors resolve whatever your **public A record** returns.
+Wait for DNS to propagate before testing HTTPS. The IP **`OTHER_PANEL_IP`** (if shown in a control panel) is unrelated to this A record unless you intentionally use it—visitors resolve whatever your **public A record** returns.
 
 ## TLS certificate files
 
@@ -68,9 +68,9 @@ This vhost reuses **`root /var/www/hypersdk`** for **zyvor.dev**. To use a separ
 After **`/etc/nginx/ssl/zyvor.fullchain.crt`** and **`zyvor.key`** exist on the server, bare deploys can install the vhost automatically:
 
 ```bash
-DEPLOY_ZYVOR_NGINX=1 ./scripts/deploy.sh user@212.8.252.194 --bare
+DEPLOY_ZYVOR_NGINX=1 ./scripts/deploy.sh user@YOUR_SERVER_IP --bare
 # or
-DEPLOY_ZYVOR_NGINX=1 ./scripts/deploy-all.sh 212.8.252.194
+DEPLOY_ZYVOR_NGINX=1 ./scripts/deploy-all.sh YOUR_SERVER_IP
 ```
 
 If those TLS files are missing, the script exits with an error instead of breaking `nginx -t`.
