@@ -131,6 +131,8 @@ Press **⌘K** (Ctrl-K) or click **Search** for the command palette that launche
 | 🆚 API contract diff | API | Static OpenAPI breaking-change diff — no engagement |
 | 🤝 Contract verify | API | HAR consumer expectations vs live provider — engagement |
 | 📦 SCA scan | Security testing | Client-side licenses and/or local `pip-audit`/`npm audit` |
+| 🔭 Port / 🔐 TLS cipher | Security testing | Bounded port scan + weak-cipher grading — `active_recon` |
+| 🎯 DAST / 💉 Injection / 🛡 CSRF / 🌐 SSRF / 🔑 Auth / 🔢 IDOR | Security testing | Bounded web-attack probes — `exploit` + `ZYVOR_DAST_SCAN_ENABLED` |
 | 🗄 DB assert | Security testing | SELECT-only assertions; `ZYVOR_DB_TESTING_ENABLED` |
 | 💥 Chaos inject / 🌐 Chaos webhook | Security testing | Fault injection + resilience rubric; consent + opt-in |
 | Requirements + Impact | Requirements | Versioned scores, linked tests, shared data models & flows |

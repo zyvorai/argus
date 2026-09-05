@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, or LLM red-team.
+Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, SCA, DAST / network-attack jobs, LLM red-team, or sandboxed exploit tiers.
 
 ## When to use it
 

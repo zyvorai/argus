@@ -21,7 +21,7 @@ Live Mission Control console — grouped side rail (Console / Testing / Security
 2. **Overview** — hero stat tiles, workloads, pods, live job terminal.
 3. **Testing panels** — Pipeline, Visual, Quality, Journeys, API, Probes, Requirements — run jobs one at a time with a live Terminal-style log.
 4. **Ask Zyra** — optional citation-first knowledge Q&A ([Tutorial 14](../../../tutorials/14-ask-zyra-knowledge.md)).
-5. **Security testing** — engagements, recon, SCA, DB assert, chaos, sandboxed exploit tiers.
+5. **Security testing** — engagements, recon, SCA, port/TLS, DAST (injection/CSRF/SSRF/auth/IDOR), DB assert, chaos, sandboxed exploit tiers.
 6. **Runs & schedules** — schedules, findings, run history, videos, test health.
 7. **⌘K** or header **Search** — command palette to jump anywhere.
 

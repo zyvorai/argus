@@ -30,7 +30,7 @@
 | “Run smoke” is a tribal ritual | **One command** or one dashboard click — same LangGraph pipeline every time |
 | Flaky selectors waste afternoons | **Self-healing autofix** suggests and applies repairs, then re-runs |
 | API/OpenAPI drift is tribal knowledge | **Contract test, OpenAPI breaking-change diff, and HAR consumer verify** from Mission Control |
-| Security checks live in spreadsheets | **Authorized** misconfig/CVE/SCA/LLM-red-team/chaos jobs with audit trail and sandboxed PoC |
+| Security checks live in spreadsheets | **Authorized** misconfig/CVE/SCA/DAST/LLM-red-team/chaos jobs with audit trail and sandboxed PoC |
 | Five tools for E2E, API, vitals, probes | **Mission Control** — Console / Testing / Security / Operations rail, every action one click away |
 
 No LLM key required for smoke tests, rule-based parsing, and most dashboard actions. Add a provider when you want richer generation and analysis.
@@ -91,7 +91,7 @@ docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 
 | **API** | 🔌 OpenAPI contract · 🆚 **Contract diff** · 🤝 **Contract verify** (HAR) · 📡 Live data (WS/SSE) · 🔐 Auth & session |
 | **Probes** | 📡 Uptime ping · ⏱ Load test · 🔒 TLS · 🧰 Ten one-shot checks (redirects, headers, cookies, robots, exposed paths, API, sitemap, DNS, CORS, compression) |
 | **Requirements** | Versioned list + quality scores + linked tests · **Impact — shared data models & flows** |
-| **Security testing** | 🔏 Engagements · 🕵️ Misconfig · 🧬 CVE · 📦 **SCA** · 🎭 LLM red-team · 💣 Exploit PoC · ⛓ Attack chain · 🖥 Host / ☁️ Cloud pentest · 🗄 **DB assert** · 💥 **Chaos inject** · 🌐 **Chaos webhook** |
+| **Security testing** | 🔏 Engagements · 🕵️ Misconfig · 🧬 CVE · 📦 SCA · 🎭 LLM red-team · 🔭 **Port scan** · 🔐 **TLS cipher** · 🎯 **DAST** · 💉 Injection · 🛡 CSRF · 🌐 SSRF · 🔑 Auth attack · 🔢 IDOR · 💣 Exploit PoC · ⛓ Attack chain · 🖥 Host / ☁️ Cloud pentest · 🗄 DB assert · 💥 Chaos inject · 🌐 Chaos webhook |
 | **Runs & schedules** | Recurring schedules · 🐞 Findings · QA run history + videos · Test health |
 | **Ask Zyra** | Citation-first Q&A over product docs (optional knowledge extra) |
 
@@ -136,6 +136,7 @@ Full command reference: [`docs/test-authoring.md`](docs/test-authoring.md)
 | [Tutorials (1→18)](docs/tutorials/README.md) | Install → dashboard → flows → security |
 | [Customer manual](docs/customer/README.md) | Page-by-page Mission Control + PDFs |
 | [Feature guide](docs/zyvor-argus-customer-feature-guide.md) | Complete capability reference |
+| [Network-attack / DAST gaps](docs/security-network-attack-gaps.md) | What DAST covers vs deliberately deferred |
 | [Configuration](docs/configuration.md) | Every env var |
 | [Remote deploy](docs/remote-deploy.md) | VM, container, or k3s |
 | [Ask Zyra (RAG)](docs/tutorials/14-ask-zyra-knowledge.md) | Optional Qdrant knowledge Q&A |
@@ -149,7 +150,7 @@ Official site: [zyvor.dev/docs](https://zyvor.dev/docs)
 
 ```
 orchestrator/     LangGraph pipeline, Mission Control API, persistence, tracing
-agents/           Parser, generator, autofix, probes, SCA, contracts, chaos, DB assert, reporter
+agents/           Parser, generator, autofix, probes, DAST, SCA, contracts, chaos, DB assert, reporter
 templates/        Mission Control + login (Jinja2)
 playwright/       Test runner, crawl, visual diff
 knowledge/        Ask Zyra RAG (optional [knowledge] extra)

@@ -100,7 +100,15 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 | [LLM red-team](security/dashboard-actions-llm-redteam.md) | Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement. |
 | [Misconfig scan](security/dashboard-actions-misconfig-scan.md) | Tech/version fingerprinting, wordlist-driven path discovery, security-header value grading, and DNS hygiene checks — requires a security engagement. |
 | [SCA scan](security/dashboard-actions-sca-scan.md) | Client-side library/license fingerprinting and/or local-checkout pip-audit/npm audit — URL mode needs an engagement; checkout mode is operator-local. |
-| [Security engagements](security/dashboard-actions-security-engagements.md) | Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, or LLM red-team. |
+| [Security engagements](security/dashboard-actions-security-engagements.md) | Create/revoke the admin-issued, target-scoped authorization required before running elevated security jobs. |
+| [Port scan](security/dashboard-actions-port-scan.md) | Bounded TCP connect scan of common service ports (≤64) — requires an active_recon engagement. |
+| [TLS cipher scan](security/dashboard-actions-tls-cipher-scan.md) | TLS protocol and weak-cipher grading — requires an active_recon engagement. |
+| [DAST scan](security/dashboard-actions-dast-scan.md) | Bounded DAST aggregator (headers, injection, CSRF, open-redirect; optional nuclei) — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED. |
+| [Injection scan](security/dashboard-actions-injection-scan.md) | Systematic SQLi / reflected-XSS / path-traversal probes — requires exploit engagement and DAST opt-in. |
+| [CSRF probe](security/dashboard-actions-csrf-probe.md) | Target CSRF posture (forms/tokens, SameSite) — requires exploit engagement and DAST opt-in. |
+| [SSRF probe](security/dashboard-actions-ssrf-probe.md) | Probes URL-like params for SSRF signals — requires exploit engagement and DAST opt-in. |
+| [Auth attack scan](security/dashboard-actions-auth-attack-scan.md) | Auth hygiene (JWT alg=none, cookie flags, login enum hints; no brute force) — requires exploit engagement and DAST opt-in. |
+| [IDOR scan](security/dashboard-actions-idor-scan.md) | Adjacent numeric ID comparison for possible IDOR — requires exploit engagement and DAST opt-in. |
 
 ## Visual
 
@@ -113,4 +121,4 @@ Every route is also listed in the [complete page index](../PAGE_INDEX.md).
 
 ---
 
-52 guides. Regenerate: `node scripts/customer-docs/generate-guide-index.mjs`.
+60 guides. Regenerate: `node scripts/customer-docs/generate-guide-index.mjs`.
