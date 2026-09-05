@@ -24,7 +24,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
 <h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Getting Started</div>
-<div class="badge">2026-09-02</div>
+<div class="badge">2026-09-05</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><p><strong>Wrong product?</strong> If you need multi-target Watchfloor SSO / RBAC / billing, that is
 <strong>Argus Enterprise</strong>, not this Mission Control path — see <a href="which-product.md">Which product</a>.
@@ -59,7 +59,7 @@ This page is for <strong>Community</strong> Zyvor Argus (CLI + Mission Control).
 <p>Full env table: <a href="admin-basics.md">Admin basics</a> · repo <a href="../../.env.example"><code>.env.example</code></a>.</p>
 <h2>1. Install</h2>
 <pre><code class="language-bash">git clone https://github.com/zyvorai/argus.git
-cd Zyvor Argus
+cd argus
 cp .env.example .env   # set ZYVOR_BASE_URL at minimum
 make install           # argus CLI + Playwright browsers
 </code></pre>
@@ -77,9 +77,9 @@ install, smoke-test with <code>demo</code> / <code>demo</code> or <code>ssouser<
 <h2>4. Orient yourself</h2>
 <ol>
 <li><strong>Overview hero</strong> — pods, replicas, last QA run, pass rate, knowledge (Ask Zyra).</li>
-<li><strong>Side rail</strong> — Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations, <strong>Ask Zyra</strong>.</li>
-<li><strong>Live job panel</strong> — macOS Terminal log, ✓/✗ chips, Stop.</li>
-<li><strong>Schedules / Findings / QA Runs</strong> — Operations panel.</li>
+<li><strong>Grouped side rail</strong> — Console (Overview, Ask Zyra) · Testing (Pipeline … Requirements) · Security testing · Runs &amp; schedules.</li>
+<li><strong>Live job panel</strong> — macOS Terminal log, ✓/✗ chips, Copy / Save / Stop.</li>
+<li><strong>Runs &amp; schedules</strong> — Schedules, Findings, QA Runs, Videos, Test health.</li>
 <li><strong>⌘K / Search</strong> — jump to any action; <strong>theme toggle</strong> for light mode.</li>
 </ol>
 <h2>5. First workflows</h2>
@@ -124,8 +124,8 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>Side rail</strong></td>
-<td>Category navigation: Overview, Ask Zyra, Pipeline, Visual, Quality, Journeys, API, Probes, Security, Operations — collapsible to icons-only</td>
+<td><strong>Grouped side rail</strong></td>
+<td><strong>Console</strong> (Overview, Ask Zyra) · <strong>Testing</strong> (Pipeline, Visual, Quality, Journeys, API, Probes, Requirements) · <strong>Security</strong> (Security testing) · <strong>Operations</strong> (Runs &amp; schedules) — collapsible to icons-only</td>
 </tr>
 <tr>
 <td><strong>Global header</strong></td>
@@ -137,7 +137,7 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 </tr>
 <tr>
 <td><strong>Panel viewport</strong></td>
-<td>One active category at a time; hash URLs (<code>#pipeline</code>, <code>#ask</code>, …) are bookmarkable</td>
+<td>One active category at a time; hash URLs (<code>#pipeline</code>, <code>#ask</code>, <code>#requirements</code>, …) are bookmarkable</td>
 </tr>
 <tr>
 <td><strong>Workloads / Pods</strong></td>
@@ -145,15 +145,19 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 </tr>
 <tr>
 <td><strong>Action cards</strong></td>
-<td>Job cards inside each category panel — smoke, flow, HAR, probes, security, …</td>
+<td>Job cards inside each category panel — smoke, flow, HAR, contract diff, SCA, chaos, …</td>
 </tr>
 <tr>
 <td><strong>Live job panel</strong></td>
-<td>macOS Terminal chrome — syntax-colored streaming log, case chips, Stop, copy/download log</td>
+<td>macOS Terminal chrome — syntax-colored streaming log, case chips, Copy / Save / Stop</td>
 </tr>
 <tr>
-<td><strong>Operations</strong></td>
-<td>Schedules, Findings, QA Runs, Videos</td>
+<td><strong>Runs &amp; schedules</strong></td>
+<td>Schedules, Findings, QA Runs, Videos, Test health</td>
+</tr>
+<tr>
+<td><strong>Requirements</strong></td>
+<td>Versioned scores + linked tests + impact (shared models/flows, co-occurrence edges, typed Order → Payment canvas)</td>
 </tr>
 <tr>
 <td><strong>Command palette</strong></td>
@@ -167,7 +171,7 @@ argus flow run https://zyvor.dev --steps /tmp/zyvor-home.steps --video
 <h2>Practice on zyvor.dev</h2>
 <p>See <a href="test-zyvor-dev.md">Test zyvor.dev (with recording)</a> for smoke + flow video + HAR against the public site.</p>
 <h2>Ask Zyra</h2>
-<p>Optional citation-first knowledge Q&amp;A — side rail <strong>Ask Zyra</strong> or ⌘K. See <a href="../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>.</p>
+<p>Optional citation-first knowledge Q&amp;A — side rail <strong>Ask Zyra</strong> (Console group) or ⌘K. Labs without OpenAI embeddings can set <code>EMBEDDING_BACKEND=fastembed</code>. See <a href="../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>.</p>
 <h2>Related</h2>
 <ul>
 <li><a href="getting-started.md">Getting Started</a></li>
@@ -221,8 +225,8 @@ argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --vide
 </tr>
 </thead>
 <tbody><tr>
-<td>Side rail</td>
-<td>Switch category panels (Pipeline, Journeys, …)</td>
+<td>Grouped side rail</td>
+<td>Console / Testing / Security / Operations (Pipeline, Journeys, Requirements, …)</td>
 </tr>
 <tr>
 <td>Dark theme</td>
@@ -234,11 +238,11 @@ argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --vide
 </tr>
 <tr>
 <td>Live job panel</td>
-<td>Terminal-style log while jobs run</td>
+<td>Terminal-style log (Copy / Save / Stop) while jobs run</td>
 </tr>
 <tr>
 <td>Ask Zyra</td>
-<td>Side rail → citation-first Q&amp;A (optional)</td>
+<td>Console → citation-first Q&amp;A (optional)</td>
 </tr>
 </tbody></table>
 <h2>Related</h2>

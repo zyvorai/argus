@@ -2,30 +2,37 @@
 
 ## Purpose
 
-Impact view — requirements grouped by shared data models and business flows extracted during evaluate_quality.
+Impact view — shared data models & flows, co-occurrence edges, and typed Order → Payment dependencies with SVG canvas.
 
 ## When to use it
 
-- Open this card when the job matches the purpose above
-- Prefer **Mission Control** (`/dashboard`) and the **⌘K** command palette if you are unsure where to start
-- Confirm `ZYVOR_BASE_URL`, dashboard auth, and that Playwright browsers are installed if runs fail immediately
+- You want to see which requirements share an entity (e.g. `Order`)
+- You care about explicit “A depends on B” relationships named in specs
+- You’re reviewing what a change to a model or flow might touch
 
 ## How to get there
 
-- Surface: `/dashboard/requirements/impact`
-- UI: Mission Control → **Requirements** panel → **Requirements impact** (side rail, or ⌘K / Ctrl-K **Search**)
+- Surface: `/dashboard/requirements/impact` · hash `#requirements`
+- UI: Mission Control → **Requirements** panel → **Impact — shared data models & flows**
+- API: `GET /api/v2/requirements/impact-graph` (returns `data_models`, `flows`,
+  `model_edges`, `model_dependencies`)
 
 ## What you can do
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
-2. Fill the card fields for **Requirements impact**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).
-3. After success, check **Findings**, **QA Runs**, and any video / report links the card produces.
-4. Turn recurring checks into a **Schedule** (5 min – 6 h) when you want continuous monitoring.
+2. Open **Requirements** and scroll to **Impact**.
+3. Browse **By data model**, **Model edges** (co-occurrence), **Typed
+   dependencies** (directed edges + canvas), and **By flow**.
+4. Click a requirement id to open its detail drawer (quality score, issues,
+   version history, linked tests).
 
-If the card stays idle or errors, hit `GET /health`, confirm the webhook/dashboard process is up (`argus serve`), and re-check env from [.env.example](../../../../.env.example).
+Entities are extracted during `evaluate_quality` (`agents/requirement_entities/`,
+LLM or rule fallback). Typed edges come from language like “Order depends on
+Payment” or the LLM’s `model_dependencies` output (schema v6).
 
 ## Related pages
 
+- [Requirements](dashboard-requirements.md)
 - [Getting Started](../../getting-started.md)
 - [Using the Dashboard](../../using-the-dashboard.md)
 - [Mission Control](../overview/dashboard.md)

@@ -22,6 +22,19 @@ APP_API_KEY=change-me
 
 For a local OpenAI-compatible endpoint, also set `LLM_BASE_URL` and matching `EMBEDDING_*` values.
 
+**Air-gapped / Ollama labs** (chat works, embeddings endpoint rejects): use local FastEmbed instead of remote embeddings:
+
+```env
+EMBEDDING_BACKEND=fastembed
+EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+LLM_BASE_URL=http://127.0.0.1:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=llama3.2:3b
+QDRANT_URL=http://127.0.0.1:6333
+```
+
+Small local chat models may retrieve docs but fail Ask Zyra’s structured citation schema — prefer a stronger model (or cloud key) for polished answers.
+
 ## 2. Start Qdrant
 
 ```bash

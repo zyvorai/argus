@@ -84,7 +84,7 @@ Regenerate: `node scripts/customer-docs/generate-page-index.mjs`
 | Page | Route | Purpose | Guide |
 |------|-------|---------|-------|
 | Requirements | `/dashboard/requirements` | Versioned requirements the pipeline ingested — source, quality score, named issues, linked tests, and version history (read-only). | [Open](pages/requirements/dashboard-requirements.md) |
-| Requirements impact | `/dashboard/requirements/impact` | Impact view — requirements grouped by shared data models and business flows extracted during evaluate_quality. | [Open](pages/requirements/dashboard-requirements-impact.md) |
+| Requirements impact | `/dashboard/requirements/impact` | Impact view — shared data models & flows, co-occurrence edges, and typed Order → Payment dependencies with SVG canvas. | [Open](pages/requirements/dashboard-requirements-impact.md) |
 
 ## Security
 
@@ -102,14 +102,6 @@ Regenerate: `node scripts/customer-docs/generate-page-index.mjs`
 | DB assert | `/dashboard/actions/db-assert` | Read-only SELECT-only assertion (row_count / cell_equals / column_values) against Postgres, MySQL, or SQLite — needs ZYVOR_DB_TESTING_ENABLED and an engagement; DSN is an env-var reference. | [Open](pages/security/dashboard-actions-db-assert.md) |
 | Chaos inject | `/dashboard/actions/chaos-inject` | Client-side fault injection (latency / loss / reset / dependency timeout) while a flow or smoke control test observes — needs ZYVOR_CHAOS_INJECTION_ENABLED, exploit engagement, and target consent. | [Open](pages/security/dashboard-actions-chaos-inject.md) |
 | Chaos webhook | `/dashboard/actions/chaos-webhook` | Trigger a customer-owned chaos experiment webhook, then run a control test with the same resilience rubric and gates as Chaos inject. | [Open](pages/security/dashboard-actions-chaos-webhook.md) |
-| Port scan | `/dashboard/actions/port-scan` | Bounded TCP connect scan of common service ports (≤64) — requires an active_recon engagement. | [Open](pages/security/dashboard-actions-port-scan.md) |
-| TLS cipher scan | `/dashboard/actions/tls-cipher-scan` | TLS protocol and weak-cipher grading — requires an active_recon engagement. | [Open](pages/security/dashboard-actions-tls-cipher-scan.md) |
-| DAST scan | `/dashboard/actions/dast-scan` | Bounded DAST aggregator (headers, injection, CSRF, open-redirect; optional nuclei) — requires exploit engagement and `ZYVOR_DAST_SCAN_ENABLED`. | [Open](pages/security/dashboard-actions-dast-scan.md) |
-| Injection scan | `/dashboard/actions/injection-scan` | Systematic SQLi / reflected-XSS / path-traversal probes — requires exploit engagement and DAST opt-in. | [Open](pages/security/dashboard-actions-injection-scan.md) |
-| CSRF probe | `/dashboard/actions/csrf-probe` | Target CSRF posture (forms/tokens, SameSite) — requires exploit engagement and DAST opt-in. | [Open](pages/security/dashboard-actions-csrf-probe.md) |
-| SSRF probe | `/dashboard/actions/ssrf-probe` | Probes URL-like params for SSRF signals — requires exploit engagement and DAST opt-in. | [Open](pages/security/dashboard-actions-ssrf-probe.md) |
-| Auth attack scan | `/dashboard/actions/auth-attack-scan` | Auth hygiene (JWT alg=none, cookie flags, login enum hints; no brute force) — requires exploit engagement and DAST opt-in. | [Open](pages/security/dashboard-actions-auth-attack-scan.md) |
-| IDOR scan | `/dashboard/actions/idor-scan` | Adjacent numeric ID comparison for possible IDOR — requires exploit engagement and DAST opt-in. | [Open](pages/security/dashboard-actions-idor-scan.md) |
 
 ## Operations
 

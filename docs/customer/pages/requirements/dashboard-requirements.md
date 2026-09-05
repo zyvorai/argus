@@ -2,30 +2,34 @@
 
 ## Purpose
 
-Versioned requirements the pipeline ingested — source, quality score, named issues, linked tests, and version history (read-only).
+Versioned requirements the pipeline ingested — source (github/document/email/transcript/jira/diarize), quality score, named issues, linked tests, and version history (read-only).
 
 ## When to use it
 
-- Open this card when the job matches the purpose above
-- Prefer **Mission Control** (`/dashboard`) and the **⌘K** command palette if you are unsure where to start
-- Confirm `ZYVOR_BASE_URL`, dashboard auth, and that Playwright browsers are installed if runs fail immediately
+- Review what the last pipeline run stored and how quality scored each item
+- Open history when a requirement changed and linked tests may need review
+- Jump into **Impact** for shared models, co-occurrence edges, and typed deps
 
 ## How to get there
 
-- Surface: `/dashboard/requirements`
-- UI: Mission Control → **Requirements** panel → **Requirements** (side rail, or ⌘K / Ctrl-K **Search**)
+- Surface: `/dashboard/requirements` · hash `#requirements`
+- UI: Mission Control → **Requirements** panel (side rail, or ⌘K / Ctrl-K **Search**)
+- APIs: `GET /api/v2/requirements`, `…/{id}`, `…/{id}/history`
 
 ## What you can do
 
 1. Open `/dashboard` (sign in at `/login` when `DASHBOARD_PASSWORD` is set).
-2. Fill the card fields for **Requirements**, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).
-3. After success, check **Findings**, **QA Runs**, and any video / report links the card produces.
-4. Turn recurring checks into a **Schedule** (5 min – 6 h) when you want continuous monitoring.
+2. Browse the requirements list (title, source, version, quality score).
+3. Click a row for description, quality issues, version history, and linked tests.
+4. Use **Impact** on the same panel for shared models / flows / typed deps.
 
-If the card stays idle or errors, hit `GET /health`, confirm the webhook/dashboard process is up (`argus serve`), and re-check env from [.env.example](../../../../.env.example).
+Requirements are written by the pipeline (`fetch → parse → evaluate_quality`),
+not through this UI. Sources include GitHub, local documents/PDFs, `.eml` or
+IMAP email, transcripts, Jira (JSON / REST / OAuth), and diarized meetings.
 
 ## Related pages
 
+- [Requirements impact](dashboard-requirements-impact.md)
 - [Getting Started](../../getting-started.md)
 - [Using the Dashboard](../../using-the-dashboard.md)
 - [Mission Control](../overview/dashboard.md)

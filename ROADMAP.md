@@ -434,45 +434,19 @@ tables), LLM-driven quality/gap scoring (`agents/requirement_quality/`), and
 first-cut traceability (`requirement_test_links`): a changed requirement
 surfaces which previously-generated tests trace to its old version.
 
-Deliberately not built yet, and not stubbed:
+Deliberately scoped earlier slices are now complete:
 
 - ~~**Ticket-system (Jira-like), email, and meeting-transcript sources**~~ —
-  **done, first slice.** New `agents/requirements_sources/` connectors:
-  `email` (`.eml`), `transcript` (`.vtt`/`.srt`/`.txt`), `jira` (JSON export
-  and/or live REST via `JIRA_BASE_URL` + `JIRA_API_TOKEN`). Wired through
-  `fetch_requirements`, CLI `--source`, and Mission Control job validation.
-  Not a full OAuth Jira/Gmail product integration — file modes work offline
-  for CI; live Jira is Basic/Bearer REST only.
-- **Deeper ticket OAuth / mailbox IMAP / live meeting diarization** —
-  **done, second slice.** Jira live fetch prefers `JIRA_OAUTH_ACCESS_TOKEN`
-  (with optional refresh via `JIRA_OAUTH_REFRESH_TOKEN` + client credentials).
-  Email source falls back to Gmail/IMAP (`IMAP_*` / `GMAIL_*`) when no `.eml`
-  paths are given. New `diarize` source: speaker-tagged VTT or audio via
-  `ZYVOR_DIARIZE_CMD` / `ZYVOR_DIARIZE_API_URL`.
-- ~~**Business-flow/data-model impact analysis**~~ — **done, first slice.**
+  **done.** `agents/requirements_sources/`: `email` (`.eml` + IMAP),
+  `transcript`, `jira` (JSON / REST / OAuth), `diarize` (speaker VTT +
+  optional live audio). Wired through `fetch_requirements`, CLI `--source`,
+  and Mission Control job validation.
+- ~~**Business-flow/data-model impact analysis**~~ — **done.**
   The original change-based impact check ("which generated tests trace to a
-  requirement that changed") is joined by a second, complementary one:
-  "which requirements share a data model" and "which automation depends on
-  which flow." New `agents/requirement_entities/` (mirrors
-  `agents/requirement_quality/`'s LLM+rule-based-fallback shape exactly)
-  names the data models and business flow a requirement touches; the
-  `evaluate_quality` node calls it alongside quality scoring and persists
-  the result on `requirement_versions` (schema v5, `data_models_json`/
-  `flows_json`, `ALTER TABLE`-on-migrate for existing databases in both
-  `MissionControlStore` and `PostgresStore`). `MissionControlStore
-  .requirement_impact_graph()` groups every requirement's latest version by
-  shared entity, exposed read-only at `GET /api/v2/requirements/impact-graph`
-  (registered ahead of `/{requirement_id}` so it isn't swallowed as a path
-  param) and rendered in the Requirements panel's new "Impact — shared data
-  models & flows" section, cross-linked back into the per-requirement detail
-  view. The rule-based fallback (no LLM key configured) is honest about its
-  own crudeness — a capitalized-word heuristic filtered against a
-  sentence-starter stoplist for data models, a document source's file-path
-  stem for flows — the same "cruder floor, not a lie" posture as the quality
-  scorer's own fallback. **Model co-occurrence edges:** `requirement_impact_graph()`
-  now also returns `model_edges` (`{a,b,weight}`) for data models that appear
-  together, plus typed `model_dependencies` (`Order → Payment`, schema v6) with
-  an SVG canvas in Mission Control.
+  requirement that changed") is joined by shared data models/flows,
+  co-occurrence `model_edges`, and typed `model_dependencies` (schema v6,
+  Order → Payment) with an SVG canvas in Mission Control
+  (`GET /api/v2/requirements/impact-graph`).
 - ~~**A dashboard/UI surface for requirement history and quality scores**~~
   — **done, for Mission Control (OSS).** A new **Requirements** panel
   (`templates/dashboard.html.j2`, `data-panel="requirements"`) lists every
@@ -632,8 +606,9 @@ distribution someone could install without a dev checkout:
   bundled alongside it — closer in size/complexity to the existing
   `docker/Dockerfile` multi-stage build than to a lightweight desktop
   installer. **Practical path:** keep the desktop shell thin and point jobs
-  at a remote/lab `argus serve` (or Docker) that already has Chromium; do
-  not try to embed browsers in the `.app` bundle. See `desktop/README.md`.
+  at a remote Mission Control via Settings → **Remote URL** (lab/team host
+  that already has Chromium), or use `docker/Dockerfile`. The desktop app
+  does not need to freeze Playwright to be useful — see `desktop/README.md`.
 
 Code signing + notarization config is wired up (`make desktop-build-signed`,
 `desktop/README.md`'s "Code signing & notarization" section) but not

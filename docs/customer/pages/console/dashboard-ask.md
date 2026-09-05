@@ -17,7 +17,7 @@ Citation-first product knowledge Q&A — optional Qdrant hybrid RAG. Read-only; 
 
 ## Operate from the console (UX)
 
-1. Install optional extras: `pip install -e ".[knowledge]"`, start Qdrant, set `LLM_API_KEY` — see [Tutorial 14](../../../tutorials/14-ask-zyra-knowledge.md).
+1. Install optional extras: `pip install -e ".[knowledge]"`, start Qdrant, set `LLM_API_KEY` — see [Tutorial 14](../../../tutorials/14-ask-zyra-knowledge.md). For Ollama labs without an embeddings API, set `EMBEDDING_BACKEND=fastembed`.
 2. Open **Ask Zyra**, pick product / document-type filters, ask a question.
 3. Review citations, confidence badge, and **⧉ copy MD** for Slack/Jira.
 4. Header **knowledge lamp** shows ready / degraded / offline.

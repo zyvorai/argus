@@ -1,3 +1,11 @@
+# Unreleased (post-v0.9.2)
+
+Typed impact graph (Order → Payment + canvas), Jira OAuth / IMAP / diarize
+sources, Ask Zyra FastEmbed backend, desktop **Remote URL**, and broader
+`_job_*` wrapper tests. See `CHANGELOG.md` **[Unreleased]**.
+
+---
+
 # v0.9.2 — Four new test-capability families, requirements impact analysis, cross-replica tracing
 
 Follow-up to **v0.9.1** (docs & version pin refresh to `zyvorai/argus`).

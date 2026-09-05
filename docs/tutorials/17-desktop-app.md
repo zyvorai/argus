@@ -62,6 +62,15 @@ isn't the one you want, override it via **⌘,** (or **Zyvor Argus →
 Settings…** in the menu bar) rather than hand-editing anything — enter the
 full path to the binary and Save. Takes effect on the next restart.
 
+## 5b. Remote Mission Control (lab / team)
+
+A true single-binary bundle with embedded Chromium is impractical (hundreds
+of MB of browser binaries). For lab or shared runners, set **Settings →
+Remote URL** to an existing Mission Control base URL (e.g.
+`http://212.8.248.187:30080`). The shell skips spawning local `argus serve`
+and opens that dashboard — Playwright/Chromium stay on the remote host.
+Leave Remote URL blank to keep the default local spawn.
+
 ## 6. What's different from viewing it in a browser
 
 - The Kubernetes pods/workloads panel is hidden — it's always "cluster

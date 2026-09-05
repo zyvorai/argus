@@ -14,7 +14,7 @@ Zyvor Argus’s **Mission Control** is a single live console at `/dashboard` (lo
 | **Action cards** | Job cards inside each category panel — smoke, flow, HAR, contract diff, SCA, chaos, … |
 | **Live job panel** | macOS Terminal chrome — syntax-colored streaming log, case chips, Copy / Save / Stop |
 | **Runs & schedules** | Schedules, Findings, QA Runs, Videos, Test health |
-| **Requirements** | Versioned scores + linked tests + impact by shared data models & flows |
+| **Requirements** | Versioned scores + linked tests + impact (shared models/flows, co-occurrence edges, typed Order → Payment canvas) |
 | **Command palette** | ⌘K / Ctrl-K or header **Search** — jump to any action or Ask Zyra |
 
 ## Theme
@@ -31,7 +31,7 @@ See [Test zyvor.dev (with recording)](test-zyvor-dev.md) for smoke + flow video 
 
 ## Ask Zyra
 
-Optional citation-first knowledge Q&A — side rail **Ask Zyra** (Console group) or ⌘K. See [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md).
+Optional citation-first knowledge Q&A — side rail **Ask Zyra** (Console group) or ⌘K. Labs without OpenAI embeddings can set `EMBEDDING_BACKEND=fastembed`. See [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md).
 
 ## Related
 

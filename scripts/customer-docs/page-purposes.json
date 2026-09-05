@@ -33,7 +33,7 @@
   "/dashboard/actions/realtime": "Assert WebSocket / SSE streams and optional live-region updates.",
   "/dashboard/actions/auth": "Login → reusable session file → logout / expiry / negative auth checks.",
   "/dashboard/requirements": "Versioned requirements the pipeline ingested — source, quality score, named issues, linked tests, and version history (read-only).",
-  "/dashboard/requirements/impact": "Impact view — requirements grouped by shared data models and business flows extracted during evaluate_quality.",
+  "/dashboard/requirements/impact": "Impact view — shared data models & flows, co-occurrence edges, and typed Order → Payment dependencies with SVG canvas.",
   "/dashboard/actions/security-engagements": "Create/revoke the admin-issued, target-scoped authorization required before running any deeper security testing job.",
   "/dashboard/actions/misconfig-scan": "Tech/version fingerprinting, path discovery, header grading, DNS hygiene, plus compliance signals (security.txt, consent markers, PII patterns) — requires a security engagement.",
   "/dashboard/actions/cve-lookup": "Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement.",

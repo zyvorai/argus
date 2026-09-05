@@ -135,7 +135,7 @@ Press **⌘K** (Ctrl-K) or click **Search** for the command palette that launche
 | 🎯 DAST / 💉 Injection / 🛡 CSRF / 🌐 SSRF / 🔑 Auth / 🔢 IDOR | Security testing | Bounded web-attack probes — `exploit` + `ZYVOR_DAST_SCAN_ENABLED` |
 | 🗄 DB assert | Security testing | SELECT-only assertions; `ZYVOR_DB_TESTING_ENABLED` |
 | 💥 Chaos inject / 🌐 Chaos webhook | Security testing | Fault injection + resilience rubric; consent + opt-in |
-| Requirements + Impact | Requirements | Versioned scores, linked tests, shared data models & flows |
+| Requirements + Impact | Requirements | Versioned scores, linked tests, shared models/flows, co-occurrence edges, typed Order → Payment deps + canvas |
 
 ### Web-quality & site actions
 
@@ -205,7 +205,7 @@ Citation-first Q&A over ingested product docs — see [Tutorial 14](14-ask-zyra-
 - **Runs & schedules → Videos** lists every recorded test video; **⬇ all videos (zip)** downloads them in one shot.
 - **Test health** (Runs & schedules) ranks the worst-offender tests (fail count, fail %, flaky badge) from a per-test index every run appends to.
 - **QA Runs** shows the pass-rate sparkline, expandable run rows, and **⬇ export** (runs as JSON).
-- **Requirements** panel lists versioned requirements + quality scores; **Impact** groups them by shared data models and flows (`GET /api/v2/requirements`, `…/impact-graph`).
+- **Requirements** panel lists versioned requirements + quality scores; **Impact** groups them by shared data models and flows, shows co-occurrence edges, and draws typed dependencies (`Order → Payment`) on an SVG canvas (`GET /api/v2/requirements`, `…/impact-graph`).
 ## 9. Cluster ops
 
 - **Pods** cards show CPU/memory (metrics-server), restarts, warnings, and a **⟳ restart** button.

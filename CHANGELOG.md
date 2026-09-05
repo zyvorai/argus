@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- **Typed model dependencies + impact canvas** — `model_dependencies` on `requirement_versions` (schema v6) capture explicit edges such as Order → Payment; `GET /api/v2/requirements/impact-graph` returns them alongside co-occurrence `model_edges`; Mission Control renders a typed-dependency list and SVG canvas.
+- **Requirements connectors (second slice)** — Jira OAuth access/refresh (`JIRA_OAUTH_*`), Gmail/IMAP fallback for `email` when no `.eml` paths are set (`IMAP_*` / `GMAIL_*`), and `diarize` source (speaker-tagged VTT or audio via `ZYVOR_DIARIZE_CMD` / `ZYVOR_DIARIZE_API_URL`).
+- **Ask Zyra local FastEmbed** — `EMBEDDING_BACKEND=fastembed` (or `EMBEDDING_MODEL=BAAI/…`) uses on-box FastEmbed when an OpenAI-compatible embeddings endpoint is unavailable (e.g. Ollama chat-only labs).
+- **Desktop remote Mission Control** — Settings **Remote URL** opens the Tauri shell against a lab/team `argus serve` without spawning a local server (Chromium stays on the remote).
+- Broad `_job_*` registry/wrapper unit coverage (`tests/unit/test_job_wrappers_broad.py`) and connector entity tests.
+
 ## [0.9.2](https://github.com/zyvorai/argus/releases/tag/v0.9.2) — 2026-09-02
 
 ### Added

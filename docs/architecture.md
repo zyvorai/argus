@@ -89,8 +89,10 @@ Three conditional edges (all in `graph.py`):
 
 | Field | Type | Set by |
 |-------|------|--------|
-| `source` | `"local" \| "github"` | CLI / webhook |
+| `source` | `"local" \| "github" \| "document" \| "email" \| "transcript" \| "jira" \| "diarize"` | CLI / webhook / jobs |
 | `spec_paths`, `spec_contents` | `list[str]` | `fetch` |
+| `document_paths` | `list[str]` | `fetch` (document/email/transcript/diarize/jira export) |
+| `jira_issue_keys` | `list[str]` | `fetch` (jira) |
 | `requirements` | `list[Requirement]` | `parse` |
 | `generated_tests` | `list[str]` (file paths) | `generate` |
 | `test_results` | `TestResult` | `execute` (enriched by `merge_results` from the parallel regression/api/log nodes) |
@@ -100,7 +102,7 @@ Three conditional edges (all in `graph.py`):
 | `report_path`, `pdf_report_path`, `report_summary` | `str` | `report` |
 | `metadata` | `dict` | everyone (counters, retry bookkeeping, changed files) |
 
-All data models are Pydantic (`agents/common/models.py`): `Requirement`, `RequirementStep`, `TestResult`, `TestCaseResult`, `RegressionDiff`, `ApiValidationResult`, `LogIssue`, `CoverageCandidate`, `CoverageGap`, `AutofixSuggestion`, `V8CoverageSummary`, `PipelineReport`.
+All data models are Pydantic (`agents/common/models.py`): `Requirement`, `RequirementStep`, `TestResult`, `TestCaseResult`, `RegressionDiff`, `ApiValidationResult`, `LogIssue`, `CoverageCandidate`, `CoverageGap`, `AutofixSuggestion`, `V8CoverageSummary`, `PipelineReport`, `RequirementEntities`, `ModelDependency`.
 
 ---
 
@@ -111,6 +113,7 @@ Every AI-powered stage degrades gracefully so the pipeline works with **no API k
 | Stage | With LLM | Without LLM (or on LLM error) |
 |-------|----------|-------------------------------|
 | Parse | `prompts/parser.md` → JSON requirements | Regex rule parser over `## Acceptance Criteria` sections |
+| Requirement entities | `prompts/requirement_entities.md` → models/flows/typed deps | Capitalized-word + “depends on” heuristic |
 | Generate | `prompts/generator.md` → full TypeScript | Jinja2 template `templates/test.spec.ts.j2` |
 | Analyze | `prompts/analyzer.md` + artifact context | Stub summary echoing Playwright errors |
 | Autofix | JSON selector suggestions | Generic role-based suggestion stub |

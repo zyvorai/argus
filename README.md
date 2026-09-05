@@ -90,7 +90,7 @@ docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 
 | **Journeys** | 🎬 Flow test (one video) · 📼 HAR record/replay · 📥 Import codegen · 🤖 AI test |
 | **API** | 🔌 OpenAPI contract · 🆚 **Contract diff** · 🤝 **Contract verify** (HAR) · 📡 Live data (WS/SSE) · 🔐 Auth & session |
 | **Probes** | 📡 Uptime ping · ⏱ Load test · 🔒 TLS · 🧰 Ten one-shot checks (redirects, headers, cookies, robots, exposed paths, API, sitemap, DNS, CORS, compression) |
-| **Requirements** | Versioned list + quality scores + linked tests · **Impact — shared data models & flows** |
+| **Requirements** | Versioned list + quality scores + linked tests · **Impact** (shared models/flows, co-occurrence edges, typed Order → Payment deps + canvas) |
 | **Security testing** | 🔏 Engagements · 🕵️ Misconfig · 🧬 CVE · 📦 SCA · 🎭 LLM red-team · 🔭 **Port scan** · 🔐 **TLS cipher** · 🎯 **DAST** · 💉 Injection · 🛡 CSRF · 🌐 SSRF · 🔑 Auth attack · 🔢 IDOR · 💣 Exploit PoC · ⛓ Attack chain · 🖥 Host / ☁️ Cloud pentest · 🗄 DB assert · 💥 Chaos inject · 🌐 Chaos webhook |
 | **Runs & schedules** | Recurring schedules · 🐞 Findings · QA run history + videos · Test health |
 | **Ask Zyra** | Citation-first Q&A over product docs (optional knowledge extra) |
@@ -102,7 +102,7 @@ docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 
 ## Pipeline (CLI)
 
 ```
-GitHub / local spec / PDF  →  fetch  →  parse  →  evaluate_quality  →  generate  →  execute
+GitHub / local / PDF / email / transcript / jira / diarize  →  fetch  →  parse  →  evaluate_quality  →  generate  →  execute
                                       ↓ fail → analyze → autofix → re-run
                                       ↓ pass → report → Slack / Teams / email / GitHub PR comment
 ```
@@ -110,9 +110,12 @@ GitHub / local spec / PDF  →  fetch  →  parse  →  evaluate_quality  →  g
 ```bash
 argus test run --source github --spec docs/specs/feature.md
 argus test run --source document --spec requirements/checkout.pdf
+argus test run --source email --spec inbox/req.eml          # or IMAP_* env with no --spec
+argus test run --source jira --spec PROJ-123                # or JSON export / OAuth token
+argus test run --source diarize --spec meetings/standup.vtt
 argus flow run https://zyvor.dev --steps docs/assets/zyvor-dev-demo.steps --video
 curl localhost:8080/api/v2/requirements              # versioned requirements + quality scores
-curl localhost:8080/api/v2/requirements/impact-graph  # shared data models & flows
+curl localhost:8080/api/v2/requirements/impact-graph  # models, flows, co-occurrence + typed deps
 ```
 
 Full command reference: [`docs/test-authoring.md`](docs/test-authoring.md)

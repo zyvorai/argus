@@ -24,7 +24,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <section class="cover"><div class="kicker">ZyvorAI Labs · Customer Documentation</div>
 <h1>Zyvor <span>Argus</span></h1>
 <div class="sub">Page-by-Page Product Manual</div>
-<div class="badge">2026-09-02</div>
+<div class="badge">2026-09-05</div>
 <div class="foot">zyvor.dev · Confidential — for licensed customers</div></section>
 <main><h2>Page-by-page guides</h2>
 <p>Each guide follows: Purpose → When to use it → How to get there → What you can do → Related pages.</p>
@@ -38,12 +38,20 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 </thead>
 <tbody><tr>
+<td><a href="api/dashboard-actions-api-contract-diff.md">API contract diff</a></td>
+<td>Static OpenAPI breaking-change diff between two specs (URL, git:<ref>:<path>, or inline JSON) — no live target, no engagement gate.</td>
+</tr>
+<tr>
 <td><a href="api/dashboard-actions-api-contract.md">API contract</a></td>
 <td>Validate REST endpoints against an OpenAPI schema (Forge preset available).</td>
 </tr>
 <tr>
 <td><a href="api/dashboard-actions-auth.md">Auth &amp; session</a></td>
 <td>Login → reusable session file → logout / expiry / negative auth checks.</td>
+</tr>
+<tr>
+<td><a href="api/dashboard-actions-contract-verify.md">Contract verify</a></td>
+<td>HAR-derived consumer contract verification against a live provider (status, content-type, top-level JSON keys) — requires an active_recon engagement.</td>
 </tr>
 <tr>
 <td><a href="api/dashboard-actions-realtime.md">Live data</a></td>
@@ -109,6 +117,10 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td>Turn smoke, audit, ping, TLS, flow, route sweep, API, realtime, or vitals into a 5 min–6 h loop.</td>
 </tr>
 <tr>
+<td><a href="operations/dashboard-test-health.md">Test health</a></td>
+<td>Worst-offender ranking by fail count, fail %, and flaky badge from the per-test index.</td>
+</tr>
+<tr>
 <td><a href="operations/dashboard-videos.md">Videos</a></td>
 <td>Browse and download recorded journey videos / traces from recent jobs.</td>
 </tr>
@@ -143,7 +155,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 <tr>
 <td><a href="overview/dashboard.md">Mission Control</a></td>
-<td>Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.</td>
+<td>Live Mission Control console — grouped side rail (Console / Testing / Security / Operations), dark theme, status hero, workloads, pods, category action panels, requirements, schedules, findings, and QA run history.</td>
 </tr>
 <tr>
 <td><a href="overview/login.md">Login</a></td>
@@ -225,6 +237,23 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td>Measure Core Web Vitals (LCP / CLS / INP) with optional device and network throttle.</td>
 </tr>
 </tbody></table>
+<h3>Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>What it covers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="requirements/dashboard-requirements-impact.md">Requirements impact</a></td>
+<td>Impact view for requirements the pipeline ingested: shared data models and</td>
+</tr>
+<tr>
+<td><a href="requirements/dashboard-requirements.md">Requirements</a></td>
+<td>Versioned requirements the pipeline ingested — source (<code>github</code>, <code>document</code>,</td>
+</tr>
+</tbody></table>
 <h3>Security</h3>
 <table>
 <thead>
@@ -238,12 +267,36 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td>Chains exploit-PoC steps via an LLM planner to confirm a multi-step escalation path — same sandbox and opt-ins as Exploit PoC.</td>
 </tr>
 <tr>
+<td><a href="security/dashboard-actions-auth-attack-scan.md">Auth attack scan</a></td>
+<td>Auth hygiene: JWT alg=none, cookie flags, login enum hints (no brute force) — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-chaos-inject.md">Chaos inject</a></td>
+<td>Client-side fault injection (latency / loss / reset / dependency timeout) while a flow or smoke control test observes — needs ZYVOR_CHAOS_INJECTION_ENABLED, exploit engagement, and target consent.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-chaos-webhook.md">Chaos webhook</a></td>
+<td>Trigger a customer-owned chaos experiment webhook, then run a control test with the same resilience rubric and gates as Chaos inject.</td>
+</tr>
+<tr>
 <td><a href="security/dashboard-actions-cloud-pentest.md">Cloud pentest</a></td>
 <td>Credentialed AWS/GCP/Azure CLI enumeration of a described finding in the sandbox — same opt-ins and credential-reference rules as Host pentest.</td>
 </tr>
 <tr>
+<td><a href="security/dashboard-actions-csrf-probe.md">CSRF probe</a></td>
+<td>Target CSRF posture: forms without tokens, cookies without SameSite — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</td>
+</tr>
+<tr>
 <td><a href="security/dashboard-actions-cve-lookup.md">CVE lookup</a></td>
 <td>Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-dast-scan.md">DAST scan</a></td>
+<td>Bounded DAST aggregator (headers, injection, CSRF, open-redirect; optional nuclei) — requires an exploit-tier engagement and ZYVOR_DAST_SCAN_ENABLED.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-db-assert.md">DB assert</a></td>
+<td>Read-only SELECT-only assertion (row_count / cell_equals / column_values) against Postgres, MySQL, or SQLite — needs ZYVOR_DB_TESTING_ENABLED and an engagement; DSN is an env-var reference.</td>
 </tr>
 <tr>
 <td><a href="security/dashboard-actions-exploit-poc.md">Exploit PoC</a></td>
@@ -254,6 +307,14 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td>Credentialed SSH enumeration of a described finding via paramiko in the sandbox — needs a third, independent credentialed-pentest opt-in; credentials are always env-var references, never raw values.</td>
 </tr>
 <tr>
+<td><a href="security/dashboard-actions-idor-scan.md">IDOR scan</a></td>
+<td>Bounded adjacent-numeric-ID comparison for possible IDOR — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-injection-scan.md">Injection scan</a></td>
+<td>Systematic SQLi / reflected-XSS / path-traversal probes — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</td>
+</tr>
+<tr>
 <td><a href="security/dashboard-actions-llm-redteam.md">LLM red-team</a></td>
 <td>Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</td>
 </tr>
@@ -262,8 +323,24 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td>Tech/version fingerprinting, wordlist-driven path discovery, security-header value grading, and DNS hygiene checks — requires a security engagement.</td>
 </tr>
 <tr>
+<td><a href="security/dashboard-actions-port-scan.md">Port scan</a></td>
+<td>Bounded TCP connect scan of common service ports (≤64) — requires an active_recon engagement.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-sca-scan.md">SCA scan</a></td>
+<td>Client-side library/license fingerprinting and/or local-checkout pip-audit/npm audit — URL mode needs an engagement; checkout mode is operator-local.</td>
+</tr>
+<tr>
 <td><a href="security/dashboard-actions-security-engagements.md">Security engagements</a></td>
-<td>Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, or LLM red-team.</td>
+<td>Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, SCA, DAST / network-attack jobs, LLM red-team, or sandboxed exploit tiers.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-ssrf-probe.md">SSRF probe</a></td>
+<td>Probes URL-like query params for server-side fetch / SSRF signals — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</td>
+</tr>
+<tr>
+<td><a href="security/dashboard-actions-tls-cipher-scan.md">TLS cipher scan</a></td>
+<td>TLS protocol and weak-cipher grading beyond basic cert metadata — requires an active_recon engagement.</td>
 </tr>
 </tbody></table>
 <h3>Visual</h3>
@@ -292,7 +369,37 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </tr>
 </tbody></table>
 <hr>
-<p>43 guides. Regenerate: <code>node scripts/customer-docs/generate-guide-index.mjs</code>.</p>
+<p>60 guides. Regenerate: <code>node scripts/customer-docs/generate-guide-index.mjs</code>.</p>
+<hr>
+<h2>API contract diff</h2>
+<h3>Purpose</h3>
+<p>Static OpenAPI breaking-change diff between two specs (URL, git:<ref>:<path>, or inline JSON) — no live target, no engagement gate.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/api-contract-diff</code></li>
+<li>UI: Mission Control → <strong>API</strong> panel → <strong>API contract diff</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>API contract diff</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
 <hr>
 <h2>API contract</h2>
 <h3>Purpose</h3>
@@ -354,6 +461,36 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>Contract verify</h2>
+<h3>Purpose</h3>
+<p>HAR-derived consumer contract verification against a live provider (status, content-type, top-level JSON keys) — requires an active_recon engagement.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/contract-verify</code></li>
+<li>UI: Mission Control → <strong>API</strong> panel → <strong>Contract verify</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>Contract verify</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>Live data</h2>
 <h3>Purpose</h3>
 <p>Assert WebSocket / SSE streams and optional live-region updates.</p>
@@ -400,7 +537,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 </ul>
 <h3>Operate from the console (UX)</h3>
 <ol>
-<li>Install optional extras: <code>pip install -e &quot;.[knowledge]&quot;</code>, start Qdrant, set <code>LLM_API_KEY</code> — see <a href="../../../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>.</li>
+<li>Install optional extras: <code>pip install -e &quot;.[knowledge]&quot;</code>, start Qdrant, set <code>LLM_API_KEY</code> — see <a href="../../../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>. For Ollama labs without an embeddings API, set <code>EMBEDDING_BACKEND=fastembed</code>.</li>
 <li>Open <strong>Ask Zyra</strong>, pick product / document-type filters, ask a question.</li>
 <li>Review citations, confidence badge, and <strong>⧉ copy MD</strong> for Slack/Jira.</li>
 <li>Header <strong>knowledge lamp</strong> shows ready / degraded / offline.</li>
@@ -645,6 +782,36 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>Test health</h2>
+<h3>Purpose</h3>
+<p>Worst-offender ranking by fail count, fail %, and flaky badge from the per-test index.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/test-health</code></li>
+<li>UI: Mission Control → <strong>Operations</strong> panel → <strong>Test health</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>Test health</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>Videos</h2>
 <h3>Purpose</h3>
 <p>Browse and download recorded journey videos / traces from recent jobs.</p>
@@ -817,7 +984,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Mission Control</h2>
 <h3>Purpose</h3>
-<p>Live Mission Control console — Apple-style side rail, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.</p>
+<p>Live Mission Control console — grouped side rail (Console / Testing / Security / Operations), dark theme, status hero, workloads, pods, category action panels, requirements, schedules, findings, and QA run history.</p>
 <h3>When to use it</h3>
 <ul>
 <li>Your starting point for every QA action and cluster health view</li>
@@ -832,10 +999,11 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <h3>Operate from the console (UX)</h3>
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
-<li><strong>Overview</strong> — hero stat tiles, workloads, pods, QA runs.</li>
-<li><strong>Pipeline / Visual / Quality / …</strong> — run jobs from category panels; one job at a time with a live Terminal-style log panel.</li>
+<li><strong>Overview</strong> — hero stat tiles, workloads, pods, live job terminal.</li>
+<li><strong>Testing panels</strong> — Pipeline, Visual, Quality, Journeys, API, Probes, Requirements — run jobs one at a time with a live Terminal-style log.</li>
 <li><strong>Ask Zyra</strong> — optional citation-first knowledge Q&amp;A (<a href="../../../tutorials/14-ask-zyra-knowledge.md">Tutorial 14</a>).</li>
-<li><strong>Operations</strong> — schedules, findings, run history, videos.</li>
+<li><strong>Security testing</strong> — engagements, recon, SCA, port/TLS, DAST (injection/CSRF/SSRF/auth/IDOR), DB assert, chaos, sandboxed exploit tiers.</li>
+<li><strong>Runs &amp; schedules</strong> — schedules, findings, run history, videos, test health.</li>
 <li><strong>⌘K</strong> or header <strong>Search</strong> — command palette to jump anywhere.</li>
 </ol>
 <p>Use the <strong>theme toggle</strong> (moon/sun) for light mode; <strong>Collapse</strong> on the rail for icons-only.</p>
@@ -1254,6 +1422,81 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>Requirements impact</h2>
+<h3>Purpose</h3>
+<p>Impact view for requirements the pipeline ingested: shared data models and
+business flows, undirected co-occurrence edges (models that appear together),
+and typed dependencies such as <strong>Order → Payment</strong> — with a small SVG canvas.</p>
+<h3>When to use it</h3>
+<ul>
+<li>You want to see which requirements share an entity (e.g. <code>Order</code>)</li>
+<li>You care about explicit “A depends on B” relationships named in specs</li>
+<li>You’re reviewing what a change to a model or flow might touch</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/requirements/impact</code> · hash <code>#requirements</code></li>
+<li>UI: Mission Control → <strong>Requirements</strong> panel → <strong>Impact — shared data models &amp; flows</strong></li>
+<li>API: <code>GET /api/v2/requirements/impact-graph</code> (returns <code>data_models</code>, <code>flows</code>,
+<code>model_edges</code>, <code>model_dependencies</code>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Open <strong>Requirements</strong> and scroll to <strong>Impact</strong>.</li>
+<li>Browse <strong>By data model</strong>, <strong>Model edges</strong> (co-occurrence), <strong>Typed
+dependencies</strong> (directed edges + canvas), and <strong>By flow</strong>.</li>
+<li>Click a requirement id to open its detail drawer (quality score, issues,
+version history, linked tests).</li>
+</ol>
+<p>Entities are extracted during <code>evaluate_quality</code> (<code>agents/requirement_entities/</code>,
+LLM or rule fallback). Typed edges come from language like “Order depends on
+Payment” or the LLM’s <code>model_dependencies</code> output (schema v6).</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-requirements.md">Requirements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>Requirements</h2>
+<h3>Purpose</h3>
+<p>Versioned requirements the pipeline ingested — source (<code>github</code>, <code>document</code>,
+<code>email</code>, <code>transcript</code>, <code>jira</code>, <code>diarize</code>, …), quality score, named issues,
+linked tests, data models / flows, and version history (read-only).</p>
+<h3>When to use it</h3>
+<ul>
+<li>Review what the last pipeline run stored and how quality scored each item</li>
+<li>Open history when a requirement changed and linked tests may need review</li>
+<li>Jump into <strong>Impact</strong> for shared models, co-occurrence edges, and typed deps</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/requirements</code> · hash <code>#requirements</code></li>
+<li>UI: Mission Control → <strong>Requirements</strong> panel (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+<li>APIs: <code>GET /api/v2/requirements</code>, <code>…/{id}</code>, <code>…/{id}/history</code></li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Browse the requirements list (title, source, version, quality score).</li>
+<li>Click a row for description, quality issues, version history, and linked tests.</li>
+<li>Use <strong>Impact</strong> on the same panel for shared models / flows / typed deps.</li>
+</ol>
+<p>Requirements are written by the pipeline (<code>fetch → parse → evaluate_quality</code>),
+not through this UI. Sources include GitHub, local documents/PDFs, <code>.eml</code> or
+IMAP email, transcripts, Jira (JSON / REST / OAuth), and diarized meetings.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-requirements-impact.md">Requirements impact</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>Attack chain</h2>
 <h3>Purpose</h3>
 <p>Chains exploit-PoC steps via an LLM planner to confirm a multi-step escalation path — same sandbox and opt-ins as Exploit PoC.</p>
@@ -1272,6 +1515,97 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>Attack chain</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>Auth attack scan</h2>
+<h3>Purpose</h3>
+<p>Auth hygiene: JWT alg=none, cookie flags, login enum hints (no brute force) — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/auth-attack-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Auth attack scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard auth-attack-scan</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>Auth attack scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>Chaos inject</h2>
+<h3>Purpose</h3>
+<p>Client-side fault injection (latency / loss / reset / dependency timeout) while a flow or smoke control test observes — needs ZYVOR_CHAOS_INJECTION_ENABLED, exploit engagement, and target consent.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/chaos-inject</code></li>
+<li>UI: Mission Control → <strong>Security</strong> panel → <strong>Chaos inject</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>Chaos inject</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>Chaos webhook</h2>
+<h3>Purpose</h3>
+<p>Trigger a customer-owned chaos experiment webhook, then run a control test with the same resilience rubric and gates as Chaos inject.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/chaos-webhook</code></li>
+<li>UI: Mission Control → <strong>Security</strong> panel → <strong>Chaos webhook</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>Chaos webhook</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
 <li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
 <li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
 </ol>
@@ -1314,6 +1648,37 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>CSRF probe</h2>
+<h3>Purpose</h3>
+<p>Target CSRF posture: forms without tokens, cookies without SameSite — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/csrf-probe</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>CSRF probe</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard csrf-probe</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>CSRF probe</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>CVE lookup</h2>
 <h3>Purpose</h3>
 <p>Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement.</p>
@@ -1332,6 +1697,67 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <ol>
 <li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
 <li>Fill the card fields for <strong>CVE lookup</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>DAST scan</h2>
+<h3>Purpose</h3>
+<p>Bounded DAST aggregator (headers, injection, CSRF, open-redirect; optional nuclei) — requires an exploit-tier engagement and ZYVOR_DAST_SCAN_ENABLED.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/dast-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>DAST scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard dast-scan</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>DAST scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>DB assert</h2>
+<h3>Purpose</h3>
+<p>Read-only SELECT-only assertion (row_count / cell_equals / column_values) against Postgres, MySQL, or SQLite — needs ZYVOR_DB_TESTING_ENABLED and an engagement; DSN is an env-var reference.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/db-assert</code></li>
+<li>UI: Mission Control → <strong>Security</strong> panel → <strong>DB assert</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>DB assert</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
 <li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
 <li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
 </ol>
@@ -1404,6 +1830,68 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>IDOR scan</h2>
+<h3>Purpose</h3>
+<p>Bounded adjacent-numeric-ID comparison for possible IDOR — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/idor-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>IDOR scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard idor-scan</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>IDOR scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>Injection scan</h2>
+<h3>Purpose</h3>
+<p>Systematic SQLi / reflected-XSS / path-traversal probes — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/injection-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Injection scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard injection-scan</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>Injection scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>LLM red-team</h2>
 <h3>Purpose</h3>
 <p>Attacker/judge adversarial-prompt battery against Ask Zyra — prompt injection, system-prompt leak, excessive agency, jailbreak, PII/secret leak — requires a security engagement.</p>
@@ -1464,9 +1952,70 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <li><a href="../../PAGE_INDEX.md">Page index</a></li>
 </ul>
 <hr>
+<h2>Port scan</h2>
+<h3>Purpose</h3>
+<p>Bounded TCP connect scan of common service ports (≤64) — requires an active_recon engagement.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/port-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>Port scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard port-scan</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>Port scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>SCA scan</h2>
+<h3>Purpose</h3>
+<p>Client-side library/license fingerprinting and/or local-checkout pip-audit/npm audit — URL mode needs an engagement; checkout mode is operator-local.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm <code>ZYVOR_BASE_URL</code>, dashboard auth, and that Playwright browsers are installed if runs fail immediately</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/sca-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> panel → <strong>SCA scan</strong> (side rail, or ⌘K / Ctrl-K <strong>Search</strong>)</li>
+</ul>
+<h3>What you can do</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Fill the card fields for <strong>SCA scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any video / report links the card produces.</li>
+<li>Turn recurring checks into a <strong>Schedule</strong> (5 min – 6 h) when you want continuous monitoring.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
 <h2>Security engagements</h2>
 <h3>Purpose</h3>
-<p>Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, or LLM red-team.</p>
+<p>Create/revoke the admin-issued, target-scoped authorization required before running misconfig scan, CVE lookup, SCA, DAST / network-attack jobs, LLM red-team, or sandboxed exploit tiers.</p>
 <h3>When to use it</h3>
 <ul>
 <li>Open this card when the job matches the purpose above</li>
@@ -1488,6 +2037,68 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>.</p>
 <h3>Related pages</h3>
 <ul>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>SSRF probe</h2>
+<h3>Purpose</h3>
+<p>Probes URL-like query params for server-side fetch / SSRF signals — requires exploit engagement and ZYVOR_DAST_SCAN_ENABLED.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/ssrf-probe</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>SSRF probe</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard ssrf-probe</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>SSRF probe</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
+<li><a href="../../getting-started.md">Getting Started</a></li>
+<li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
+<li><a href="../overview/dashboard.md">Mission Control</a></li>
+<li><a href="../../PAGE_INDEX.md">Page index</a></li>
+</ul>
+<hr>
+<h2>TLS cipher scan</h2>
+<h3>Purpose</h3>
+<p>TLS protocol and weak-cipher grading beyond basic cert metadata — requires an active_recon engagement.</p>
+<h3>When to use it</h3>
+<ul>
+<li>Open this card when the job matches the purpose above</li>
+<li>Prefer <strong>Mission Control</strong> (<code>/dashboard</code>) and the <strong>⌘K</strong> command palette if you are unsure where to start</li>
+<li>Confirm a live security engagement and any required opt-in flags (see purpose) before starting</li>
+</ul>
+<h3>How to get there</h3>
+<ul>
+<li>Surface: <code>/dashboard/actions/tls-cipher-scan</code></li>
+<li>UI: Mission Control → <strong>Security</strong> → <strong>TLS cipher scan</strong> (side rail panel, or ⌘K / Ctrl-K Search)</li>
+<li>CLI: <code>argus guard tls-cipher-scan</code></li>
+</ul>
+<h3>Operate from the console (UX)</h3>
+<ol>
+<li>Open <code>/dashboard</code> (sign in at <code>/login</code> when <code>DASHBOARD_PASSWORD</code> is set).</li>
+<li>Create or select an authorized <strong>Security engagement</strong>, fill the card fields for <strong>TLS cipher scan</strong>, then start the action and watch the live job panel (✓/✗ chips, Stop, download log).</li>
+<li>After success, check <strong>Findings</strong>, <strong>QA Runs</strong>, and any report links the card produces.</li>
+</ol>
+<p>If the card stays idle or errors, hit <code>GET /health</code>, confirm the webhook/dashboard process is up (<code>argus serve</code>), and re-check env from <a href="../../../../.env.example">.env.example</a>. See also <a href="../../../security-network-attack-gaps.md">Network-attack / DAST gaps</a>.</p>
+<h3>Related pages</h3>
+<ul>
+<li><a href="dashboard-actions-security-engagements.md">Security engagements</a></li>
 <li><a href="../../getting-started.md">Getting Started</a></li>
 <li><a href="../../using-the-dashboard.md">Using the Dashboard</a></li>
 <li><a href="../overview/dashboard.md">Mission Control</a></li>
@@ -1616,7 +2227,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <hr>
 <h2>Zyvor Argus — Complete page index</h2>
 <p>Every Mission Control surface and action card.</p>
-<p><em>43 routes</em></p>
+<p><em>52 routes</em></p>
 <p>Regenerate: <code>node scripts/customer-docs/generate-page-index.mjs</code></p>
 <h3>Overview</h3>
 <table>
@@ -1631,7 +2242,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tbody><tr>
 <td>Mission Control</td>
 <td><code>/dashboard</code></td>
-<td>Live Mission Control console — side-rail navigation, dark theme, status hero, workloads, pods, category action panels, schedules, findings, and QA run history.</td>
+<td>Live Mission Control console — grouped side rail (Console / Testing / Security / Operations), dark theme, status hero, workloads, pods, category action panels, requirements, schedules, findings, and QA run history.</td>
 <td><a href="pages/overview/dashboard.md">Open</a></td>
 </tr>
 <tr>
@@ -1643,7 +2254,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tr>
 <td>Hero status</td>
 <td><code>/dashboard/hero</code></td>
-<td>Cluster/app health banner with pods, replicas, last QA run, pass rate, and next scheduled smoke.</td>
+<td>Cluster/app health banner with pods, replicas, last QA run, pass rate, next scheduled smoke, and knowledge (Ask Zyra) status.</td>
 <td><a href="pages/overview/dashboard-hero.md">Open</a></td>
 </tr>
 <tr>
@@ -1661,13 +2272,13 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tr>
 <td>Live job panel</td>
 <td><code>/dashboard/job-live</code></td>
-<td>Live panel for the running job — macOS Terminal chrome, syntax-colored log, per-test chips, Stop / download.</td>
+<td>Live panel for the running job — macOS Terminal chrome, syntax-colored log, per-test chips, Copy / Save / Stop.</td>
 <td><a href="pages/overview/dashboard-job-live.md">Open</a></td>
 </tr>
 <tr>
 <td>Command palette</td>
 <td><code>/dashboard/command-palette</code></td>
-<td>⌘K / Ctrl-K or header Search — spotlight to jump to any action or Ask Zyra.</td>
+<td>⌘K / Ctrl-K or header Search — spotlight to jump to any action, panel, or Ask Zyra.</td>
 <td><a href="pages/overview/dashboard-command-palette.md">Open</a></td>
 </tr>
 </tbody></table>
@@ -1880,6 +2491,18 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td><a href="pages/api/dashboard-actions-api-contract.md">Open</a></td>
 </tr>
 <tr>
+<td>API contract diff</td>
+<td><code>/dashboard/actions/api-contract-diff</code></td>
+<td>Static OpenAPI breaking-change diff between two specs (URL, git:<ref>:<path>, or inline JSON) — no live target, no engagement gate.</td>
+<td><a href="pages/api/dashboard-actions-api-contract-diff.md">Open</a></td>
+</tr>
+<tr>
+<td>Contract verify</td>
+<td><code>/dashboard/actions/contract-verify</code></td>
+<td>HAR-derived consumer contract verification against a live provider (status, content-type, top-level JSON keys) — requires an active_recon engagement.</td>
+<td><a href="pages/api/dashboard-actions-contract-verify.md">Open</a></td>
+</tr>
+<tr>
 <td>Live data</td>
 <td><code>/dashboard/actions/realtime</code></td>
 <td>Assert WebSocket / SSE streams and optional live-region updates.</td>
@@ -1890,6 +2513,29 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td><code>/dashboard/actions/auth</code></td>
 <td>Login → reusable session file → logout / expiry / negative auth checks.</td>
 <td><a href="pages/api/dashboard-actions-auth.md">Open</a></td>
+</tr>
+</tbody></table>
+<h3>Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Route</th>
+<th>Purpose</th>
+<th>Guide</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Requirements</td>
+<td><code>/dashboard/requirements</code></td>
+<td>Versioned requirements the pipeline ingested — source, quality score, named issues, linked tests, and version history (read-only).</td>
+<td><a href="pages/requirements/dashboard-requirements.md">Open</a></td>
+</tr>
+<tr>
+<td>Requirements impact</td>
+<td><code>/dashboard/requirements/impact</code></td>
+<td>Impact view — shared data models &amp; flows, co-occurrence edges, and typed Order → Payment dependencies with SVG canvas.</td>
+<td><a href="pages/requirements/dashboard-requirements-impact.md">Open</a></td>
 </tr>
 </tbody></table>
 <h3>Security</h3>
@@ -1911,7 +2557,7 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tr>
 <td>Misconfig scan</td>
 <td><code>/dashboard/actions/misconfig-scan</code></td>
-<td>Tech/version fingerprinting, wordlist-driven path discovery, security-header value grading, and DNS hygiene checks — requires a security engagement.</td>
+<td>Tech/version fingerprinting, path discovery, header grading, DNS hygiene, plus compliance signals (security.txt, consent markers, PII patterns) — requires a security engagement.</td>
 <td><a href="pages/security/dashboard-actions-misconfig-scan.md">Open</a></td>
 </tr>
 <tr>
@@ -1919,6 +2565,12 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td><code>/dashboard/actions/cve-lookup</code></td>
 <td>Read-only: fingerprints tech/versions and checks them against OSV.dev. No PoC is generated or run — requires a security engagement.</td>
 <td><a href="pages/security/dashboard-actions-cve-lookup.md">Open</a></td>
+</tr>
+<tr>
+<td>SCA scan</td>
+<td><code>/dashboard/actions/sca-scan</code></td>
+<td>Client-side library/license fingerprinting and/or local-checkout pip-audit/npm audit — URL mode needs an engagement; checkout mode is operator-local.</td>
+<td><a href="pages/security/dashboard-actions-sca-scan.md">Open</a></td>
 </tr>
 <tr>
 <td>LLM red-team</td>
@@ -1950,6 +2602,24 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td>Credentialed AWS/GCP/Azure CLI enumeration of a described finding in the sandbox — same opt-ins and credential-reference rules as Host pentest.</td>
 <td><a href="pages/security/dashboard-actions-cloud-pentest.md">Open</a></td>
 </tr>
+<tr>
+<td>DB assert</td>
+<td><code>/dashboard/actions/db-assert</code></td>
+<td>Read-only SELECT-only assertion (row_count / cell_equals / column_values) against Postgres, MySQL, or SQLite — needs ZYVOR_DB_TESTING_ENABLED and an engagement; DSN is an env-var reference.</td>
+<td><a href="pages/security/dashboard-actions-db-assert.md">Open</a></td>
+</tr>
+<tr>
+<td>Chaos inject</td>
+<td><code>/dashboard/actions/chaos-inject</code></td>
+<td>Client-side fault injection (latency / loss / reset / dependency timeout) while a flow or smoke control test observes — needs ZYVOR_CHAOS_INJECTION_ENABLED, exploit engagement, and target consent.</td>
+<td><a href="pages/security/dashboard-actions-chaos-inject.md">Open</a></td>
+</tr>
+<tr>
+<td>Chaos webhook</td>
+<td><code>/dashboard/actions/chaos-webhook</code></td>
+<td>Trigger a customer-owned chaos experiment webhook, then run a control test with the same resilience rubric and gates as Chaos inject.</td>
+<td><a href="pages/security/dashboard-actions-chaos-webhook.md">Open</a></td>
+</tr>
 </tbody></table>
 <h3>Operations</h3>
 <table>
@@ -1964,13 +2634,13 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <tbody><tr>
 <td>Schedules</td>
 <td><code>/dashboard/schedules</code></td>
-<td>Turn smoke, audit, ping, TLS, flow, route sweep, API, realtime, or vitals into a 5 min–6 h loop.</td>
+<td>Turn smoke, audit, ping, TLS, flow, route sweep, API, realtime, or vitals into a 5 min–6 h loop (Runs &amp; schedules panel).</td>
 <td><a href="pages/operations/dashboard-schedules.md">Open</a></td>
 </tr>
 <tr>
 <td>Findings</td>
 <td><code>/dashboard/findings</code></td>
-<td>Collected issues from API, auth, live-data, vitals, and audit jobs with export/clear.</td>
+<td>Collected issues from API, auth, live-data, vitals, audit, and security jobs with export/clear.</td>
 <td><a href="pages/operations/dashboard-findings.md">Open</a></td>
 </tr>
 <tr>
@@ -1984,6 +2654,12 @@ hr{border:none;border-top:1px solid #e5e7eb;margin:1.2em 0}
 <td><code>/dashboard/videos</code></td>
 <td>Browse and download recorded journey videos / traces from recent jobs.</td>
 <td><a href="pages/operations/dashboard-videos.md">Open</a></td>
+</tr>
+<tr>
+<td>Test health</td>
+<td><code>/dashboard/test-health</code></td>
+<td>Worst-offender ranking by fail count, fail %, and flaky badge from the per-test index.</td>
+<td><a href="pages/operations/dashboard-test-health.md">Open</a></td>
 </tr>
 </tbody></table>
 <h3>Related</h3>

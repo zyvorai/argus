@@ -38,6 +38,28 @@ Consumed by: `github_integration/client.py`, `orchestrator/webhook.py`, `orchest
 
 ---
 
+## Requirements connectors (email / Jira / diarize)
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `JIRA_BASE_URL` / `JIRA_URL` | — | Jira site base for live `--source jira` |
+| `JIRA_OAUTH_ACCESS_TOKEN` / `JIRA_ACCESS_TOKEN` | — | Preferred Bearer token (Atlassian 3LO) |
+| `JIRA_OAUTH_REFRESH_TOKEN` | — | Optional; refresh with client id/secret |
+| `JIRA_OAUTH_CLIENT_ID` / `JIRA_OAUTH_CLIENT_SECRET` | — | OAuth refresh credentials |
+| `JIRA_OAUTH_TOKEN_URL` | `https://auth.atlassian.com/oauth/token` | Token endpoint |
+| `JIRA_API_TOKEN` / `JIRA_TOKEN` | — | Fallback API token (Basic with `JIRA_USER`/`JIRA_EMAIL`, else Bearer) |
+| `IMAP_HOST` | `imap.gmail.com` | Mailbox for `--source email` without `.eml` paths |
+| `IMAP_USER` / `GMAIL_USER` | — | IMAP username |
+| `IMAP_PASSWORD` / `GMAIL_APP_PASSWORD` | — | IMAP password (Gmail app password) |
+| `IMAP_FOLDER` | `INBOX` | Folder to search |
+| `ZYVOR_DIARIZE_CMD` | — | Shell template with `{input}` / `{output}` for audio diarization |
+| `ZYVOR_DIARIZE_API_URL` | — | Alternative: POST multipart audio → text/VTT |
+| `ZYVOR_DIARIZE_API_TOKEN` | — | Optional Bearer for the diarize API |
+
+Consumed by: `agents/requirements_sources/{email,jira,diarize}.py`, `orchestrator/nodes/fetch.py`.
+
+---
+
 ## Target environment
 
 | Variable | Default | Description |
@@ -194,8 +216,9 @@ Requires Python **3.11 or 3.12**, `pip install -e ".[knowledge]"`, and a running
 | `LLM_FALLBACK_MODEL` | *(none)* | Optional backup chat model used by `ModelFallbackMiddleware` |
 | `LLM_FALLBACK_API_KEY` | `LLM_API_KEY` | API key for the fallback model |
 | `LLM_FALLBACK_BASE_URL` | `LLM_BASE_URL` | Base URL for the fallback model |
-| `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model |
-| `EMBEDDING_API_KEY` | `LLM_API_KEY` | Embedding API key |
+| `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model (`BAAI/bge-small-en-v1.5` with FastEmbed) |
+| `EMBEDDING_BACKEND` | *(empty → OpenAI-compatible)* | Set `fastembed` / `local` for on-box FastEmbed (no remote embeddings API) |
+| `EMBEDDING_API_KEY` | `LLM_API_KEY` | Embedding API key (unused when `EMBEDDING_BACKEND=fastembed`) |
 | `EMBEDDING_BASE_URL` | *(none)* | OpenAI-compatible embeddings URL |
 | `EMBEDDING_DIMENSIONS` | *(none)* | Optional fixed embedding dimensions |
 | `QDRANT_URL` | `http://localhost:6333` | Qdrant HTTP endpoint |
