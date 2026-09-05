@@ -86,3 +86,16 @@ def test_get_requests_are_not_csrf_checked():
     response = client.get("/api/dashboard/overview")
 
     assert response.status_code != 403
+
+
+def test_relogin_while_authenticated_does_not_require_csrf():
+    """Visiting /login with a live session and signing in again must work
+    without X-CSRF-Token — the login form is an open credential gate."""
+    client = _logged_in_client()
+
+    response = client.post(
+        "/api/login", json={"username": "admin", "password": "Admin@321"}
+    )
+
+    assert response.status_code == 200
+    assert response.json().get("ok") is True

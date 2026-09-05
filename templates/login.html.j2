@@ -219,9 +219,12 @@ form.addEventListener("submit", async (ev) => {
   btn.disabled = true;
   btn.textContent = "Signing in…";
   try {
+    const csrf = document.cookie.split("; ").find((c) => c.startsWith("zyvor_qa_csrf="));
+    const headers = { "Content-Type": "application/json" };
+    if (csrf) headers["X-CSRF-Token"] = decodeURIComponent(csrf.split("=").slice(1).join("="));
     const res = await fetch("/api/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         username: document.getElementById("username").value,
         password: document.getElementById("password").value,

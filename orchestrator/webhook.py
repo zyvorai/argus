@@ -125,11 +125,15 @@ def create_app() -> FastAPI:
         # exempt. Covers /api/dashboard/* (checked above) and /api/v2/*
         # (which auth_middleware otherwise never authenticates — that's
         # rbac.require_scope's job — but a session cookie can drive it too).
+        # /api/login is exempt so an already-authenticated browser can
+        # re-authenticate (login page has no session CSRF yet / may not
+        # attach X-CSRF-Token); credential check is the gate there.
         mutating = request.method not in {"GET", "HEAD", "OPTIONS"}
         if (
             auth.enabled()
             and mutating
             and path.startswith("/api/")
+            and path.rstrip("/") != "/api/login"
             and "authorization" not in request.headers
             and auth.is_authenticated(request)
             and not auth.csrf_valid(request)
