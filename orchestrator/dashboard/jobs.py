@@ -232,14 +232,23 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
     clean: dict[str, Any] = {}
     if kind in {"full", "generate", "discover"}:
         source = str(params.get("source") or ("github" if kind == "discover" else "local"))
-        if source not in {"local", "github"}:
-            raise ValueError("source must be local or github")
+        if source not in {"local", "github", "document", "email", "transcript", "jira"}:
+            raise ValueError(
+                "source must be local, github, document, email, transcript, or jira"
+            )
         clean["source"] = source
         spec = (params.get("spec") or "").strip()
-        if spec and source == "local":
-            spec = _safe_local_spec(spec)
+        if spec and source in {"local", "document", "email", "transcript", "jira"}:
+            # jira JSON exports / .eml / transcripts are local paths when not live keys
+            if source != "jira" or spec.lower().endswith(".json"):
+                spec = _safe_local_spec(spec)
         clean["spec"] = spec or None
         clean["expand_coverage"] = bool(params.get("expand_coverage"))
+        if source == "jira":
+            keys = params.get("jira_issue_keys") or params.get("issue_keys") or []
+            if isinstance(keys, str):
+                keys = [k.strip() for k in keys.replace(",", " ").split() if k.strip()]
+            clean["jira_issue_keys"] = [str(k)[:64] for k in keys][:50]
     if kind == "full":
         pr = params.get("pr_number")
         clean["pr_number"] = int(pr) if pr not in (None, "", 0) else None
@@ -1137,6 +1146,7 @@ def _job_full(params: dict[str, Any]) -> dict[str, Any]:
         spec=params.get("spec"),
         pr_number=params.get("pr_number"),
         expand_coverage=params.get("expand_coverage", False),
+        jira_issue_keys=params.get("jira_issue_keys"),
     )
     state["metadata"]["event"] = "dashboard-trigger"
     log_progress(f"full pipeline: fetch → parse → generate → execute → report (source={params['source']})")
@@ -1166,6 +1176,7 @@ def _generate_states(params: dict[str, Any]):
         source=params["source"],
         spec=params.get("spec"),
         expand_coverage=params.get("expand_coverage", False),
+        jira_issue_keys=params.get("jira_issue_keys"),
     )
     log_progress(f"fetching specs (source={params['source']})…")
     state = fetch_requirements(state)

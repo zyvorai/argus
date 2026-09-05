@@ -21,6 +21,7 @@ to PostgreSQL/Temporal without changing `/api/v2`.
 
 from __future__ import annotations
 
+import os
 import threading
 import time
 from typing import Any
@@ -155,8 +156,20 @@ class DurableJobService:
         while not self._stop.is_set():
             due = self.store.due_schedules()
             set_gauge("zyvor_qa_schedules_due", len(due))
+            skip_if_busy = os.environ.get("ZYVOR_SCHEDULE_SKIP_IF_BUSY", "false").lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }
             for schedule in due:
                 try:
+                    if skip_if_busy:
+                        from orchestrator.dashboard import jobs as jobs_mod
+
+                        if jobs_mod.status().get("running"):
+                            # Preserve due time until the runner is free (do not advance).
+                            continue
                     self.enqueue(
                         schedule["kind"],
                         schedule["params"],

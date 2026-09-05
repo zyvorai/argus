@@ -1523,7 +1523,7 @@
     <button class="dl-btn" id="req-refresh" style="margin-left:auto">↻</button>
   </h2>
   <div class="glass card" style="margin-bottom:14px">
-    <div id="requirements"><span class="d">No requirements yet — run a pipeline against a <code>github</code> or <code>document</code> source and they'll collect here.</span></div>
+    <div id="requirements"><span class="d">No requirements yet — run a pipeline against a <code>github</code>, <code>document</code>, <code>email</code>, <code>transcript</code>, or <code>jira</code> source and they'll collect here.</span></div>
   </div>
   <div class="glass card" id="req-detail-card" style="display:none">
     <div class="k" style="display:flex;align-items:center;gap:10px">
@@ -1534,11 +1534,15 @@
   </div>
 
   <h2>Impact — shared data models &amp; flows</h2>
-  <p class="d" style="margin-top:-6px">Requirements grouped by the data models and business flow named in each requirement's latest version. Click a requirement id to open its detail above.</p>
+  <p class="d" style="margin-top:-6px">Requirements grouped by the data models and business flow named in each requirement's latest version. Model edges link entities that co-occur on the same requirement. Click a requirement id to open its detail above.</p>
   <div class="qa">
     <div class="glass card">
       <div class="k" style="margin-bottom:8px">By data model</div>
       <div class="feed" id="req-data-models"><span class="d">No shared data models yet.</span></div>
+    </div>
+    <div class="glass card">
+      <div class="k" style="margin-bottom:8px">Model edges</div>
+      <div class="feed" id="req-model-edges"><span class="d">No co-occurrence edges yet.</span></div>
     </div>
     <div class="glass card" style="grid-column: span 2">
       <div class="k" style="margin-bottom:8px">By flow</div>
@@ -2054,9 +2058,9 @@ function renderHero(overview, pods, runs) {
 function knowledgeStatSub(data, status) {
   if (data.live_tools) return "Live tools enabled";
   if (data.qdrant === "reachable") return "Qdrant connected";
-  if (data.deps_installed === false) return "Optional extra not installed";
-  if (data.configured === false) return "Needs API key + Qdrant";
-  if (status === "degraded" && data.detail) return "Qdrant unreachable";
+  if (data.deps_installed === false) return "pip install -e '.[knowledge]'";
+  if (data.configured === false) return "Set LLM_API_KEY + QDRANT_URL";
+  if (status === "degraded" && data.detail) return "Qdrant unreachable — see .env.knowledge.example";
   return "Ask Zyra";
 }
 
@@ -2341,6 +2345,16 @@ async function loadRequirementImpact() {
           + ids.map((id) => '<a href="#requirements" class="req-link" data-id="' + esc(id) + '" style="cursor:pointer;text-decoration:underline">' + esc(id) + "</a>").join(", ")
           + "</div></div>").join("")
       : '<span class="d">No data model is shared by more than one requirement yet.</span>';
+
+    const edges = graph.model_edges || [];
+    const edgesEl = $("req-model-edges");
+    if (edgesEl) {
+      edgesEl.innerHTML = edges.length
+        ? edges.slice(0, 40).map((e) => '<div style="padding:6px 0;border-top:1px solid var(--border)"><b>'
+            + esc(e.a) + "</b> ↔ <b>" + esc(e.b) + "</b>"
+            + '<span class="d"> · weight ' + esc(String(e.weight || 1)) + "</span></div>").join("")
+        : '<span class="d">No co-occurrence edges yet (need ≥2 models on one requirement).</span>';
+    }
 
     const flows = Object.entries(graph.flows || {});
     const flowsEl = $("req-flows");

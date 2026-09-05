@@ -442,19 +442,40 @@ class MissionControlStore:
         return [self._schedule(row, reveal_params=True) for row in rows]
 
     def advance_schedule(self, schedule_id: str, *, ran: bool) -> None:
+        """Advance next_at. Default: wall-clock now + interval (drops missed
+        ticks). With ZYVOR_SCHEDULE_CATCHUP=true, preserve cadence from the
+        previous next_at so overdue schedules catch up one interval at a time.
+        """
+        catch_up = os.environ.get("ZYVOR_SCHEDULE_CATCHUP", "false").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
         with self.connect() as conn:
-            row = conn.execute("SELECT interval_s FROM schedules WHERE id=?", (schedule_id,)).fetchone()
+            row = conn.execute(
+                "SELECT interval_s, next_at FROM schedules WHERE id=?", (schedule_id,)
+            ).fetchone()
             if row is None:
                 return
+            interval = float(row["interval_s"])
+            now = time.time()
+            if catch_up:
+                base = float(row["next_at"] or now)
+                nxt = base + interval
+                # Leave nxt in the past when still behind so due_schedules
+                # re-fires on the next loop until cadence catches up.
+            else:
+                nxt = now + interval
             if ran:
                 conn.execute(
                     """UPDATE schedules SET next_at=?, runs=runs+1, last_at=? WHERE id=?""",
-                    (time.time() + row["interval_s"], _iso(), schedule_id),
+                    (nxt, _iso(), schedule_id),
                 )
             else:
                 conn.execute(
                     "UPDATE schedules SET next_at=? WHERE id=?",
-                    (time.time() + row["interval_s"], schedule_id),
+                    (nxt, schedule_id),
                 )
 
     def _schedule(self, row: sqlite3.Row, *, reveal_params: bool = False) -> dict[str, Any]:
@@ -793,12 +814,10 @@ class MissionControlStore:
         return [row["test_path"] for row in rows]
 
     def requirement_impact_graph(self) -> dict[str, Any]:
-        """Groups every requirement's *latest* version by the data models and
-        flows extracted at evaluate_quality time (agents/requirement_entities/):
-        `data_models` maps each entity name to the requirement ids that touch
-        it; `flows` maps each flow name to the requirement ids in it plus the
-        union of tests generated from any of them. Real but bounded impact
-        analysis -- not a full dependency graph (see ROADMAP.md)."""
+        """Groups every requirement's *latest* version by data models and flows,
+        and derives undirected `model_edges` from co-occurrence (two models on
+        the same requirement → an edge). Bounded impact analysis — not a full
+        typed dependency graph (see ROADMAP.md)."""
         with self.connect() as conn:
             rows = conn.execute(
                 """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json
@@ -808,17 +827,27 @@ class MissionControlStore:
             ).fetchall()
         data_models: dict[str, list[str]] = {}
         flows: dict[str, dict[str, Any]] = {}
+        edge_counts: dict[tuple[str, str], int] = {}
         for row in rows:
             req_id = row["id"]
-            for model in _loads(row["data_models_json"], []):
+            models = [str(m) for m in _loads(row["data_models_json"], []) if str(m).strip()]
+            for model in models:
                 data_models.setdefault(model, []).append(req_id)
+            for i, a in enumerate(models):
+                for b in models[i + 1 :]:
+                    edge = (a, b) if a <= b else (b, a)
+                    edge_counts[edge] = edge_counts.get(edge, 0) + 1
             for flow in _loads(row["flows_json"], []):
                 bucket = flows.setdefault(flow, {"requirements": [], "tests": []})
                 bucket["requirements"].append(req_id)
                 bucket["tests"].extend(self.linked_tests(req_id, row["version"]))
         for bucket in flows.values():
             bucket["tests"] = sorted(set(bucket["tests"]))
-        return {"data_models": data_models, "flows": flows}
+        model_edges = [
+            {"a": a, "b": b, "weight": w, "via_requirements": w}
+            for (a, b), w in sorted(edge_counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        ]
+        return {"data_models": data_models, "flows": flows, "model_edges": model_edges}
 
 
 _default_store: Any | None = None

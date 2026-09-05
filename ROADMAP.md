@@ -436,13 +436,15 @@ surfaces which previously-generated tests trace to its old version.
 
 Deliberately not built yet, and not stubbed:
 
-- **Ticket-system (Jira-like), email, and meeting-transcript sources** —
-  each needs a real per-source connector (OAuth or API client for
-  tickets/email; a transcription/diarization step for meetings) that
-  doesn't exist anywhere in this repo today. `orchestrator/nodes/fetch.py`'s
-  `source` branch is the extension point — a new source only needs to
-  produce `spec_contents: List[str]`, which `parse_requirements` already
-  consumes unchanged, exactly like `document` does today.
+- ~~**Ticket-system (Jira-like), email, and meeting-transcript sources**~~ —
+  **done, first slice.** New `agents/requirements_sources/` connectors:
+  `email` (`.eml`), `transcript` (`.vtt`/`.srt`/`.txt`), `jira` (JSON export
+  and/or live REST via `JIRA_BASE_URL` + `JIRA_API_TOKEN`). Wired through
+  `fetch_requirements`, CLI `--source`, and Mission Control job validation.
+  Not a full OAuth Jira/Gmail product integration — file modes work offline
+  for CI; live Jira is Basic/Bearer REST only.
+- **Deeper ticket OAuth / mailbox IMAP / live meeting diarization** — still
+  out of scope; extend the connectors when credentials and product need exist.
 - ~~**Business-flow/data-model impact analysis**~~ — **done, first slice.**
   The original change-based impact check ("which generated tests trace to a
   requirement that changed") is joined by a second, complementary one:
@@ -463,18 +465,11 @@ Deliberately not built yet, and not stubbed:
   own crudeness — a capitalized-word heuristic filtered against a
   sentence-starter stoplist for data models, a document source's file-path
   stem for flows — the same "cruder floor, not a lie" posture as the quality
-  scorer's own fallback. **Deliberately still not built:** a real dependency
-  graph across entities themselves (e.g. "Order depends on Payment") —
-  today's grouping is by shared name only, not a graph with edges; and any
-  UI/API surface beyond the two groupings above (e.g. a visual graph
-  render). Live-verified end to end in a real browser against a running
-  `argus serve`: ran two real requirements through the actual
-  `evaluate_quality` node (not a mock), confirmed both landed in the
-  "Order" data-model group and their own flow groups with the right linked
-  tests, and clicking a requirement id in the impact section correctly
-  opened its detail drawer. New tests: `tests/unit/test_requirement_entities_agent.py`,
-  extended `tests/unit/test_requirement_store.py`, `test_postgres_store.py`
-  (live Postgres), `test_requirements_route.py`, `test_evaluate_quality_node.py`.
+  scorer's own fallback. **Model co-occurrence edges:** `requirement_impact_graph()`
+  now also returns `model_edges` (`{a,b,weight}`) for data models that appear
+  together on the same requirement — rendered in Mission Control's Impact panel.
+  **Still deliberately not built:** a typed dependency graph across entities
+  ("Order depends on Payment") and a visual graph canvas.
 - ~~**A dashboard/UI surface for requirement history and quality scores**~~
   — **done, for Mission Control (OSS).** A new **Requirements** panel
   (`templates/dashboard.html.j2`, `data-panel="requirements"`) lists every
@@ -584,14 +579,20 @@ persisted). New `tests/unit/test_postgres_store.py`, skipped by default
 against a genuine `postgres:16` service container, so this doesn't quietly
 bit-rot untested between the rare times someone exercises it locally.
 
-## Scheduler: single-flight, drops missed ticks
+## Scheduler: single-flight, catch-up opt-in
 
 Already documented operationally in
 [`docs/devops/04-mission-control-ops.md`](docs/devops/04-mission-control-ops.md#3-scheduled-checks-optional):
-schedules are single-flight (a tick is skipped, not queued, if the previous
-run is still in flight), and the runbook is explicit that schedules are for
-human alerting, not a substitute for the CI gate. Cross-linked here so it
-doesn't get "discovered" again as a surprise.
+by default schedules advance from wall-clock *now* (missed ticks are dropped),
+and are for human alerting, not a substitute for the CI gate.
+
+Opt-in behaviour (env):
+
+- `ZYVOR_SCHEDULE_CATCHUP=true` — advance from previous `next_at + interval`
+  (capped) so overdue schedules catch up instead of jumping forward from now.
+- `ZYVOR_SCHEDULE_SKIP_IF_BUSY=true` — leave a due schedule pending while the
+  in-process runner is busy (true skip-while-busy; default still enqueues and
+  requeues via the durable worker).
 
 ## Desktop app v2: single-binary freeze
 
@@ -627,7 +628,9 @@ distribution someone could install without a dev checkout:
   even a fully frozen Python side would still need Node + Playwright
   bundled alongside it — closer in size/complexity to the existing
   `docker/Dockerfile` multi-stage build than to a lightweight desktop
-  installer.
+  installer. **Practical path:** keep the desktop shell thin and point jobs
+  at a remote/lab `argus serve` (or Docker) that already has Chromium; do
+  not try to embed browsers in the `.app` bundle. See `desktop/README.md`.
 
 Code signing + notarization config is wired up (`make desktop-build-signed`,
 `desktop/README.md`'s "Code signing & notarization" section) but not

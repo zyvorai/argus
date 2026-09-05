@@ -92,16 +92,25 @@ def _initial_state(
     spec: Optional[str] = None,
     pr_number: Optional[int] = None,
     expand_coverage: bool = False,
+    jira_issue_keys: Optional[list[str]] = None,
 ) -> PipelineState:
     spec_paths: list[str] = []
     document_paths: list[str] = []
+    keys = list(jira_issue_keys or [])
     if spec:
         if source == "github":
             from github_integration.client import normalize_github_spec_path
 
             spec_paths = [normalize_github_spec_path(spec)]
-        elif source == "document":
+        elif source in {"document", "email", "transcript"}:
             document_paths = [str(Path(spec).resolve())]
+        elif source == "jira":
+            resolved = str(Path(spec).resolve())
+            if resolved.lower().endswith(".json"):
+                document_paths = [resolved]
+            else:
+                # Treat as issue key when not a JSON export path
+                keys.append(spec)
         else:
             spec_paths = [str(Path(spec).resolve())]
 
@@ -111,6 +120,7 @@ def _initial_state(
         "source": source,
         "spec_paths": spec_paths,
         "document_paths": document_paths,
+        "jira_issue_keys": keys,
         "spec_contents": [],
         "requirements": [],
         "generated_tests": [],
@@ -122,7 +132,7 @@ def _initial_state(
         "pr_number": pr_number,
         "repo_full_name": os.environ.get("ZYVOR_PRODUCT_REPO"),
         "error": None,
-        "metadata": {"explicit_spec": bool(spec)},
+        "metadata": {"explicit_spec": bool(spec), "jira_issue_keys": keys},
         "expand_coverage": expand_coverage or env_expand,
         "coverage_inventory": [],
         "coverage_gaps": [],
@@ -143,7 +153,10 @@ def _run_discovery_subgraph(state: PipelineState) -> PipelineState:
 
 @test_app.command()
 def run(
-    source: str = typer.Option("local", help="Requirement source: local | github | document"),
+    source: str = typer.Option(
+        "local",
+        help="Requirement source: local | github | document | email | transcript | jira",
+    ),
     spec: Optional[str] = typer.Option(
         None,
         help="Spec path: local file, GitHub repo path (docs/specs/foo.md), or GitHub blob URL",
@@ -288,7 +301,10 @@ def generate(
         None,
         help="Spec path: local file, GitHub repo path (docs/specs/foo.md), or GitHub blob URL",
     ),
-    source: str = typer.Option("local", help="Requirement source: local | github | document"),
+    source: str = typer.Option(
+        "local",
+        help="Requirement source: local | github | document | email | transcript | jira",
+    ),
     expand_coverage: bool = typer.Option(
         False,
         "--expand-coverage",
@@ -347,7 +363,10 @@ def generate(
 
 @test_app.command()
 def discover(
-    source: str = typer.Option("github", help="Requirement source: local | github | document"),
+    source: str = typer.Option(
+        "github",
+        help="Requirement source: local | github | document | email | transcript | jira",
+    ),
     spec: Optional[str] = typer.Option(
         None,
         help="Optional spec path when fetching from GitHub",

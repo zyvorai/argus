@@ -413,21 +413,34 @@ class PostgresStore:
         return [self._schedule(row, reveal_params=True) for row in rows]
 
     def advance_schedule(self, schedule_id: str, *, ran: bool) -> None:
+        catch_up = os.environ.get("ZYVOR_SCHEDULE_CATCHUP", "false").lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
         with self.connect() as conn:
             row = conn.execute(
-                "SELECT interval_s FROM schedules WHERE id=%s", (schedule_id,)
+                "SELECT interval_s, next_at FROM schedules WHERE id=%s", (schedule_id,)
             ).fetchone()
             if row is None:
                 return
+            interval = float(row["interval_s"])
+            now = time.time()
+            if catch_up:
+                base = float(row["next_at"] or now)
+                nxt = base + interval
+            else:
+                nxt = now + interval
             if ran:
                 conn.execute(
                     """UPDATE schedules SET next_at=%s, runs=runs+1, last_at=%s WHERE id=%s""",
-                    (time.time() + row["interval_s"], _iso(), schedule_id),
+                    (nxt, _iso(), schedule_id),
                 )
             else:
                 conn.execute(
                     "UPDATE schedules SET next_at=%s WHERE id=%s",
-                    (time.time() + row["interval_s"], schedule_id),
+                    (nxt, schedule_id),
                 )
 
     def _schedule(self, row: dict[str, Any], *, reveal_params: bool = False) -> dict[str, Any]:
@@ -776,14 +789,24 @@ class PostgresStore:
             ).fetchall()
         data_models: dict[str, list[str]] = {}
         flows: dict[str, dict[str, Any]] = {}
+        edge_counts: dict[tuple[str, str], int] = {}
         for row in rows:
             req_id = row["id"]
-            for model in _loads(row["data_models_json"], []):
+            models = [str(m) for m in _loads(row["data_models_json"], []) if str(m).strip()]
+            for model in models:
                 data_models.setdefault(model, []).append(req_id)
+            for i, a in enumerate(models):
+                for b in models[i + 1 :]:
+                    edge = (a, b) if a <= b else (b, a)
+                    edge_counts[edge] = edge_counts.get(edge, 0) + 1
             for flow in _loads(row["flows_json"], []):
                 bucket = flows.setdefault(flow, {"requirements": [], "tests": []})
                 bucket["requirements"].append(req_id)
                 bucket["tests"].extend(self.linked_tests(req_id, row["version"]))
         for bucket in flows.values():
             bucket["tests"] = sorted(set(bucket["tests"]))
-        return {"data_models": data_models, "flows": flows}
+        model_edges = [
+            {"a": a, "b": b, "weight": w, "via_requirements": w}
+            for (a, b), w in sorted(edge_counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        ]
+        return {"data_models": data_models, "flows": flows, "model_edges": model_edges}

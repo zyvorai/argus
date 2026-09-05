@@ -36,6 +36,7 @@ class PipelineState(TypedDict, total=False):
     spec_paths: List[str]
     spec_contents: List[str]
     document_paths: List[str]
+    jira_issue_keys: List[str]
     requirements: List[Requirement]
     requirement_quality: Dict[str, Any]
     requirement_impact: Dict[str, List[str]]

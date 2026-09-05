@@ -365,6 +365,21 @@ def test_advance_schedule_is_a_no_op_for_unknown_schedule(tmp_path):
     store.advance_schedule("does-not-exist", ran=True)  # must not raise
 
 
+def test_advance_schedule_catch_up_preserves_cadence(tmp_path, monkeypatch):
+    monkeypatch.setenv("ZYVOR_SCHEDULE_CATCHUP", "true")
+    store = MissionControlStore(tmp_path / "state.db")
+    schedule = store.add_schedule("smoke", {}, 60)
+    overdue = time.time() - 120
+    with store.connect() as conn:
+        conn.execute("UPDATE schedules SET next_at=? WHERE id=?", (overdue, schedule["id"]))
+    store.advance_schedule(schedule["id"], ran=True)
+    with store.connect() as conn:
+        nxt = conn.execute("SELECT next_at FROM schedules WHERE id=?", (schedule["id"],)).fetchone()["next_at"]
+    assert abs(nxt - (overdue + 60)) < 0.5
+    refreshed = store.get_schedule(schedule["id"])
+    assert refreshed["runs"] == 1
+
+
 # -- audit -------------------------------------------------------------------
 
 

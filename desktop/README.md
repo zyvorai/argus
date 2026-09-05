@@ -20,6 +20,20 @@ Python+Node+Playwright runtime).
   chromium` from the repo root) — only needed to actually *run* jobs from
   the dashboard, not to view it
 
+## Packaging reality (v2)
+
+A true single-binary `.app` / `.pkg` that embeds Python + Node + Playwright
+Chromium is not practical for v1/v2 size (~hundreds of MB of browser
+binaries). Recommended setups:
+
+1. **Dev shell (default):** desktop wraps a local `.venv` / `argus` on `PATH`
+2. **Lab / team:** desktop opens Mission Control against a remote
+   `argus serve` that already has Chromium installed (same as the SSH deploy)
+3. **Container:** use `docker/Dockerfile` when you need a reproducible runner
+
+Code signing / notarization stays optional and needs Apple Developer
+credentials (`make desktop-build-signed`).
+
 ## Run (npm CLI — like `hypercluster-desktop`)
 
 From the **repo root**:

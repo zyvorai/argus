@@ -190,6 +190,9 @@ def test_requirement_impact_graph_groups_by_shared_data_model_and_flow(tmp_path)
     assert graph["flows"]["Checkout"]["requirements"] == ["req-checkout"]
     assert graph["flows"]["Checkout"]["tests"] == ["tests/e2e/checkout.spec.ts"]
     assert graph["flows"]["Order history"]["tests"] == ["tests/e2e/orders.spec.ts"]
+    # Co-occurrence edge: Order ↔ Payment on the same requirement
+    edges = {(e["a"], e["b"]): e["weight"] for e in graph["model_edges"]}
+    assert edges[("Order", "Payment")] == 1
 
 
 def test_requirement_impact_graph_empty_when_nothing_tagged(tmp_path):
@@ -198,8 +201,11 @@ def test_requirement_impact_graph_empty_when_nothing_tagged(tmp_path):
         "req-login", source_type="github", origin_id="issue-42.md",
         title="Login page loads", content=_content(),
     )
-    assert store.requirement_impact_graph() == {"data_models": {}, "flows": {}}
-
+    assert store.requirement_impact_graph() == {
+        "data_models": {},
+        "flows": {},
+        "model_edges": [],
+    }
 
 def test_link_requirement_test_unknown_requirement_is_a_noop(tmp_path):
     store = MissionControlStore(tmp_path / "req.db")

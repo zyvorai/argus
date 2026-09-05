@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Fetch requirements from GitHub or local specs."""
+"""Fetch requirements from GitHub, local specs, documents, or connectors."""
 
 from __future__ import annotations
 
@@ -94,12 +94,6 @@ def fetch_requirements(state: PipelineState) -> PipelineState:
         if not document_paths:
             return {**state, "error": "document source requires at least one document_paths entry"}
 
-        # Reuses knowledge/documents.py's existing multi-format extraction
-        # (md/txt/rst/yaml/json/toml/py/rs/html/pdf, incl. real PDF text
-        # extraction via pypdf) instead of a second parser — it already
-        # solves "get plain text out of a real document," which is all a
-        # requirements source needs; chunking/embedding (the rest of that
-        # module) is irrelevant here and deliberately not used.
         from knowledge.documents import SUPPORTED_SUFFIXES, read_text
 
         for doc_path in document_paths:
@@ -122,6 +116,52 @@ def fetch_requirements(state: PipelineState) -> PipelineState:
             "spec_contents": spec_contents,
             "metadata": metadata,
         }
+
+    if source == "email":
+        from agents.requirements_sources.email import load_paths as load_email
+
+        paths = list(state.get("document_paths") or state.get("spec_paths") or [])
+        if not paths:
+            return {**state, "error": "email source requires .eml paths in document_paths or spec_paths"}
+        contents, used, errors = load_email(paths)
+        if errors:
+            metadata["email_errors"] = errors
+        if not contents:
+            return {**state, "error": "email source produced no specs", "metadata": metadata}
+        return {**state, "spec_paths": used, "spec_contents": contents, "metadata": metadata}
+
+    if source == "transcript":
+        from agents.requirements_sources.transcript import load_paths as load_transcript
+
+        paths = list(state.get("document_paths") or state.get("spec_paths") or [])
+        if not paths:
+            return {**state, "error": "transcript source requires paths in document_paths or spec_paths"}
+        contents, used, errors = load_transcript(paths)
+        if errors:
+            metadata["transcript_errors"] = errors
+        if not contents:
+            return {**state, "error": "transcript source produced no specs", "metadata": metadata}
+        return {**state, "spec_paths": used, "spec_contents": contents, "metadata": metadata}
+
+    if source == "jira":
+        from agents.requirements_sources.jira import load as load_jira
+
+        keys = list(state.get("jira_issue_keys") or metadata.get("jira_issue_keys") or [])
+        exports = list(state.get("document_paths") or [])
+        for p in state.get("spec_paths") or []:
+            if str(p).lower().endswith(".json"):
+                exports.append(str(p))
+        if not keys and not exports:
+            return {
+                **state,
+                "error": "jira source requires jira_issue_keys and/or JSON export paths in document_paths",
+            }
+        contents, labels, errors = load_jira(issue_keys=keys, export_paths=exports)
+        if errors:
+            metadata["jira_errors"] = errors
+        if not contents:
+            return {**state, "error": "jira source produced no specs", "metadata": metadata}
+        return {**state, "spec_paths": labels, "spec_contents": contents, "metadata": metadata}
 
     for path in spec_paths:
         p = Path(path)
