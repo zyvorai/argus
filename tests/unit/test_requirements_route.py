@@ -145,7 +145,12 @@ def test_impact_graph_route_registered_before_the_id_route(tmp_path, monkeypatch
 
     resp = client.get("/api/v2/requirements/impact-graph")
     assert resp.status_code == 200
-    assert resp.json() == {"data_models": {}, "flows": {}}
+    assert resp.json() == {
+        "data_models": {},
+        "flows": {},
+        "model_edges": [],
+        "model_dependencies": [],
+    }
 
 
 def test_get_requirement_includes_data_models_and_flows(tmp_path, monkeypatch):

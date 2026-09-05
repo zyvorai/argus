@@ -1534,7 +1534,7 @@
   </div>
 
   <h2>Impact — shared data models &amp; flows</h2>
-  <p class="d" style="margin-top:-6px">Requirements grouped by the data models and business flow named in each requirement's latest version. Model edges link entities that co-occur on the same requirement. Click a requirement id to open its detail above.</p>
+  <p class="d" style="margin-top:-6px">Requirements grouped by the data models and business flow named in each requirement's latest version. Model edges link entities that co-occur on the same requirement; typed dependencies show explicit Order → Payment edges. Click a requirement id to open its detail above.</p>
   <div class="qa">
     <div class="glass card">
       <div class="k" style="margin-bottom:8px">By data model</div>
@@ -1543,6 +1543,11 @@
     <div class="glass card">
       <div class="k" style="margin-bottom:8px">Model edges</div>
       <div class="feed" id="req-model-edges"><span class="d">No co-occurrence edges yet.</span></div>
+    </div>
+    <div class="glass card" style="grid-column: span 2">
+      <div class="k" style="margin-bottom:8px">Typed dependencies</div>
+      <div class="feed" id="req-model-deps"><span class="d">No typed Order → Payment edges yet.</span></div>
+      <svg id="req-dep-canvas" viewBox="0 0 640 220" width="100%" height="220" style="margin-top:12px;display:none" aria-label="Dependency graph"></svg>
     </div>
     <div class="glass card" style="grid-column: span 2">
       <div class="k" style="margin-bottom:8px">By flow</div>
@@ -2354,6 +2359,52 @@ async function loadRequirementImpact() {
             + esc(e.a) + "</b> ↔ <b>" + esc(e.b) + "</b>"
             + '<span class="d"> · weight ' + esc(String(e.weight || 1)) + "</span></div>").join("")
         : '<span class="d">No co-occurrence edges yet (need ≥2 models on one requirement).</span>';
+    }
+
+    const deps = graph.model_dependencies || [];
+    const depsEl = $("req-model-deps");
+    const canvas = $("req-dep-canvas");
+    if (depsEl) {
+      depsEl.innerHTML = deps.length
+        ? deps.slice(0, 40).map((d) => '<div style="padding:6px 0;border-top:1px solid var(--border)"><b>'
+            + esc(d.source) + "</b> → <b>" + esc(d.target) + "</b>"
+            + '<span class="d"> · ' + esc(d.relation || "depends_on")
+            + (d.requirement_id ? " · " + esc(d.requirement_id) : "") + "</span></div>").join("")
+        : '<span class="d">No typed dependencies yet (e.g. “Order depends on Payment”).</span>';
+    }
+    if (canvas) {
+      if (deps.length) {
+        canvas.style.display = "block";
+        const nodes = [];
+        const seen = new Set();
+        for (const d of deps.slice(0, 24)) {
+          for (const n of [d.source, d.target]) {
+            if (!seen.has(n)) { seen.add(n); nodes.push(n); }
+          }
+        }
+        const W = 640, H = 220, cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.36;
+        const pos = {};
+        nodes.forEach((n, i) => {
+          const a = (2 * Math.PI * i) / Math.max(nodes.length, 1) - Math.PI / 2;
+          pos[n] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) };
+        });
+        let svg = '<defs><marker id="dep-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="currentColor"/></marker></defs>';
+        for (const d of deps.slice(0, 24)) {
+          const a = pos[d.source], b = pos[d.target];
+          if (!a || !b) continue;
+          svg += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y
+            + '" stroke="currentColor" stroke-opacity="0.45" stroke-width="1.5" marker-end="url(#dep-arrow)"/>';
+        }
+        for (const n of nodes) {
+          const p = pos[n];
+          svg += '<circle cx="' + p.x + '" cy="' + p.y + '" r="18" fill="rgba(255,138,61,0.15)" stroke="currentColor" stroke-opacity="0.5"/>'
+            + '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" font-size="11" fill="currentColor">' + esc(n) + "</text>";
+        }
+        canvas.innerHTML = svg;
+      } else {
+        canvas.style.display = "none";
+        canvas.innerHTML = "";
+      }
     }
 
     const flows = Object.entries(graph.flows || {});

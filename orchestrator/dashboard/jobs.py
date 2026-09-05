@@ -232,13 +232,13 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
     clean: dict[str, Any] = {}
     if kind in {"full", "generate", "discover"}:
         source = str(params.get("source") or ("github" if kind == "discover" else "local"))
-        if source not in {"local", "github", "document", "email", "transcript", "jira"}:
+        if source not in {"local", "github", "document", "email", "transcript", "jira", "diarize"}:
             raise ValueError(
-                "source must be local, github, document, email, transcript, or jira"
+                "source must be local, github, document, email, transcript, jira, or diarize"
             )
         clean["source"] = source
         spec = (params.get("spec") or "").strip()
-        if spec and source in {"local", "document", "email", "transcript", "jira"}:
+        if spec and source in {"local", "document", "email", "transcript", "jira", "diarize"}:
             # jira JSON exports / .eml / transcripts are local paths when not live keys
             if source != "jira" or spec.lower().endswith(".json"):
                 spec = _safe_local_spec(spec)

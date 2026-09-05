@@ -35,6 +35,10 @@ pub struct AppSettings {
     /// "use the resolve_argus_bin() cascade."
     #[serde(default, alias = "zyvor_qa_bin")]
     pub argus_bin: Option<String>,
+    /// When set, open Mission Control at this URL instead of spawning a local
+    /// `argus serve` (lab / team packaging path — Chromium lives on the remote).
+    #[serde(default)]
+    pub remote_url: Option<String>,
 }
 
 pub fn app_data_dir() -> PathBuf {
@@ -181,15 +185,18 @@ mod tests {
     fn app_settings_round_trips_through_json() {
         let settings = AppSettings {
             argus_bin: Some("/tmp/argus".to_string()),
+            remote_url: Some("http://lab:30080".to_string()),
         };
         let json = serde_json::to_string(&settings).unwrap();
         let parsed: AppSettings = serde_json::from_str(&json).unwrap();
         assert_eq!(parsed.argus_bin, settings.argus_bin);
+        assert_eq!(parsed.remote_url, settings.remote_url);
     }
 
     #[test]
     fn app_settings_default_has_no_override() {
         assert!(AppSettings::default().argus_bin.is_none());
+        assert!(AppSettings::default().remote_url.is_none());
     }
 
     #[test]
@@ -197,11 +204,16 @@ mod tests {
         // Matches exactly what desktop/public/settings.html's Save button
         // sends: invoke("set_settings", { settings: { argus_bin: value
         // || null } }) — a null clears the override, a string sets it.
-        let cleared: AppSettings = serde_json::from_str(r#"{"argus_bin": null}"#).unwrap();
+        let cleared: AppSettings = serde_json::from_str(r#"{"argus_bin": null, "remote_url": null}"#).unwrap();
         assert!(cleared.argus_bin.is_none());
+        assert!(cleared.remote_url.is_none());
 
-        let set: AppSettings = serde_json::from_str(r#"{"argus_bin": "/x/y/argus"}"#).unwrap();
+        let set: AppSettings = serde_json::from_str(
+            r#"{"argus_bin": "/x/y/argus", "remote_url": "http://host:30080"}"#,
+        )
+        .unwrap();
         assert_eq!(set.argus_bin.as_deref(), Some("/x/y/argus"));
+        assert_eq!(set.remote_url.as_deref(), Some("http://host:30080"));
     }
 
     #[test]

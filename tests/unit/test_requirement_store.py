@@ -193,6 +193,28 @@ def test_requirement_impact_graph_groups_by_shared_data_model_and_flow(tmp_path)
     # Co-occurrence edge: Order ↔ Payment on the same requirement
     edges = {(e["a"], e["b"]): e["weight"] for e in graph["model_edges"]}
     assert edges[("Order", "Payment")] == 1
+    assert graph["model_dependencies"] == []
+
+
+def test_requirement_impact_graph_typed_dependencies(tmp_path):
+    store = MissionControlStore(tmp_path / "req.db")
+    store.upsert_requirement(
+        "req-order", source_type="document", origin_id="specs/order.md",
+        title="Order depends on Payment", content=_content("order v1"),
+        data_models=["Order", "Payment"],
+        model_dependencies=[
+            {"source": "Order", "target": "Payment", "relation": "depends_on"},
+        ],
+    )
+    graph = store.requirement_impact_graph()
+    assert graph["model_dependencies"] == [
+        {
+            "source": "Order",
+            "target": "Payment",
+            "relation": "depends_on",
+            "requirement_id": "req-order",
+        }
+    ]
 
 
 def test_requirement_impact_graph_empty_when_nothing_tagged(tmp_path):
@@ -205,6 +227,7 @@ def test_requirement_impact_graph_empty_when_nothing_tagged(tmp_path):
         "data_models": {},
         "flows": {},
         "model_edges": [],
+        "model_dependencies": [],
     }
 
 def test_link_requirement_test_unknown_requirement_is_a_noop(tmp_path):

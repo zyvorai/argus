@@ -33,7 +33,7 @@ const READY_TIMEOUT: Duration = Duration::from_secs(20);
 const POLL_INTERVAL: Duration = Duration::from_millis(150);
 
 pub enum ServerStatus {
-    Ready(u16),
+    Ready { url: String },
     Failed(String),
 }
 
@@ -148,17 +148,40 @@ fn spawn_serve(bin_override: Option<&str>) -> Result<(Child, u16), String> {
 /// borrowed `State<ServerState>` — a `State` reference can't cross a
 /// `thread::spawn` boundary, so the handle is captured instead and
 /// `.state::<ServerState>()` is re-derived fresh once inside the thread.
-pub fn start_in_background(app_handle: tauri::AppHandle, bin_override: Option<String>) {
+///
+/// When `remote_url` is set, skips spawning `argus serve` and reports that
+/// URL as ready (desktop shell against a lab/team Mission Control).
+pub fn start_in_background(
+    app_handle: tauri::AppHandle,
+    bin_override: Option<String>,
+    remote_url: Option<String>,
+) {
     thread::spawn(move || {
         use tauri::Manager;
         let state = app_handle.state::<ServerState>();
+        let remote = remote_url
+            .as_deref()
+            .map(str::trim)
+            .filter(|u| !u.is_empty())
+            .map(|u| u.to_string());
+        if let Some(url) = remote {
+            let normalized = if url.contains("/dashboard") {
+                url
+            } else {
+                format!("{}/dashboard", url.trim_end_matches('/'))
+            };
+            state.set_status(ServerStatus::Ready { url: normalized });
+            return;
+        }
         match spawn_serve(bin_override.as_deref()) {
             Ok((child, port)) => {
                 if wait_for_port(port, READY_TIMEOUT) {
                     if let Ok(mut guard) = state.handle.lock() {
                         *guard = Some(ServerHandle { child });
                     }
-                    state.set_status(ServerStatus::Ready(port));
+                    state.set_status(ServerStatus::Ready {
+                        url: format!("http://127.0.0.1:{port}/dashboard"),
+                    });
                 } else {
                     state.set_status(ServerStatus::Failed(format!(
                         "argus serve did not become ready on port {port} within {}s",
@@ -176,7 +199,7 @@ pub fn start_in_background(app_handle: tauri::AppHandle, bin_override: Option<St
 pub fn dashboard_url(state: &ServerState) -> Result<Option<String>, String> {
     match state.status.lock().map_err(|_| "server state poisoned")?.as_ref() {
         None => Ok(None),
-        Some(ServerStatus::Ready(port)) => Ok(Some(format!("http://127.0.0.1:{port}/dashboard"))),
+        Some(ServerStatus::Ready { url }) => Ok(Some(url.clone())),
         Some(ServerStatus::Failed(e)) => Err(e.clone()),
     }
 }

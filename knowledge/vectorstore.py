@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from typing import Any
 
@@ -25,8 +26,40 @@ from knowledge.config import get_settings
 
 
 @lru_cache(maxsize=1)
-def get_embeddings() -> OpenAIEmbeddings:
+def get_embeddings() -> Any:
+    """Dense embeddings: OpenAI-compatible by default, or local FastEmbed.
+
+    Set EMBEDDING_BACKEND=fastembed for air-gapped / Ollama labs that lack an
+    OpenAI-compatible embeddings endpoint. Uses the already-shipped `fastembed`
+    extra (no langchain-community required).
+    """
     settings = get_settings()
+    backend = (os.environ.get("EMBEDDING_BACKEND") or "").strip().lower()
+    model = settings.embedding_model or ""
+    use_fast = backend in {"fastembed", "local"} or model.startswith("BAAI/") or model.startswith(
+        "fastembed:"
+    )
+    if use_fast:
+        from langchain_core.embeddings import Embeddings
+
+        name = model.removeprefix("fastembed:") if model else "BAAI/bge-small-en-v1.5"
+        if name in {"nomic-embed-text", "text-embedding-3-small", ""}:
+            name = "BAAI/bge-small-en-v1.5"
+
+        class _FastEmbedDense(Embeddings):
+            def __init__(self, model_name: str) -> None:
+                from fastembed import TextEmbedding
+
+                self._model = TextEmbedding(model_name=model_name)
+
+            def embed_documents(self, texts: list[str]) -> list[list[float]]:
+                return [list(v) for v in self._model.embed(texts)]
+
+            def embed_query(self, text: str) -> list[float]:
+                return next(iter(self._model.query_embed(text)))
+
+        return _FastEmbedDense(name)
+
     kwargs: dict[str, Any] = {
         "model": settings.embedding_model,
         "api_key": settings.resolved_embedding_key(),

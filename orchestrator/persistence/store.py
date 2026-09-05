@@ -35,7 +35,7 @@ from typing import Any, Iterator
 from orchestrator.security.redaction import redact
 from orchestrator.security.secrets import assert_persistable
 
-_SCHEMA_VERSION = 5
+_SCHEMA_VERSION = 6
 
 DEFAULT_MAX_JOB_ATTEMPTS = 3
 
@@ -207,6 +207,7 @@ class MissionControlStore:
                     created_at TEXT NOT NULL,
                     data_models_json TEXT,
                     flows_json TEXT,
+                    model_dependencies_json TEXT,
                     PRIMARY KEY (requirement_id, version)
                 );
 
@@ -242,6 +243,10 @@ class MissionControlStore:
                 conn.execute("ALTER TABLE requirement_versions ADD COLUMN data_models_json TEXT")
             if "flows_json" not in existing_version_columns:
                 conn.execute("ALTER TABLE requirement_versions ADD COLUMN flows_json TEXT")
+            if "model_dependencies_json" not in existing_version_columns:
+                conn.execute(
+                    "ALTER TABLE requirement_versions ADD COLUMN model_dependencies_json TEXT"
+                )
             conn.execute("UPDATE schema_meta SET version=?", (_SCHEMA_VERSION,))
 
     # Jobs -----------------------------------------------------------------
@@ -674,6 +679,7 @@ class MissionControlStore:
         quality_issues: list[dict[str, Any]] | None = None,
         data_models: list[str] | None = None,
         flows: list[str] | None = None,
+        model_dependencies: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Insert a new version only if `content` differs from the current
         latest — this is the change-detection primitive impact analysis is
@@ -727,8 +733,8 @@ class MissionControlStore:
                 conn.execute(
                     """INSERT INTO requirement_versions
                     (requirement_id, version, content_json, content_hash, quality_score, quality_issues_json,
-                     created_at, data_models_json, flows_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                     created_at, data_models_json, flows_json, model_dependencies_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         requirement_id,
                         version,
@@ -739,6 +745,7 @@ class MissionControlStore:
                         now,
                         _json(data_models) if data_models is not None else None,
                         _json(flows) if flows is not None else None,
+                        _json(model_dependencies) if model_dependencies is not None else None,
                     ),
                 )
             row = conn.execute("SELECT * FROM requirements WHERE id=?", (requirement_id,)).fetchone()
@@ -762,6 +769,9 @@ class MissionControlStore:
         result["quality_issues"] = _loads(version["quality_issues_json"], []) if version else []
         result["data_models"] = _loads(version["data_models_json"], []) if version else []
         result["flows"] = _loads(version["flows_json"], []) if version else []
+        result["model_dependencies"] = (
+            _loads(version["model_dependencies_json"], []) if version else []
+        )
         return result
 
     def list_requirements(self, limit: int = 200) -> list[dict[str, Any]]:
@@ -784,6 +794,7 @@ class MissionControlStore:
             item["quality_issues"] = _loads(item.pop("quality_issues_json"), [])
             item["data_models"] = _loads(item.pop("data_models_json"), [])
             item["flows"] = _loads(item.pop("flows_json"), [])
+            item["model_dependencies"] = _loads(item.pop("model_dependencies_json"), [])
             history.append(item)
         return history
 
@@ -820,7 +831,8 @@ class MissionControlStore:
         typed dependency graph (see ROADMAP.md)."""
         with self.connect() as conn:
             rows = conn.execute(
-                """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json
+                """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json,
+                          rv.model_dependencies_json
                 FROM requirements r
                 JOIN requirement_versions rv
                   ON rv.requirement_id = r.id AND rv.version = r.latest_version"""
@@ -828,6 +840,7 @@ class MissionControlStore:
         data_models: dict[str, list[str]] = {}
         flows: dict[str, dict[str, Any]] = {}
         edge_counts: dict[tuple[str, str], int] = {}
+        typed: list[dict[str, Any]] = []
         for row in rows:
             req_id = row["id"]
             models = [str(m) for m in _loads(row["data_models_json"], []) if str(m).strip()]
@@ -837,6 +850,21 @@ class MissionControlStore:
                 for b in models[i + 1 :]:
                     edge = (a, b) if a <= b else (b, a)
                     edge_counts[edge] = edge_counts.get(edge, 0) + 1
+            for dep in _loads(row["model_dependencies_json"], []):
+                if not isinstance(dep, dict):
+                    continue
+                src = str(dep.get("source") or "").strip()
+                tgt = str(dep.get("target") or "").strip()
+                if not src or not tgt:
+                    continue
+                typed.append(
+                    {
+                        "source": src,
+                        "target": tgt,
+                        "relation": str(dep.get("relation") or "depends_on"),
+                        "requirement_id": req_id,
+                    }
+                )
             for flow in _loads(row["flows_json"], []):
                 bucket = flows.setdefault(flow, {"requirements": [], "tests": []})
                 bucket["requirements"].append(req_id)
@@ -847,7 +875,12 @@ class MissionControlStore:
             {"a": a, "b": b, "weight": w, "via_requirements": w}
             for (a, b), w in sorted(edge_counts.items(), key=lambda kv: (-kv[1], kv[0]))
         ]
-        return {"data_models": data_models, "flows": flows, "model_edges": model_edges}
+        return {
+            "data_models": data_models,
+            "flows": flows,
+            "model_edges": model_edges,
+            "model_dependencies": typed,
+        }
 
 
 _default_store: Any | None = None

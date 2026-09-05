@@ -70,6 +70,7 @@ def evaluate_quality(state: PipelineState) -> PipelineState:
             quality_issues=[issue.model_dump() for issue in result.issues],
             data_models=entities.data_models,
             flows=entities.flows,
+            model_dependencies=[d.model_dump() for d in entities.model_dependencies],
         )
 
         if persisted["is_new_version"] and persisted["previous_version"]:

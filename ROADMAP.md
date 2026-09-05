@@ -443,8 +443,12 @@ Deliberately not built yet, and not stubbed:
   `fetch_requirements`, CLI `--source`, and Mission Control job validation.
   Not a full OAuth Jira/Gmail product integration — file modes work offline
   for CI; live Jira is Basic/Bearer REST only.
-- **Deeper ticket OAuth / mailbox IMAP / live meeting diarization** — still
-  out of scope; extend the connectors when credentials and product need exist.
+- **Deeper ticket OAuth / mailbox IMAP / live meeting diarization** —
+  **done, second slice.** Jira live fetch prefers `JIRA_OAUTH_ACCESS_TOKEN`
+  (with optional refresh via `JIRA_OAUTH_REFRESH_TOKEN` + client credentials).
+  Email source falls back to Gmail/IMAP (`IMAP_*` / `GMAIL_*`) when no `.eml`
+  paths are given. New `diarize` source: speaker-tagged VTT or audio via
+  `ZYVOR_DIARIZE_CMD` / `ZYVOR_DIARIZE_API_URL`.
 - ~~**Business-flow/data-model impact analysis**~~ — **done, first slice.**
   The original change-based impact check ("which generated tests trace to a
   requirement that changed") is joined by a second, complementary one:
@@ -467,9 +471,8 @@ Deliberately not built yet, and not stubbed:
   stem for flows — the same "cruder floor, not a lie" posture as the quality
   scorer's own fallback. **Model co-occurrence edges:** `requirement_impact_graph()`
   now also returns `model_edges` (`{a,b,weight}`) for data models that appear
-  together on the same requirement — rendered in Mission Control's Impact panel.
-  **Still deliberately not built:** a typed dependency graph across entities
-  ("Order depends on Payment") and a visual graph canvas.
+  together, plus typed `model_dependencies` (`Order → Payment`, schema v6) with
+  an SVG canvas in Mission Control.
 - ~~**A dashboard/UI surface for requirement history and quality scores**~~
   — **done, for Mission Control (OSS).** A new **Requirements** panel
   (`templates/dashboard.html.j2`, `data-panel="requirements"`) lists every

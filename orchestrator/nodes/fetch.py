@@ -118,16 +118,24 @@ def fetch_requirements(state: PipelineState) -> PipelineState:
         }
 
     if source == "email":
-        from agents.requirements_sources.email import load_paths as load_email
+        from agents.requirements_sources.email import fetch_imap, load_paths as load_email
 
         paths = list(state.get("document_paths") or state.get("spec_paths") or [])
-        if not paths:
-            return {**state, "error": "email source requires .eml paths in document_paths or spec_paths"}
-        contents, used, errors = load_email(paths)
+        if paths:
+            contents, used, errors = load_email(paths)
+        else:
+            contents, used, errors = fetch_imap(
+                limit=int(metadata.get("imap_limit") or 20),
+                subject_contains=metadata.get("imap_subject") or None,
+            )
         if errors:
             metadata["email_errors"] = errors
         if not contents:
-            return {**state, "error": "email source produced no specs", "metadata": metadata}
+            return {
+                **state,
+                "error": "email source produced no specs (provide .eml paths or IMAP credentials)",
+                "metadata": metadata,
+            }
         return {**state, "spec_paths": used, "spec_contents": contents, "metadata": metadata}
 
     if source == "transcript":
@@ -141,6 +149,22 @@ def fetch_requirements(state: PipelineState) -> PipelineState:
             metadata["transcript_errors"] = errors
         if not contents:
             return {**state, "error": "transcript source produced no specs", "metadata": metadata}
+        return {**state, "spec_paths": used, "spec_contents": contents, "metadata": metadata}
+
+    if source == "diarize":
+        from agents.requirements_sources.diarize import load_paths as load_diarize
+
+        paths = list(state.get("document_paths") or state.get("spec_paths") or [])
+        if not paths:
+            return {
+                **state,
+                "error": "diarize source requires audio (.wav/.mp3/…) or speaker-tagged .vtt paths",
+            }
+        contents, used, errors = load_diarize(paths)
+        if errors:
+            metadata["diarize_errors"] = errors
+        if not contents:
+            return {**state, "error": "diarize source produced no specs", "metadata": metadata}
         return {**state, "spec_paths": used, "spec_contents": contents, "metadata": metadata}
 
     if source == "jira":

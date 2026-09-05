@@ -25,10 +25,18 @@ Return valid JSON matching this schema:
 ```json
 {
   "data_models": ["Order", "Payment"],
-  "flows": ["Checkout"]
+  "flows": ["Checkout"],
+  "model_dependencies": [
+    {"source": "Order", "target": "Payment", "relation": "depends_on"}
+  ]
 }
 ```
 
+If the requirement states (or clearly implies) that one model depends on,
+references, or embeds another, add a `model_dependencies` edge. Use
+`depends_on` when A requires B to exist/complete; `references` for a weaker
+link. Only emit edges between names also listed in `data_models`. Empty
+`model_dependencies` is fine when no typed relationship is stated.
 ## Rules
 
 - Every name must be traceable to specific words or clearly-implied concepts in the

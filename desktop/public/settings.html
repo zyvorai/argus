@@ -10,7 +10,7 @@
     body { padding: 22px; box-sizing: border-box; }
     h1 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
     p.hint { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0 0 16px; }
-    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; margin-top: 14px; }
     input {
       width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: var(--fg);
@@ -30,14 +30,23 @@
   </style>
 </head>
 <body>
-  <h1>argus binary</h1>
+  <h1>Local binary</h1>
   <p class="hint">
-    Overrides how the app finds <code>argus</code>. Leave blank to
-    auto-detect (this repo's own <code>.venv</code> first, then <code>PATH</code>).
-    Takes effect on the next app restart.
+    Overrides how the app finds <code>argus</code> when spawning a local server.
+    Leave blank to auto-detect. Ignored when a remote URL is set.
   </p>
   <label for="bin-path">Path override</label>
   <input id="bin-path" placeholder="/path/to/venv/bin/argus" autocomplete="off" spellcheck="false" />
+
+  <h1 style="margin-top:22px">Remote Mission Control</h1>
+  <p class="hint">
+    Open the desktop shell against a lab/team <code>argus serve</code>
+    (Chromium + Playwright stay on the remote). Example:
+    <code>http://212.8.248.187:30080</code>. Leave blank to spawn locally.
+  </p>
+  <label for="remote-url">Remote URL</label>
+  <input id="remote-url" placeholder="http://host:30080" autocomplete="off" spellcheck="false" />
+
   <div id="status"></div>
   <div class="row">
     <button id="cancel">Close</button>
@@ -45,7 +54,8 @@
   </div>
 
   <script>
-    const input = document.getElementById("bin-path");
+    const binInput = document.getElementById("bin-path");
+    const remoteInput = document.getElementById("remote-url");
     const status = document.getElementById("status");
     const saveBtn = document.getElementById("save");
 
@@ -57,7 +67,8 @@
     async function load() {
       try {
         const settings = await window.__TAURI__.core.invoke("get_settings");
-        input.value = settings.argus_bin || "";
+        binInput.value = settings.argus_bin || "";
+        remoteInput.value = settings.remote_url || "";
       } catch (err) {
         setStatus(String(err), "err");
       }
@@ -65,10 +76,12 @@
 
     document.getElementById("save").onclick = async () => {
       saveBtn.disabled = true;
-      const value = input.value.trim();
       try {
         await window.__TAURI__.core.invoke("set_settings", {
-          settings: { argus_bin: value || null },
+          settings: {
+            argus_bin: binInput.value.trim() || null,
+            remote_url: remoteInput.value.trim() || null,
+          },
         });
         setStatus("Saved — restart the app for it to take effect.", "ok");
       } catch (err) {

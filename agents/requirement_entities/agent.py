@@ -74,10 +74,21 @@ def extract_requirement_entities(req: Requirement) -> RequirementEntities:
             ]
         )
         raw = _extract_json(content_to_text(response.content))
+        from agents.common.models import ModelDependency
+
         return RequirementEntities(
             requirement_id=req.id,
             data_models=[str(m) for m in raw.get("data_models", [])],
             flows=[str(f) for f in raw.get("flows", [])],
+            model_dependencies=[
+                ModelDependency(
+                    source=str(d.get("source") or "").strip(),
+                    target=str(d.get("target") or "").strip(),
+                    relation=str(d.get("relation") or "depends_on"),
+                )
+                for d in (raw.get("model_dependencies") or [])
+                if isinstance(d, dict) and d.get("source") and d.get("target")
+            ],
         )
     except (LLMConfigError, json.JSONDecodeError, ValueError, KeyError, Exception):
         return extract_requirement_entities_rule_based(req)

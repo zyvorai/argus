@@ -165,12 +165,15 @@ _SCHEMA_STATEMENTS = [
         created_at TEXT NOT NULL,
         data_models_json TEXT,
         flows_json TEXT,
+        model_dependencies_json TEXT,
         PRIMARY KEY (requirement_id, version)
     )""",
     # Added in schema v5, same "ALTER ... IF NOT EXISTS" no-op-on-old-tables
     # story as jobs.trace_context in schema v4.
     """ALTER TABLE requirement_versions ADD COLUMN IF NOT EXISTS data_models_json TEXT""",
     """ALTER TABLE requirement_versions ADD COLUMN IF NOT EXISTS flows_json TEXT""",
+    # Schema v6 — typed Order→Payment edges from requirement_entities.
+    """ALTER TABLE requirement_versions ADD COLUMN IF NOT EXISTS model_dependencies_json TEXT""",
     """CREATE TABLE IF NOT EXISTS requirement_test_links (
         requirement_id TEXT NOT NULL REFERENCES requirements(id),
         requirement_version INTEGER NOT NULL,
@@ -643,6 +646,7 @@ class PostgresStore:
         quality_issues: list[dict[str, Any]] | None = None,
         data_models: list[str] | None = None,
         flows: list[str] | None = None,
+        model_dependencies: list[dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """Insert a new version only if `content` differs from the current
         latest. `INSERT ... ON CONFLICT DO NOTHING` handles the brand-new-id
@@ -658,6 +662,9 @@ class PostgresStore:
         quality_issues_json = _json(quality_issues) if quality_issues is not None else None
         data_models_json = _json(data_models) if data_models is not None else None
         flows_json = _json(flows) if flows is not None else None
+        model_dependencies_json = (
+            _json(model_dependencies) if model_dependencies is not None else None
+        )
 
         with self.connect() as conn, conn.transaction():
             inserted = conn.execute(
@@ -698,11 +705,13 @@ class PostgresStore:
                 conn.execute(
                     """INSERT INTO requirement_versions
                     (requirement_id, version, content_json, content_hash, quality_score,
-                     quality_issues_json, created_at, data_models_json, flows_json)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                     quality_issues_json, created_at, data_models_json, flows_json,
+                     model_dependencies_json)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (requirement_id, version) DO NOTHING""",
                     (requirement_id, version, content_json, content_hash, quality_score,
-                     quality_issues_json, now, data_models_json, flows_json),
+                     quality_issues_json, now, data_models_json, flows_json,
+                     model_dependencies_json),
                 )
 
             row = conn.execute(
@@ -728,6 +737,9 @@ class PostgresStore:
         result["quality_issues"] = _loads(version["quality_issues_json"], []) if version else []
         result["data_models"] = _loads(version["data_models_json"], []) if version else []
         result["flows"] = _loads(version["flows_json"], []) if version else []
+        result["model_dependencies"] = (
+            _loads(version["model_dependencies_json"], []) if version else []
+        )
         return result
 
     def list_requirements(self, limit: int = 200) -> list[dict[str, Any]]:
@@ -750,6 +762,7 @@ class PostgresStore:
             item["quality_issues"] = _loads(item.pop("quality_issues_json"), [])
             item["data_models"] = _loads(item.pop("data_models_json"), [])
             item["flows"] = _loads(item.pop("flows_json"), [])
+            item["model_dependencies"] = _loads(item.pop("model_dependencies_json"), [])
             history.append(item)
         return history
 
@@ -782,7 +795,8 @@ class PostgresStore:
         docstring."""
         with self.connect() as conn:
             rows = conn.execute(
-                """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json
+                """SELECT r.id, rv.version, rv.data_models_json, rv.flows_json,
+                          rv.model_dependencies_json
                 FROM requirements r
                 JOIN requirement_versions rv
                   ON rv.requirement_id = r.id AND rv.version = r.latest_version"""
@@ -790,6 +804,7 @@ class PostgresStore:
         data_models: dict[str, list[str]] = {}
         flows: dict[str, dict[str, Any]] = {}
         edge_counts: dict[tuple[str, str], int] = {}
+        typed: list[dict[str, Any]] = []
         for row in rows:
             req_id = row["id"]
             models = [str(m) for m in _loads(row["data_models_json"], []) if str(m).strip()]
@@ -799,6 +814,21 @@ class PostgresStore:
                 for b in models[i + 1 :]:
                     edge = (a, b) if a <= b else (b, a)
                     edge_counts[edge] = edge_counts.get(edge, 0) + 1
+            for dep in _loads(row["model_dependencies_json"], []):
+                if not isinstance(dep, dict):
+                    continue
+                src = str(dep.get("source") or "").strip()
+                tgt = str(dep.get("target") or "").strip()
+                if not src or not tgt:
+                    continue
+                typed.append(
+                    {
+                        "source": src,
+                        "target": tgt,
+                        "relation": str(dep.get("relation") or "depends_on"),
+                        "requirement_id": req_id,
+                    }
+                )
             for flow in _loads(row["flows_json"], []):
                 bucket = flows.setdefault(flow, {"requirements": [], "tests": []})
                 bucket["requirements"].append(req_id)
@@ -809,4 +839,9 @@ class PostgresStore:
             {"a": a, "b": b, "weight": w, "via_requirements": w}
             for (a, b), w in sorted(edge_counts.items(), key=lambda kv: (-kv[1], kv[0]))
         ]
-        return {"data_models": data_models, "flows": flows, "model_edges": model_edges}
+        return {
+            "data_models": data_models,
+            "flows": flows,
+            "model_edges": model_edges,
+            "model_dependencies": typed,
+        }

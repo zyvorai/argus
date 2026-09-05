@@ -120,16 +120,27 @@ class RequirementQuality(BaseModel):
     issues: List[QualityIssue] = Field(default_factory=list)
 
 
+class ModelDependency(BaseModel):
+    """Typed edge between data models (e.g. Order depends_on Payment)."""
+
+    source: str
+    target: str
+    relation: str = "depends_on"
+
+
 class RequirementEntities(BaseModel):
     """Data models and business flows a requirement touches -- the grouping
     key behind impact analysis answering "which requirements share a data
     model" / "which automation depends on which flow" (see ROADMAP.md).
     Names are free text (e.g. "Order", "Checkout"), not IDs into any schema
-    this repo owns -- grouping is by exact string match."""
+    this repo owns -- grouping is by exact string match. Optional
+    model_dependencies capture explicit typed edges named in the requirement
+    text (Order depends_on Payment)."""
 
     requirement_id: str
     data_models: List[str] = Field(default_factory=list)
     flows: List[str] = Field(default_factory=list)
+    model_dependencies: List[ModelDependency] = Field(default_factory=list)
 
 
 class PipelineReport(BaseModel):

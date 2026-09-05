@@ -102,7 +102,7 @@ def _initial_state(
             from github_integration.client import normalize_github_spec_path
 
             spec_paths = [normalize_github_spec_path(spec)]
-        elif source in {"document", "email", "transcript"}:
+        elif source in {"document", "email", "transcript", "diarize"}:
             document_paths = [str(Path(spec).resolve())]
         elif source == "jira":
             resolved = str(Path(spec).resolve())
@@ -155,7 +155,7 @@ def _run_discovery_subgraph(state: PipelineState) -> PipelineState:
 def run(
     source: str = typer.Option(
         "local",
-        help="Requirement source: local | github | document | email | transcript | jira",
+        help="Requirement source: local | github | document | email | transcript | jira | diarize",
     ),
     spec: Optional[str] = typer.Option(
         None,
@@ -303,7 +303,7 @@ def generate(
     ),
     source: str = typer.Option(
         "local",
-        help="Requirement source: local | github | document | email | transcript | jira",
+        help="Requirement source: local | github | document | email | transcript | jira | diarize",
     ),
     expand_coverage: bool = typer.Option(
         False,
@@ -365,7 +365,7 @@ def generate(
 def discover(
     source: str = typer.Option(
         "github",
-        help="Requirement source: local | github | document | email | transcript | jira",
+        help="Requirement source: local | github | document | email | transcript | jira | diarize",
     ),
     spec: Optional[str] = typer.Option(
         None,

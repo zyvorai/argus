@@ -43,7 +43,7 @@ fn open_settings_window(app: &AppHandle) {
     }
     let _ = WebviewWindowBuilder::new(app, "settings", WebviewUrl::App("settings.html".into()))
         .title("Zyvor Argus Settings")
-        .inner_size(440.0, 300.0)
+        .inner_size(440.0, 380.0)
         .resizable(false)
         .build();
 }
@@ -121,7 +121,11 @@ pub fn run() {
         .setup(|app| {
             setup_menu(app.handle())?;
             let settings = paths::load_settings();
-            server::start_in_background(app.handle().clone(), settings.argus_bin);
+            server::start_in_background(
+                app.handle().clone(),
+                settings.argus_bin,
+                settings.remote_url,
+            );
             Ok(())
         })
         .build(tauri::generate_context!())
