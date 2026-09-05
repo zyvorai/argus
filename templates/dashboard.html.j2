@@ -1306,6 +1306,101 @@
         <button class="run-btn act-btn" data-kind="cloud_pentest" style="margin-left:auto">☁️ Generate &amp; verify</button>
       </div>
     </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🔭 Port scan — bounded TCP connect on common service ports</div>
+      <div class="d" style="margin-bottom:8px">Needs an <b>active_recon</b> engagement. Caps at 64 ports — not a full-range sweep.</div>
+      <div class="act-row">
+        <input class="inp grow" id="ps-url" placeholder="https://your-app.example.com or hostname">
+        <input class="inp grow" id="ps-ports" placeholder="ports (optional, comma-separated)">
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="ps-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="port_scan" style="margin-left:auto">🔭 Scan ports</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🔐 TLS cipher scan — protocol + weak-cipher grading</div>
+      <div class="act-row">
+        <input class="inp grow" id="tcs-url" placeholder="https://your-app.example.com">
+        <input class="inp" id="tcs-port" type="number" placeholder="443" min="1" max="65535" style="width:90px" title="port">
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="tcs-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="tls_cipher_scan" style="margin-left:auto">🔐 Grade TLS</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🎯 DAST scan — headers, injection, CSRF, open-redirect (+ optional nuclei)</div>
+      <div class="d" style="margin-bottom:8px">Requires an <b>exploit</b>-tier engagement and <code>ZYVOR_DAST_SCAN_ENABLED=true</code>. Optional <code>ZYVOR_DAST_NUCLEI_BIN</code> for external templates.</div>
+      <div class="act-row">
+        <input class="inp grow" id="dast-url" placeholder="https://your-app.example.com">
+        <label class="chk"><input type="checkbox" id="dast-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="dast-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="dast_scan" style="margin-left:auto">🎯 Run DAST</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">💉 Injection scan — SQLi / reflected XSS / path traversal</div>
+      <div class="d" style="margin-bottom:8px">Same DAST opt-in as above.</div>
+      <div class="act-row">
+        <input class="inp grow" id="inj-url" placeholder="https://your-app.example.com/search?q=test">
+        <label class="chk"><input type="checkbox" id="inj-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="inj-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="injection_scan" style="margin-left:auto">💉 Probe</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🛡 CSRF probe — forms without tokens, cookies without SameSite</div>
+      <div class="act-row">
+        <input class="inp grow" id="csrf-url" placeholder="https://your-app.example.com/login">
+        <label class="chk"><input type="checkbox" id="csrf-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="csrf-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="csrf_probe" style="margin-left:auto">🛡 Probe CSRF</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🌐 SSRF probe — URL-like params that may fetch attacker URLs</div>
+      <div class="act-row">
+        <input class="inp grow" id="ssrf-url" placeholder="https://your-app.example.com/fetch?url=https://example.com">
+        <input class="inp" id="ssrf-param" placeholder="param (optional)" style="max-width:160px">
+        <label class="chk"><input type="checkbox" id="ssrf-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="ssrf-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="ssrf_probe" style="margin-left:auto">🌐 Probe SSRF</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🔑 Auth attack scan — JWT alg=none, cookie flags, login enum hints</div>
+      <div class="d" style="margin-bottom:8px">No brute force / credential stuffing.</div>
+      <div class="act-row">
+        <input class="inp grow" id="aas-url" placeholder="https://your-app.example.com">
+        <input class="inp grow" id="aas-login" placeholder="login URL (optional)">
+        <label class="chk"><input type="checkbox" id="aas-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="aas-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="auth_attack_scan" style="margin-left:auto">🔑 Scan auth</button>
+      </div>
+    </div>
+    <div class="glass card act" style="grid-column: 1 / -1">
+      <div class="act-title">🔢 IDOR scan — adjacent numeric IDs on an authorized object URL</div>
+      <div class="act-row">
+        <input class="inp grow" id="idor-url" placeholder="https://your-app.example.com/orders/1001">
+        <input class="inp grow" id="idor-cookie" placeholder="Cookie header (optional)">
+        <label class="chk"><input type="checkbox" id="idor-insecure"> self-signed TLS</label>
+      </div>
+      <div class="act-row">
+        <select class="inp grow eng-select" id="idor-eng"><option value="">— select an authorized engagement —</option></select>
+        <button class="run-btn act-btn" data-kind="idor_scan" style="margin-left:auto">🔢 Probe IDOR</button>
+      </div>
+    </div>
 
 <div class="glass card act" id="action-db-assert" style="grid-column: 1 / -1">
       <div class="act-title">🗄 DB assert — read-only, SELECT-only assertion against a database</div>
@@ -2528,6 +2623,14 @@ const PALETTE_CMDS = [
   { label: "Attack chain — multi-step escalation (needs exploit-tier engagement)", kind: "attack_chain" },
   { label: "Host pentest — SSH enumeration (needs credentialed-pentest opt-in)", kind: "host_pentest" },
   { label: "Cloud pentest — aws/gcloud/az enumeration (needs credentialed-pentest opt-in)", kind: "cloud_pentest" },
+  { label: "Port scan (needs engagement)", kind: "port_scan" },
+  { label: "TLS cipher scan (needs engagement)", kind: "tls_cipher_scan" },
+  { label: "DAST scan (needs exploit engagement + ZYVOR_DAST_SCAN_ENABLED)", kind: "dast_scan" },
+  { label: "Injection scan (needs DAST opt-in)", kind: "injection_scan" },
+  { label: "CSRF probe (needs DAST opt-in)", kind: "csrf_probe" },
+  { label: "SSRF probe (needs DAST opt-in)", kind: "ssrf_probe" },
+  { label: "Auth attack scan (needs DAST opt-in)", kind: "auth_attack_scan" },
+  { label: "IDOR scan (needs DAST opt-in)", kind: "idor_scan" },
   { label: "Refresh dashboard", action: () => sync() },
   { label: "Show cluster events", action: () => { showPanel("overview"); if (!eventsOpen) $("events-toggle").click(); } },
   { label: "Show recorded videos", action: () => { showPanel("operations"); if (!videosOpen) $("videos-toggle").click(); } },
@@ -3258,6 +3361,62 @@ function jobParams(kind) {
       engagement_id: $("cp-eng").value,
     };
   }
+  if (kind === "port_scan") return {
+    url: $("ps-url").value.trim(),
+    ports: $("ps-ports").value.trim() || undefined,
+    engagement_id: $("ps-eng").value,
+  };
+  if (kind === "tls_cipher_scan") {
+    const p = { url: $("tcs-url").value.trim(), engagement_id: $("tcs-eng").value };
+    const port = parseInt($("tcs-port").value, 10);
+    if (port) p.port = port;
+    return p;
+  }
+  if (kind === "dast_scan") return {
+    url: $("dast-url").value.trim(),
+    insecure: $("dast-insecure").checked,
+    engagement_id: $("dast-eng").value,
+  };
+  if (kind === "injection_scan") return {
+    url: $("inj-url").value.trim(),
+    insecure: $("inj-insecure").checked,
+    engagement_id: $("inj-eng").value,
+  };
+  if (kind === "csrf_probe") return {
+    url: $("csrf-url").value.trim(),
+    insecure: $("csrf-insecure").checked,
+    engagement_id: $("csrf-eng").value,
+  };
+  if (kind === "ssrf_probe") {
+    const p = {
+      url: $("ssrf-url").value.trim(),
+      insecure: $("ssrf-insecure").checked,
+      engagement_id: $("ssrf-eng").value,
+    };
+    const param = $("ssrf-param").value.trim();
+    if (param) p.param = param;
+    return p;
+  }
+  if (kind === "auth_attack_scan") {
+    const p = {
+      url: $("aas-url").value.trim(),
+      insecure: $("aas-insecure").checked,
+      engagement_id: $("aas-eng").value,
+    };
+    const login = $("aas-login").value.trim();
+    if (login) p.login_url = login;
+    return p;
+  }
+  if (kind === "idor_scan") {
+    const p = {
+      url: $("idor-url").value.trim(),
+      insecure: $("idor-insecure").checked,
+      engagement_id: $("idor-eng").value,
+    };
+    const cookie = $("idor-cookie").value.trim();
+    if (cookie) p.cookie = cookie;
+    return p;
+  }
   const PROBES = ["redirects","headers","cookies","robots","security_paths","api_check","sitemap_test","dns_records","cors","transport"];
   if (PROBES.includes(kind)) {
     const t = $("pr-target").value.trim();
@@ -3322,7 +3481,10 @@ const KIND_LABELS = { smoke: "smoke tests", full: "full pipeline", generate: "ge
   har_replay: "HAR record/replay", import_codegen: "import codegen",
   misconfig_scan: "misconfig scan", cve_lookup: "CVE lookup", sca_scan: "SCA scan", llm_redteam: "LLM red-team",
   exploit_poc: "exploit PoC", attack_chain: "attack chain", host_pentest: "host pentest", cloud_pentest: "cloud pentest",
-  db_assert: "DB assert", chaos_inject: "chaos inject", chaos_webhook: "chaos webhook" };
+  db_assert: "DB assert", chaos_inject: "chaos inject", chaos_webhook: "chaos webhook",
+  port_scan: "port scan", tls_cipher_scan: "TLS cipher scan", dast_scan: "DAST scan",
+  injection_scan: "injection scan", csrf_probe: "CSRF probe", ssrf_probe: "SSRF probe",
+  auth_attack_scan: "auth attack scan", idor_scan: "IDOR scan" };
 
 let lastToastKey = "";
 function renderRunStatus(st) {
@@ -3727,6 +3889,27 @@ function renderJobResult(st) {
       + (r.steps || []).map((s) => "<tr><td>" + s.step + "</td><td>" + esc(s.description) + "</td><td>"
         + '<span class="chip ' + (s.verified ? "fail" : "pass") + '">' + (s.verified ? "VERIFIED" : "not verified") + "</span></td></tr>").join("")
       + "</tbody></table>";
+  } else if (st.kind === "port_scan") {
+    html += '<div class="d">' + esc(r.host) + " — <b>" + (r.open_ports || []).length + " open</b> of " + (r.scanned || 0) + " scanned</div>";
+    html += '<div class="d" style="margin-top:6px">' + esc((r.open_ports || []).join(", ") || "none") + "</div>";
+  } else if (st.kind === "tls_cipher_scan") {
+    const gc = r.grade === "A" ? "var(--status-ok)" : (r.grade === "F" || r.grade === "D") ? "var(--status-error)" : "var(--status-warn)";
+    html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">'
+      + '<div style="font-size:44px;font-weight:800;line-height:1;color:' + gc + '">' + esc(r.grade || "?") + "</div>"
+      + '<div><div style="font-weight:600">' + esc((r.negotiated && r.negotiated.cipher) || "no handshake") + "</div>"
+      + '<div class="d">' + esc(r.host) + ":" + (r.port || 443) + "</div></div></div>";
+    if ((r.issues || []).length) html += '<ul class="d">' + r.issues.map((i) => "<li>" + esc(i) + "</li>").join("") + "</ul>";
+  } else if (["dast_scan","injection_scan","csrf_probe","ssrf_probe","auth_attack_scan","idor_scan"].includes(st.kind)) {
+    const items = r.findings || [];
+    html += '<div class="d">' + esc(r.url || "") + " — <b class=\"" + (items.length ? "fail" : "pass") + '">'
+      + items.length + " finding(s)</b></div>";
+    if (items.length) {
+      html += '<table class="runs-table" style="margin-top:8px"><tbody>'
+        + "<tr><th>sev</th><th>title</th><th>where</th></tr>"
+        + items.map((f) => "<tr><td><span class=\"chip fail\">" + esc(f.severity || "") + "</span></td><td>"
+          + esc(f.title || "") + "</td><td class=\"d\">" + esc(f.where || "") + "</td></tr>").join("")
+        + "</tbody></table>";
+    }
   } else {
     html += '<div class="d">' + r.passed + "/" + r.total + " passed"
       + (r.report ? ' · <a class="rlink" href="' + esc(r.report) + '" target="_blank">📄 open report</a>' : "") + "</div>";

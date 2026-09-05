@@ -150,7 +150,24 @@ Also on the **API** panel (not engagement-gated for the static path): 🆚 **API
 
 ## 10. What's still not built
 
-Attack Directory-specific tooling (Kerberos/LDAP enumeration, WinRM) beyond generic SSH, and any lateral-movement/persistence logic, are explicitly out of scope — every job kind in this tutorial is read-only enumeration or non-destructive verification, never real exploitation. See [`ROADMAP.md`](../../ROADMAP.md) for the full design rationale.
+Active Directory-specific tooling (Kerberos/LDAP enumeration, WinRM) beyond generic SSH, and any lateral-movement/persistence logic, are explicitly out of scope — every job kind in this tutorial is read-only enumeration or non-destructive verification, never real exploitation.
+
+**Network-attack / DAST (shipped):** `port_scan`, `tls_cipher_scan` (`active_recon`); `dast_scan`, `injection_scan`, `csrf_probe`, `ssrf_probe`, `auth_attack_scan`, `idor_scan` (`exploit` + `ZYVOR_DAST_SCAN_ENABLED=true`). Optional nuclei via `ZYVOR_DAST_NUCLEI_BIN`. See [`docs/security-network-attack-gaps.md`](../security-network-attack-gaps.md).
+
+Still deferred: full-range port sweeps, MITM/packet capture, DDoS floods, AD/WinRM, credential stuffing, MCP/Slack security jobs.
+
+```bash
+export ZYVOR_DAST_SCAN_ENABLED=true
+
+argus guard port-scan https://your-app.example.com --engagement-id <active-recon-id>
+argus guard tls-cipher-scan https://your-app.example.com --engagement-id <active-recon-id>
+argus guard dast-scan https://your-app.example.com --engagement-id <exploit-tier-id>
+argus guard injection-scan 'https://your-app.example.com/search?q=test' --engagement-id <exploit-tier-id>
+argus guard csrf-probe https://your-app.example.com/login --engagement-id <exploit-tier-id>
+argus guard ssrf-probe 'https://your-app.example.com/fetch?url=https://example.com' --engagement-id <exploit-tier-id>
+argus guard auth-attack-scan https://your-app.example.com --engagement-id <exploit-tier-id>
+argus guard idor-scan https://your-app.example.com/orders/1001 --engagement-id <exploit-tier-id> --cookie 'sid=...'
+```
 
 ## 11. Security notes
 
@@ -158,4 +175,4 @@ Attack Directory-specific tooling (Kerberos/LDAP enumeration, WinRM) beyond gene
 - `misconfig_scan`/`cve_lookup`/`llm_redteam`/`sca_scan` (URL)/`contract_verify`/`db_assert` need an `active_recon`-tier engagement (plus opt-ins where noted). `exploit_poc`/`attack_chain`/`chaos_*` additionally need their exploit/opt-in gates. `host_pentest`/`cloud_pentest` additionally need `ZYVOR_CREDENTIALED_PENTEST_ENABLED` and a properly-imaged sandbox — independent gates, all fail-closed by default.
 - Per-Job network-egress restriction is attempted in the sandbox (a NetworkPolicy scoped to the target's resolved IPs) but is explicitly best-effort — it has no effect on CNIs that don't enforce NetworkPolicy (notably k3s's default Flannel). The pod security hardening (dropped capabilities, non-root, read-only rootfs) is what actually holds regardless of CNI.
 
-**See also:** [`docs/enterprise-v2.md`](../enterprise-v2.md) for the full environment-variable reference and RBAC role details, [`docs/architecture.md`](../architecture.md) for how these job kinds fit into the pipeline, and [`ROADMAP.md`](../../ROADMAP.md) for design rationale and what's deliberately deferred.
+**See also:** [`docs/enterprise-v2.md`](../enterprise-v2.md) for the full environment-variable reference and RBAC role details, [`docs/architecture.md`](../architecture.md) for how these job kinds fit into the pipeline, [`docs/security-network-attack-gaps.md`](../security-network-attack-gaps.md) for missing network-attack / DAST coverage, and [`ROADMAP.md`](../../ROADMAP.md) for design rationale and what's deliberately deferred.

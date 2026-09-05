@@ -32,6 +32,7 @@ Deployment: [**Remote deploy**](../remote-deploy.md) — `deploy-remote.sh` puts
 Reference documentation lives alongside these tutorials:
 
 - [Architecture](../architecture.md) — how the pipeline works internally
+- [Network-attack / DAST gaps](../security-network-attack-gaps.md) — what security testing still does not cover, and the recommended `dast_scan` next step
 - [Configuration](../configuration.md) — every environment variable
 - [Writing Tests & GitHub Integration](../test-authoring.md) — full command reference
 - [Troubleshooting](../troubleshooting.md) — common errors and fixes

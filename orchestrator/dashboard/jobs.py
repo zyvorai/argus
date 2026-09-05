@@ -46,6 +46,9 @@ VALID_KINDS = {
     "har_replay", "import_codegen",
     "misconfig_scan", "cve_lookup", "sca_scan", "llm_redteam", "exploit_poc", "attack_chain",
     "host_pentest", "cloud_pentest", "db_assert", "chaos_inject", "chaos_webhook",
+    "port_scan", "tls_cipher_scan",
+    "dast_scan", "injection_scan", "csrf_probe", "ssrf_probe",
+    "auth_attack_scan", "idor_scan",
 } | PROBE_KINDS
 
 # Job kinds gated behind an authorized security engagement
@@ -59,12 +62,20 @@ ELEVATED_RISK_KINDS: dict[str, str] = {
     "contract_verify": "active_recon",
     "db_assert": "active_recon",
     "llm_redteam": "active_recon",
+    "port_scan": "active_recon",
+    "tls_cipher_scan": "active_recon",
     "exploit_poc": "exploit",
     "attack_chain": "exploit",
     "host_pentest": "exploit",
     "cloud_pentest": "exploit",
     "chaos_inject": "exploit",
     "chaos_webhook": "exploit",
+    "dast_scan": "exploit",
+    "injection_scan": "exploit",
+    "csrf_probe": "exploit",
+    "ssrf_probe": "exploit",
+    "auth_attack_scan": "exploit",
+    "idor_scan": "exploit",
 }
 
 # control_kind allowlist for chaos_inject/chaos_webhook -- the "observe
@@ -72,6 +83,14 @@ ELEVATED_RISK_KINDS: dict[str, str] = {
 # as the "control" makes no sense and must be rejected, not silently
 # accepted.
 _CHAOS_CONTROL_KINDS = {"flow", "smoke"}
+
+# Active web-attack / DAST kinds — require ZYVOR_DAST_SCAN_ENABLED in
+# addition to an exploit-tier engagement (same fail-closed posture as
+# ZYVOR_EXPLOIT_EXECUTION_ENABLED for exploit_poc).
+DAST_KINDS = frozenset({
+    "dast_scan", "injection_scan", "csrf_probe", "ssrf_probe",
+    "auth_attack_scan", "idor_scan",
+})
 
 _lock = threading.Lock()
 _cancel = threading.Event()
@@ -666,6 +685,49 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
         clean["url"] = url[:500]
         clean["insecure"] = bool(params.get("insecure"))
 
+    if kind == "port_scan":
+        target = (params.get("url") or params.get("host") or "").strip()
+        if not target:
+            raise ValueError("provide a URL or hostname")
+        # Accept bare host or URL — normalize to something engagement/policy can match.
+        if "://" not in target:
+            clean["url"] = f"https://{target[:240]}"
+            clean["host"] = target[:240]
+        else:
+            if not target.startswith(("http://", "https://")):
+                raise ValueError("url must start with http:// or https://")
+            clean["url"] = target[:500]
+        clean["timeout_s"] = max(0.2, min(float(params.get("timeout_s") or 1.0), 3.0))
+        raw_ports = params.get("ports")
+        if raw_ports:
+            if isinstance(raw_ports, str):
+                parts = [p.strip() for p in raw_ports.split(",") if p.strip()]
+            elif isinstance(raw_ports, list):
+                parts = raw_ports
+            else:
+                raise ValueError("ports must be a comma-separated string or list of ints")
+            clean["ports"] = [max(1, min(int(p), 65535)) for p in parts][:64]
+    if kind == "tls_cipher_scan":
+        target = (params.get("url") or params.get("host") or "").strip()
+        if not target:
+            raise ValueError("provide a URL or hostname")
+        if "://" not in target:
+            clean["url"] = f"https://{target[:240]}"
+        else:
+            if not target.startswith(("http://", "https://")):
+                raise ValueError("url must start with http:// or https://")
+            clean["url"] = target[:500]
+        if params.get("port") is not None:
+            clean["port"] = max(1, min(int(params.get("port") or 443), 65535))
+    if kind in DAST_KINDS:
+        if os.environ.get("ZYVOR_DAST_SCAN_ENABLED", "false").strip().lower() not in {"1", "true", "yes", "on"}:
+            raise ValueError(f"{kind} is disabled — set ZYVOR_DAST_SCAN_ENABLED=true to enable it")
+        url = (params.get("url") or "").strip()
+        if not url.startswith(("http://", "https://")):
+            raise ValueError("url must start with http:// or https://")
+        clean["url"] = url[:500]
+        clean["insecure"] = bool(params.get("insecure"))
+    if kind in ("chaos_inject", "chaos_webhook"):
         control_kind = (params.get("control_kind") or "").strip()
         if control_kind not in _CHAOS_CONTROL_KINDS:
             raise ValueError(f"control_kind must be one of {sorted(_CHAOS_CONTROL_KINDS)}")
@@ -699,6 +761,35 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
         stop_url = (params.get("experiment_stop_webhook_url") or "").strip()
         clean["experiment_stop_webhook_url"] = stop_url[:500] if stop_url.startswith(("http://", "https://")) else ""
         clean["settle_s"] = max(1, min(int(params.get("settle_s") or 5), 60))
+    if kind == "dast_scan":
+        clean["max_requests"] = max(5, min(int(params.get("max_requests") or 40), 80))
+        clean["timeout_s"] = max(30, min(int(params.get("timeout_s") or 120), 300))
+        modules = params.get("modules")
+        if modules:
+            if isinstance(modules, str):
+                modules = [m.strip() for m in modules.split(",") if m.strip()]
+            allowed = {"headers", "injection", "csrf", "open_redirect", "nuclei"}
+            clean["modules"] = [m for m in modules if m in allowed] or None
+    if kind == "injection_scan":
+        clean["max_requests"] = max(5, min(int(params.get("max_requests") or 40), 80))
+    if kind == "ssrf_probe":
+        param = (params.get("param") or "").strip()
+        if param:
+            clean["param"] = param[:64]
+    if kind == "auth_attack_scan":
+        login_url = (params.get("login_url") or "").strip()
+        if login_url:
+            if not login_url.startswith(("http://", "https://")):
+                raise ValueError("login_url must start with http:// or https://")
+            clean["login_url"] = login_url[:500]
+    if kind == "idor_scan":
+        clean["delta"] = max(1, min(int(params.get("delta") or 1), 5))
+        cookie = (params.get("cookie") or "").strip()
+        if cookie:
+            clean["cookie"] = cookie[:4000]
+        authorization = (params.get("authorization") or "").strip()
+        if authorization:
+            clean["authorization"] = authorization[:2000]
     if kind in PROBE_KINDS:
         target = (params.get("url") or params.get("host") or "").strip()
         if kind == "dns_records":
@@ -745,6 +836,14 @@ def _validate(kind: str, params: dict[str, Any]) -> dict[str, Any]:
         ssh_policy = dataclasses.replace(policy, allowed_ports=())
         clean["host"] = ssh_policy.validate_host(clean["host"], int(clean.get("port") or 22))
         clean["url"] = clean["host"]
+    if kind == "tls_cipher_scan" and clean.get("port") and clean.get("port") not in (80, 443):
+        import dataclasses
+        from urllib.parse import urlparse as _urlparse
+
+        host = _urlparse(clean["url"]).hostname or ""
+        if host:
+            tls_policy = dataclasses.replace(policy, allowed_ports=())
+            tls_policy.validate_host(host, int(clean["port"]))
 
     if kind in ELEVATED_RISK_KINDS:
         # sca_scan's local-checkout mode reads an operator-local filesystem
@@ -2460,6 +2559,40 @@ def _auto_findings(kind: str, url: str, data: dict[str, Any]) -> list[dict[str, 
                     "where": change.get("where", ""),
                     "category": "breaking-api-change",
                 })
+        elif kind == "port_scan":
+            for port in data.get("open_ports") or []:
+                sev = "high" if port in (22, 23, 3389, 445, 3306, 5432, 27017, 6379) else "medium"
+                items.append({
+                    "severity": sev,
+                    "title": f"open port {port}",
+                    "detail": f"TCP connect succeeded on {data.get('host')}:{port}",
+                    "where": f"tcp/{port}",
+                    "category": "open-port",
+                })
+        elif kind == "tls_cipher_scan":
+            for issue in data.get("issues") or []:
+                sev = "high" if "weak" in issue.lower() or "legacy" in issue.lower() else "medium"
+                if "failed" in issue.lower():
+                    sev = "high"
+                items.append({
+                    "severity": sev,
+                    "title": f"TLS: {issue}",
+                    "detail": issue,
+                    "where": f"{data.get('host')}:{data.get('port')}",
+                    "category": "weak-tls",
+                })
+        elif kind in (
+            "dast_scan", "injection_scan", "csrf_probe", "ssrf_probe",
+            "auth_attack_scan", "idor_scan",
+        ):
+            for finding in data.get("findings") or []:
+                items.append({
+                    "severity": finding.get("severity", "medium"),
+                    "title": finding.get("title", kind),
+                    "detail": finding.get("detail", ""),
+                    "where": finding.get("where", ""),
+                    "category": finding.get("category", kind),
+                })
     except Exception:
         return []
     if items:
@@ -3482,6 +3615,201 @@ def _job_chaos_webhook(params: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _job_port_scan(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.port_scan import run_port_scan
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    log_progress(f"port_scan: {url}")
+    data = run_port_scan(
+        url,
+        ports=params.get("ports"),
+        timeout_s=float(params.get("timeout_s") or 1.0),
+        log=log_progress,
+    )
+    _check_cancel()
+    hist = PipelineReport(
+        summary=f"port_scan {data.get('host')}: {len(data.get('open_ports') or [])} open",
+        passed=0 if data.get("open_ports") else 1,
+        failed=1 if data.get("open_ports") else 0,
+        total=1,
+    )
+    history.append_run(hist, source="dashboard-port-scan", duration_s=_time.time() - t0)
+    raised = _auto_findings("port_scan", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_tls_cipher_scan(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.tls_cipher_scan import run_tls_cipher_scan
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    log_progress(f"tls_cipher_scan: {url}")
+    data = run_tls_cipher_scan(url, port=params.get("port"), log=log_progress)
+    _check_cancel()
+    hist = PipelineReport(
+        summary=f"tls_cipher_scan grade={data.get('grade')} issues={len(data.get('issues') or [])}",
+        passed=0 if data.get("issues") else 1,
+        failed=1 if data.get("issues") else 0,
+        total=1,
+    )
+    history.append_run(hist, source="dashboard-tls-cipher-scan", duration_s=_time.time() - t0)
+    raised = _auto_findings("tls_cipher_scan", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_dast_scan(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.dast_scan import run_dast_scan
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    log_progress(f"dast_scan: {url}")
+    data = run_dast_scan(
+        url,
+        insecure=params.get("insecure", False),
+        max_requests=params.get("max_requests", 40),
+        timeout_s=params.get("timeout_s", 120),
+        modules=params.get("modules"),
+        log=log_progress,
+    )
+    _check_cancel()
+    total = int(data.get("total") or 0)
+    hist = PipelineReport(
+        summary=f"dast_scan: {total} finding(s)",
+        passed=0 if total else 1, failed=1 if total else 0, total=1,
+    )
+    history.append_run(hist, source="dashboard-dast-scan", duration_s=_time.time() - t0)
+    raised = _auto_findings("dast_scan", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_injection_scan(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.injection_scan import run_injection_scan
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    data = run_injection_scan(
+        url, insecure=params.get("insecure", False),
+        max_requests=params.get("max_requests", 40), log=log_progress,
+    )
+    _check_cancel()
+    n = len(data.get("findings") or [])
+    history.append_run(
+        PipelineReport(summary=f"injection_scan: {n} finding(s)", passed=0 if n else 1, failed=1 if n else 0, total=1),
+        source="dashboard-injection-scan", duration_s=_time.time() - t0,
+    )
+    raised = _auto_findings("injection_scan", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_csrf_probe(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.csrf_probe import run_csrf_probe
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    data = run_csrf_probe(url, insecure=params.get("insecure", False), log=log_progress)
+    _check_cancel()
+    n = len(data.get("findings") or [])
+    history.append_run(
+        PipelineReport(summary=f"csrf_probe: {n} finding(s)", passed=0 if n else 1, failed=1 if n else 0, total=1),
+        source="dashboard-csrf-probe", duration_s=_time.time() - t0,
+    )
+    raised = _auto_findings("csrf_probe", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_ssrf_probe(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.ssrf_probe import run_ssrf_probe
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    data = run_ssrf_probe(
+        url, insecure=params.get("insecure", False),
+        param=params.get("param"), log=log_progress,
+    )
+    _check_cancel()
+    n = len(data.get("findings") or [])
+    history.append_run(
+        PipelineReport(summary=f"ssrf_probe: {n} finding(s)", passed=0 if n else 1, failed=1 if n else 0, total=1),
+        source="dashboard-ssrf-probe", duration_s=_time.time() - t0,
+    )
+    raised = _auto_findings("ssrf_probe", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_auth_attack_scan(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.auth_attack_scan import run_auth_attack_scan
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    data = run_auth_attack_scan(
+        url, insecure=params.get("insecure", False),
+        login_url=params.get("login_url"), log=log_progress,
+    )
+    _check_cancel()
+    n = len(data.get("findings") or [])
+    history.append_run(
+        PipelineReport(summary=f"auth_attack_scan: {n} finding(s)", passed=0 if n else 1, failed=1 if n else 0, total=1),
+        source="dashboard-auth-attack-scan", duration_s=_time.time() - t0,
+    )
+    raised = _auto_findings("auth_attack_scan", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
+def _job_idor_scan(params: dict[str, Any]) -> dict[str, Any]:
+    import time as _time
+
+    from agents.common.models import PipelineReport
+    from agents.probes.idor_scan import run_idor_scan
+    from orchestrator.dashboard import history
+
+    t0 = _time.time()
+    url = params["url"]
+    data = run_idor_scan(
+        url, insecure=params.get("insecure", False),
+        cookie=params.get("cookie") or "",
+        authorization=params.get("authorization") or "",
+        delta=params.get("delta", 1),
+        log=log_progress,
+    )
+    _check_cancel()
+    n = len(data.get("findings") or [])
+    history.append_run(
+        PipelineReport(summary=f"idor_scan: {n} finding(s)", passed=0 if n else 1, failed=1 if n else 0, total=1),
+        source="dashboard-idor-scan", duration_s=_time.time() - t0,
+    )
+    raised = _auto_findings("idor_scan", url, data)
+    return {"url": url, "findings": raised, **data}
+
+
 _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "smoke": _job_smoke,
     "flow": _job_flow,
@@ -3519,6 +3847,14 @@ _JOBS: dict[str, Callable[[dict[str, Any]], dict[str, Any]]] = {
     "db_assert": _job_db_assert,
     "chaos_inject": _job_chaos_inject,
     "chaos_webhook": _job_chaos_webhook,
+    "port_scan": _job_port_scan,
+    "tls_cipher_scan": _job_tls_cipher_scan,
+    "dast_scan": _job_dast_scan,
+    "injection_scan": _job_injection_scan,
+    "csrf_probe": _job_csrf_probe,
+    "ssrf_probe": _job_ssrf_probe,
+    "auth_attack_scan": _job_auth_attack_scan,
+    "idor_scan": _job_idor_scan,
 }
 
 

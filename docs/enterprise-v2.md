@@ -94,14 +94,12 @@ The live-crawl agent (`playwright/scripts/crawl-site.mjs`) has its own, narrower
 
 ## Security engagements
 
-Seven job kinds do deeper, potentially-invasive security testing —
-`misconfig_scan` (misconfig/recon beyond the static probes), `cve_lookup`
-(read-only, checks fingerprinted versions against OSV.dev), `llm_redteam`
-(adversarial-prompt battery against Ask Zyra), `exploit_poc`
-(LLM-generated, sandboxed, non-destructive verification of a described
-finding), `attack_chain` (repeated `exploit_poc` steps chained by an LLM
-planner), and `host_pentest`/`cloud_pentest` (credentialed, sandboxed,
-non-destructive SSH/cloud-CLI enumeration) — and are refused (`400`) unless
+Elevated job kinds do deeper, potentially-invasive security testing —
+`misconfig_scan`, `cve_lookup`, `sca_scan`, `llm_redteam`, `port_scan`,
+`tls_cipher_scan`, `db_assert`, `exploit_poc`, `attack_chain`,
+`host_pentest`, `cloud_pentest`, `chaos_inject`, `chaos_webhook`, plus the
+DAST family (`dast_scan`, `injection_scan`, `csrf_probe`, `ssrf_probe`,
+`auth_attack_scan`, `idor_scan`) — and are refused (`400`) unless
 the request cites a live, sufficiently-scoped **security engagement**: an
 `admin`-issued attestation
 that the target is actually authorized for testing. This is separate from
@@ -167,6 +165,22 @@ ServiceAccount token, and a hard timeout. The generated source is written to
 `kubernetes/sandbox.yaml` also attempts a per-Job egress-restricting
 NetworkPolicy, but that's best-effort — it has no effect on CNIs that don't
 enforce NetworkPolicy (notably k3s's default Flannel).
+
+### DAST / network-attack jobs
+
+`dast_scan`, `injection_scan`, `csrf_probe`, `ssrf_probe`, `auth_attack_scan`,
+and `idor_scan` need an `exploit`-tier engagement **and**
+`ZYVOR_DAST_SCAN_ENABLED=true`. They run in-process (bounded HTTP probes),
+not in the exploit sandbox. Optionally point `ZYVOR_DAST_NUCLEI_BIN` at a
+`nuclei` binary (or put `nuclei` on `PATH`) so `dast_scan` can merge external
+template hits. `port_scan` and `tls_cipher_scan` only need an
+`active_recon`-tier engagement (no DAST opt-in).
+
+```bash
+export ZYVOR_DAST_SCAN_ENABLED=true
+# optional:
+# export ZYVOR_DAST_NUCLEI_BIN=/usr/local/bin/nuclei
+```
 
 `attack_chain` needs exactly the same two gates and sandbox backend — it's
 `exploit_poc` run in a loop, where an LLM proposes one next step at a time

@@ -769,3 +769,24 @@ attaches `X-CSRF-Token` automatically — none of the ~20 existing `fetch()`
 call sites needed touching individually. Covered by
 `tests/unit/test_csrf_route.py` (real login → protected-route round trip)
 and `tests/unit/test_auth.py`.
+
+## ~~Network-attack / DAST coverage~~ — done (bounded; floods/MITM/AD still deferred)
+
+Shipped eight engagement-gated job kinds that close the inventory in
+[`docs/security-network-attack-gaps.md`](docs/security-network-attack-gaps.md):
+
+- **Recon:** `port_scan` (bounded TCP connect), `tls_cipher_scan` (protocol +
+  weak-cipher grading) at `active_recon`.
+- **DAST / web-attack:** `dast_scan`, `injection_scan`, `csrf_probe`,
+  `ssrf_probe`, `auth_attack_scan`, `idor_scan` at `exploit` **plus**
+  `ZYVOR_DAST_SCAN_ENABLED=true`. `dast_scan` aggregates built-in templates
+  and optionally shells out to nuclei when `ZYVOR_DAST_NUCLEI_BIN` (or
+  `PATH`) provides a binary.
+
+Still deliberately deferred (do not sneak into these jobs):
+
+- Full-range port sweeps, packet capture, MITM, TLS stripping, ARP
+- DDoS / unbounded load
+- AD / Kerberos / LDAP / WinRM, lateral movement / persistence
+- Security job kinds on MCP / Slack allowlists
+- Credential stuffing / password spraying

@@ -1117,3 +1117,87 @@ def test_chaos_webhook_clean_defaults(monkeypatch):
     assert clean["experiment_webhook_url"] == "https://api.x.io/start"
     assert clean["experiment_stop_webhook_url"] == "https://api.x.io/stop"
     assert clean["settle_s"] == 5
+
+
+# --- Network-attack / DAST kinds -------------------------------------------------
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "port_scan", "tls_cipher_scan", "dast_scan", "injection_scan",
+        "csrf_probe", "ssrf_probe", "auth_attack_scan", "idor_scan",
+    ],
+)
+def test_network_attack_kinds_registered(kind):
+    assert kind in VALID_KINDS
+
+
+def test_port_scan_active_recon_happy(monkeypatch):
+    _allow_engagement(monkeypatch, tier="active_recon")
+    clean = _validate("port_scan", {"url": "https://x.io", "engagement_id": "eng-1", "ports": "22,80,443"})
+    assert clean["ports"] == [22, 80, 443]
+    assert clean["url"].startswith("https://x.io")
+
+
+def test_port_scan_rejects_exploit_only_when_missing_engagement(monkeypatch):
+    monkeypatch.setattr(_store_module, "get_store", lambda: _FakeEngagementStore(None))
+    with pytest.raises(ValueError):
+        _validate("port_scan", {"url": "https://x.io"})
+
+
+def test_tls_cipher_scan_happy(monkeypatch):
+    _allow_engagement(monkeypatch, tier="active_recon")
+    clean = _validate("tls_cipher_scan", {"url": "https://x.io", "engagement_id": "eng-1", "port": 8443})
+    assert clean["port"] == 8443
+
+
+@pytest.mark.parametrize(
+    "kind",
+    ["dast_scan", "injection_scan", "csrf_probe", "ssrf_probe", "auth_attack_scan", "idor_scan"],
+)
+def test_dast_kinds_disabled_by_default(monkeypatch, kind):
+    monkeypatch.delenv("ZYVOR_DAST_SCAN_ENABLED", raising=False)
+    _allow_engagement(monkeypatch, tier="exploit")
+    with pytest.raises(ValueError, match="ZYVOR_DAST_SCAN_ENABLED"):
+        _validate(kind, {"url": "https://x.io", "engagement_id": "eng-1"})
+
+
+@pytest.mark.parametrize(
+    "kind",
+    ["dast_scan", "injection_scan", "csrf_probe", "ssrf_probe", "auth_attack_scan", "idor_scan"],
+)
+def test_dast_kinds_reject_active_recon_tier(monkeypatch, kind):
+    monkeypatch.setenv("ZYVOR_DAST_SCAN_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="active_recon")
+    with pytest.raises(ValueError, match="insufficient"):
+        _validate(kind, {"url": "https://x.io", "engagement_id": "eng-1"})
+    monkeypatch.delenv("ZYVOR_DAST_SCAN_ENABLED", raising=False)
+
+
+def test_dast_scan_happy_path(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DAST_SCAN_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    clean = _validate(
+        "dast_scan",
+        {
+            "url": "https://x.io",
+            "engagement_id": "eng-1",
+            "modules": "headers,injection",
+            "max_requests": 999,
+        },
+    )
+    assert clean["modules"] == ["headers", "injection"]
+    assert clean["max_requests"] == 80  # capped
+    monkeypatch.delenv("ZYVOR_DAST_SCAN_ENABLED", raising=False)
+
+
+def test_idor_scan_accepts_cookie(monkeypatch):
+    monkeypatch.setenv("ZYVOR_DAST_SCAN_ENABLED", "true")
+    _allow_engagement(monkeypatch, tier="exploit")
+    clean = _validate(
+        "idor_scan",
+        {"url": "https://x.io/orders/1", "engagement_id": "eng-1", "cookie": "sid=abc", "delta": 9},
+    )
+    assert clean["cookie"] == "sid=abc"
+    assert clean["delta"] == 5  # capped
+    monkeypatch.delenv("ZYVOR_DAST_SCAN_ENABLED", raising=False)

@@ -203,6 +203,9 @@ deeper security and resilience job kinds are gated behind an authorized
 | `cloud_pentest` | `exploit` | Non-destructive `aws`/`gcloud`/`az` CLI enumeration via a specially-imaged sandbox (`ZYVOR_SANDBOX_CLOUD_IMAGE`). Same additional credentialed-pentest gate as `host_pentest` |
 | `chaos_inject` | `exploit` | Client-side egress fault injection while a flow/smoke control observes — also requires `ZYVOR_CHAOS_INJECTION_ENABLED` and per-run consent |
 | `chaos_webhook` | `exploit` | Trigger a customer-owned chaos experiment webhook, then observe with the same resilience rubric |
+| `port_scan` | `active_recon` | Bounded TCP connect scan (≤64 common ports) — `agents/probes/port_scan.py` |
+| `tls_cipher_scan` | `active_recon` | TLS protocol + weak-cipher grading — `agents/probes/tls_cipher_scan.py` |
+| `dast_scan` / `injection_scan` / `csrf_probe` / `ssrf_probe` / `auth_attack_scan` / `idor_scan` | `exploit` | Bounded DAST / web-attack probes — also require `ZYVOR_DAST_SCAN_ENABLED=true`. Optional nuclei via `ZYVOR_DAST_NUCLEI_BIN`. See `docs/security-network-attack-gaps.md` |
 
 `api_contract_diff` (API panel) is pure static OpenAPI analysis and needs **no** engagement.
 
@@ -229,8 +232,10 @@ rather than falling back to unsandboxed execution. Per-Job network-egress
 restriction is attempted but best-effort — only enforced on
 NetworkPolicy-capable CNIs; see `kubernetes/sandbox.yaml`'s CNI caveat.
 
-Full design rationale — including what's still deliberately *not* built
-and why — lives in `ROADMAP.md`.
+Full design rationale for the shipped engagement/sandbox model lives in
+`ROADMAP.md`. Remaining **network-attack / DAST** gaps (what is still
+deliberately deferred) are inventoried in
+[`docs/security-network-attack-gaps.md`](security-network-attack-gaps.md).
 
 ---
 

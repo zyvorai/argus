@@ -1149,6 +1149,212 @@ def cloud_pentest(
         raise typer.Exit(code=1)
 
 
+def _run_guard_finding_job(
+    *,
+    kind: str,
+    command: str,
+    target_url: str,
+    params: dict,
+    job_fn,
+    fail_on: str,
+    summary_extra: Optional[dict] = None,
+) -> None:
+    """Shared CLI path for engagement-gated finding jobs (DAST / port / TLS)."""
+    t0 = time.time()
+    started_at = datetime.fromtimestamp(t0, tz=timezone.utc).isoformat()
+    from agents.reporter.summary import write_ci_summary
+    from orchestrator.dashboard.jobs import _validate
+
+    clean = _validate(kind, params)
+    result = job_fn(clean)
+    findings = result.get("findings") or []
+    typer.echo(f"{command}: {len(findings)} finding(s)")
+    for item in findings[:20]:
+        typer.echo(f"  [{item.get('severity', '?')}] {item.get('title', '')}")
+    counts, max_severity = _findings_severity_summary(findings)
+    gate = _exceeds_fail_on(max_severity, fail_on)
+    write_ci_summary(
+        command=command, target_url=target_url,
+        passed=0 if findings else 1, failed=1 if findings else 0, total=1,
+        exit_code=1 if gate else 0, started_at=started_at, duration_s=time.time() - t0,
+        findings_by_severity=counts, max_severity=max_severity,
+        extra=summary_extra or {},
+    )
+    if gate:
+        raise typer.Exit(code=1)
+
+
+@guard_app.command(name="port-scan")
+def port_scan_cmd(
+    url: str = typer.Argument(..., help="URL or hostname to scan"),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    ports: Optional[str] = typer.Option(None, "--ports", help="Comma-separated ports (max 64; default: common services)"),
+    timeout_s: float = typer.Option(1.0, "--timeout", help="Per-port TCP connect timeout (capped at 3s)"),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Bounded TCP connect scan of common service ports (active_recon engagement)."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_port_scan
+
+    params: dict = {"url": url, "engagement_id": engagement_id, "timeout_s": timeout_s}
+    if ports:
+        params["ports"] = ports
+    _run_guard_finding_job(
+        kind="port_scan", command="port-scan", target_url=url,
+        params=params, job_fn=_job_port_scan, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="tls-cipher-scan")
+def tls_cipher_scan_cmd(
+    url: str = typer.Argument(..., help="URL or hostname"),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    port: Optional[int] = typer.Option(None, "--port"),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Grade TLS protocols and negotiated cipher strength (active_recon)."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_tls_cipher_scan
+
+    params: dict = {"url": url, "engagement_id": engagement_id}
+    if port is not None:
+        params["port"] = port
+    _run_guard_finding_job(
+        kind="tls_cipher_scan", command="tls-cipher-scan", target_url=url,
+        params=params, job_fn=_job_tls_cipher_scan, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="dast-scan")
+def dast_scan_cmd(
+    url: str = typer.Argument(...),
+    engagement_id: str = typer.Option(..., "--engagement-id", help="Must be an exploit-tier engagement"),
+    insecure: bool = typer.Option(False, help="Accept self-signed TLS"),
+    max_requests: int = typer.Option(40, help="Cap injection probe requests"),
+    timeout_s: int = typer.Option(120, "--timeout", help="Nuclei wall-clock timeout if configured"),
+    modules: Optional[str] = typer.Option(None, help="Comma list: headers,injection,csrf,open_redirect,nuclei"),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Bounded DAST: headers, injection, CSRF, open-redirect (+ optional nuclei). Requires ZYVOR_DAST_SCAN_ENABLED."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_dast_scan
+
+    params: dict = {
+        "url": url, "engagement_id": engagement_id, "insecure": insecure,
+        "max_requests": max_requests, "timeout_s": timeout_s,
+    }
+    if modules:
+        params["modules"] = modules
+    _run_guard_finding_job(
+        kind="dast_scan", command="dast-scan", target_url=url,
+        params=params, job_fn=_job_dast_scan, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="injection-scan")
+def injection_scan_cmd(
+    url: str = typer.Argument(...),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    insecure: bool = typer.Option(False),
+    max_requests: int = typer.Option(40),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Systematic SQLi / reflected-XSS / path-traversal probes. Requires ZYVOR_DAST_SCAN_ENABLED."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_injection_scan
+
+    _run_guard_finding_job(
+        kind="injection_scan", command="injection-scan", target_url=url,
+        params={"url": url, "engagement_id": engagement_id, "insecure": insecure, "max_requests": max_requests},
+        job_fn=_job_injection_scan, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="csrf-probe")
+def csrf_probe_cmd(
+    url: str = typer.Argument(...),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    insecure: bool = typer.Option(False),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Target CSRF posture: forms without tokens, cookies without SameSite. Requires ZYVOR_DAST_SCAN_ENABLED."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_csrf_probe
+
+    _run_guard_finding_job(
+        kind="csrf_probe", command="csrf-probe", target_url=url,
+        params={"url": url, "engagement_id": engagement_id, "insecure": insecure},
+        job_fn=_job_csrf_probe, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="ssrf-probe")
+def ssrf_probe_cmd(
+    url: str = typer.Argument(...),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    param: Optional[str] = typer.Option(None, help="Force a specific query param name"),
+    insecure: bool = typer.Option(False),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Probe target for SSRF via URL-like query params. Requires ZYVOR_DAST_SCAN_ENABLED."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_ssrf_probe
+
+    params: dict = {"url": url, "engagement_id": engagement_id, "insecure": insecure}
+    if param:
+        params["param"] = param
+    _run_guard_finding_job(
+        kind="ssrf_probe", command="ssrf-probe", target_url=url,
+        params=params, job_fn=_job_ssrf_probe, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="auth-attack-scan")
+def auth_attack_scan_cmd(
+    url: str = typer.Argument(...),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    login_url: Optional[str] = typer.Option(None, "--login-url"),
+    insecure: bool = typer.Option(False),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Auth hygiene: JWT alg=none, cookie flags, login enum hints (no brute force). Requires ZYVOR_DAST_SCAN_ENABLED."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_auth_attack_scan
+
+    params: dict = {"url": url, "engagement_id": engagement_id, "insecure": insecure}
+    if login_url:
+        params["login_url"] = login_url
+    _run_guard_finding_job(
+        kind="auth_attack_scan", command="auth-attack-scan", target_url=url,
+        params=params, job_fn=_job_auth_attack_scan, fail_on=fail_on,
+    )
+
+
+@guard_app.command(name="idor-scan")
+def idor_scan_cmd(
+    url: str = typer.Argument(..., help="Authorized object URL containing a numeric id"),
+    engagement_id: str = typer.Option(..., "--engagement-id"),
+    cookie: Optional[str] = typer.Option(None, help="Optional Cookie header for an authenticated session"),
+    authorization: Optional[str] = typer.Option(None, help="Optional Authorization header"),
+    delta: int = typer.Option(1, help="Adjacent id offset (±N, capped at 5)"),
+    insecure: bool = typer.Option(False),
+    fail_on: str = typer.Option("high", "--fail-on"),
+) -> None:
+    """Bounded IDOR probe on adjacent numeric IDs. Requires ZYVOR_DAST_SCAN_ENABLED."""
+    _load_env()
+    from orchestrator.dashboard.jobs import _job_idor_scan
+
+    params: dict = {"url": url, "engagement_id": engagement_id, "insecure": insecure, "delta": delta}
+    if cookie:
+        params["cookie"] = cookie
+    if authorization:
+        params["authorization"] = authorization
+    _run_guard_finding_job(
+        kind="idor_scan", command="idor-scan", target_url=url,
+        params=params, job_fn=_job_idor_scan, fail_on=fail_on,
+    )
+
+
 @guard_app.command(name="pr-gate")
 def pr_gate(
     repo: str = typer.Argument(..., help="owner/repo"),
@@ -1357,6 +1563,14 @@ legacy_app.command("exploit-poc")(exploit_poc)
 legacy_app.command("attack-chain")(attack_chain)
 legacy_app.command("host-pentest")(host_pentest)
 legacy_app.command("cloud-pentest")(cloud_pentest)
+legacy_app.command("port-scan")(port_scan_cmd)
+legacy_app.command("tls-cipher-scan")(tls_cipher_scan_cmd)
+legacy_app.command("dast-scan")(dast_scan_cmd)
+legacy_app.command("injection-scan")(injection_scan_cmd)
+legacy_app.command("csrf-probe")(csrf_probe_cmd)
+legacy_app.command("ssrf-probe")(ssrf_probe_cmd)
+legacy_app.command("auth-attack-scan")(auth_attack_scan_cmd)
+legacy_app.command("idor-scan")(idor_scan_cmd)
 legacy_app.command("pr-gate")(pr_gate)
 legacy_app.command("serve")(serve)
 legacy_app.command("knowledge-ingest")(knowledge_ingest)
