@@ -1,62 +1,75 @@
-# Zoho CRM pack
+# Zoho CRM pack (UI-first)
 
-Point Argus at a **Zoho CRM sandbox / trial** you control. Fits teams already on Zoho (mail, CRM).
+Point Argus at a **Zoho CRM sandbox / trial** you control using **username + password only**.
+No API token is required for the primary recipe.
+
+## Will this run?
+
+1. Sandbox / trial user with **MFA off**
+2. Correct data centre (`com` / `eu` / `in` / …)
+3. At least one **Lead** so open-record has a target
+4. Run auth → flow → route sweep; tweak one `click`/`assert` if labels differ
 
 ## Env
 
 ```bash
-export ZYVOR_BASE_URL=https://crm.zoho.com
-# EU / IN / AU / JP data centres use crm.zoho.eu, crm.zoho.in, …
+export ZOHO_DC=com   # or eu, in, com.au, jp, …
+export ZYVOR_BASE_URL=https://crm.zoho.${ZOHO_DC}
 export ZOHO_USER='you@example.com'
 export ZOHO_PASS='…'
-# OAuth access token (or self-client) with ZohoCRM.modules.READ
-export ZOHO_TOKEN='1000.…'
-# API host must match the data centre:
-export ZOHO_API_BASE=https://www.zohoapis.com
-# EU example: https://www.zohoapis.eu
 ```
 
-Disable MFA on the sandbox user for v1. Prefer a pre-issued OAuth token over interactive Zoho OAuth in the browser.
-
-## CLI
+## CLI (primary — UI only)
 
 ```bash
-# 1) Auth (password login — skip if you only use API packs)
+ACCOUNTS="https://accounts.zoho.${ZOHO_DC}/signin"
+HOST="crm.zoho.${ZOHO_DC}"
+
+# 1) Auth via Zoho Accounts (two-step email → password)
 argus api auth-test "$ZYVOR_BASE_URL" \
-  --login-url /crm/login.do \
+  --login-url "$ACCOUNTS" \
   --username "$ZOHO_USER" --password "$ZOHO_PASS" \
   --protected /crm/tab/Leads
 
-# 2) UI journey
+# 2) UI journey (reuse session — file name matches the Accounts/CRM host)
 argus flow run "$ZYVOR_BASE_URL" \
   --steps docs/assets/crm/zoho-demo.steps \
-  --session crm.zoho.com --video
+  --session "$HOST" --video
 
-# 3) REST Leads
-argus api test "$ZOHO_API_BASE" \
-  --workflow docs/assets/crm/zoho-leads.workflow.json \
-  --token "$ZOHO_TOKEN"
-
-# 4) Route sweep — paths from zoho-routes.txt
+# 3) Route sweep — paste paths from zoho-routes.txt in Mission Control
+#    (CLI route-sweep has no --session; use the dashboard card when login is required)
 ```
+
+Session files land under `reports/artifacts/auth/`. If the saved name differs (cookie host), use that basename for `--session`.
 
 ## Mission Control
 
-1. **Auth & session** — login path for your DC, protected `/crm/tab/Leads`.
-2. **Flow test** — [`zoho-demo.steps`](../assets/crm/zoho-demo.steps), session `crm.zoho.com` (or your DC host).
-3. **API contract** — base `$ZOHO_API_BASE`, workflow [`zoho-leads.workflow.json`](../assets/crm/zoho-leads.workflow.json), bearer = OAuth access token.
-4. **Route sweep** — [`zoho-routes.txt`](../assets/crm/zoho-routes.txt).
+1. **Auth & session** — base = CRM URL; login URL = `https://accounts.zoho.<dc>/signin`; protected `/crm/tab/Leads`.
+2. **Flow test** — paste [`zoho-demo.steps`](../assets/crm/zoho-demo.steps), reuse the saved session, record video.
+3. **Route sweep** — routes from [`zoho-routes.txt`](../assets/crm/zoho-routes.txt).
 
 ## Assets
 
 | File | Role |
 |------|------|
 | [`zoho-demo.steps`](../assets/crm/zoho-demo.steps) | Leads list → open lead |
-| [`zoho-leads.workflow.json`](../assets/crm/zoho-leads.workflow.json) | List + read Leads |
 | [`zoho-routes.txt`](../assets/crm/zoho-routes.txt) | Route sweep paths |
+| [`zoho-leads.workflow.json`](../assets/crm/zoho-leads.workflow.json) | Optional API (see below) |
 | [`crm-zoho.md`](../../prompts/examples/crm-zoho.md) | Spec for `argus test generate` |
+
+## Optional (when you have a token)
+
+```bash
+export ZOHO_TOKEN='1000.…'
+export ZOHO_API_BASE=https://www.zohoapis.${ZOHO_DC}   # .eu / .in as needed
+
+argus api test "$ZOHO_API_BASE" \
+  --workflow docs/assets/crm/zoho-leads.workflow.json \
+  --token "$ZOHO_TOKEN"
+```
 
 ## Notes
 
-- Zoho UI paths differ by edition (CRM Plus vs standard) and data centre — adjust `goto` targets if asserts fail.
-- Refresh OAuth tokens outside Argus; these packs do not run the Zoho OAuth dance.
+- Auth-probe handles Zoho’s email-first login (`#login_id` → Next → `#password`).
+- CRM paths differ by edition — adjust `goto` / asserts if the first run fails.
+- Do not enable MFA on the test user; SSO/SAML is out of scope for this pack.

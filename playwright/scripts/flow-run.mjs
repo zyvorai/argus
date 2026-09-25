@@ -16,6 +16,7 @@
 import { chromium, devices, firefox, webkit } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+import { driveFormLogin, passwordFieldLocator } from './lib/form-login.mjs';
 
 const ENGINES = { chromium, firefox, webkit };
 
@@ -90,16 +91,14 @@ async function tryLogin(page) {
   try {
     await gotoRetry(page, base + '/', { waitUntil: 'domcontentloaded', timeout: 30000, tries: 3 });
     await dismissOverlays(page);
-    const pass = page.locator('input[type="password"]').first();
-    if ((await pass.count()) > 0) {
-      await page.locator('input[type="email"], input[name*="user" i], input[name*="email" i], input[type="text"]').first().fill(user, { timeout: 5000 });
-      await pass.fill(password, { timeout: 5000 });
-      await Promise.all([
-        page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {}),
-        page.locator('button[type="submit"], input[type="submit"], button:has-text("sign in"), button:has-text("log in")').first().click({ timeout: 5000 }),
-      ]);
+    const pass = passwordFieldLocator(page);
+    if ((await pass.count()) === 0 && (await page.locator('#login_id, #username').count()) === 0) return;
+    const result = await driveFormLogin(page, user, password);
+    if (result.ok) {
       emit(`flow: logged in as ${user}`);
       await dismissOverlays(page);
+    } else {
+      emit(`flow: login incomplete — ${result.detail}`);
     }
   } catch (err) { emit(`flow: login skipped (${err})`); }
 }

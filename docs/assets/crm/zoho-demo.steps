@@ -1,9 +1,10 @@
-# Zoho CRM — Leads list → open first lead
-# Prereq: auth_test session (see docs/crm/zoho.md). Adjust host/DC paths as needed.
+# Zoho CRM — Leads list → open first lead (UI-first)
+# Prereq: auth_test via accounts.zoho.<dc>/signin (see docs/crm/zoho.md)
 goto /crm/tab/Leads
-wait until "Leads" 30000ms
+wait until "Leads" 45000ms
 assert "Leads"
-wait 2500ms
+wait 3000ms
+# Open the first lead row — label may be "Lead Name" or the lead's display name
 click "Lead Name"
-wait 2000ms
+wait until "Email" 20000ms
 assert "Email"

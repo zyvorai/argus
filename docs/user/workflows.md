@@ -29,9 +29,9 @@
 ## Test a CRM (HubSpot / Pipedrive / Zoho / Salesforce)
 
 1. Pick a pack under [Test a CRM](../crm/README.md) — HubSpot, Pipedrive, Zoho, or Salesforce Sales Cloud
-2. [Auth & session](pages/api/dashboard-actions-auth.md) against your sandbox (no MFA)
+2. [Auth & session](pages/api/dashboard-actions-auth.md) against your sandbox (**password login**, MFA off). Zoho/Salesforce packs are **UI-first** — no API token required.
 3. [Flow test](pages/journeys/dashboard-actions-flow.md) with the pack’s `.steps` + saved session
-4. [API contract](pages/api/dashboard-actions-api-contract.md) with the pack’s `.workflow.json` + API token
+4. Optional: [API contract](pages/api/dashboard-actions-api-contract.md) with the pack’s `.workflow.json` if you have a token
 5. Optional: [Route sweep](pages/visual/dashboard-actions-route-sweep.md) using the pack’s routes list
 
 ## Visual confidence

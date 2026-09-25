@@ -1,68 +1,83 @@
-# Salesforce Sales Cloud pack
+# Salesforce Sales Cloud pack (UI-first)
 
-Point Argus at a **Salesforce Developer Edition / sandbox** you control.
-**API-first** (REST + SOQL) is the reliable path. UI steps target **Salesforce Classic** list URLs — Lightning Experience uses shadow DOM and is not the documented path (use [Import codegen](../user/pages/journeys/dashboard-actions-import-codegen.md) if you must drive Lightning).
+Point Argus at a **Salesforce Developer Edition / sandbox** with **username + password only**.
+No API token is required for the primary recipe.
+
+**Classic** is the committed flow path (more Playwright-friendly). Lightning Experience uses shadow DOM — use Import codegen instead of the hand steps below.
+
+## Will this run?
+
+1. Sandbox / DE user with **MFA off**
+2. Correct **My Domain** URL
+3. User switched to **Salesforce Classic** (or Classic as default)
+4. At least one **Account** so open-record has a target
+5. Run auth → flow → route sweep; tweak one `click`/`assert` if labels differ
 
 ## Env
 
 ```bash
-# My Domain / instance URL from the OAuth token response (instance_url)
 export ZYVOR_BASE_URL=https://your-domain.my.salesforce.com
 export SALESFORCE_USER='you@example.com'
 export SALESFORCE_PASS='…'
-# OAuth access token or session ID (Bearer). Issue outside Argus:
-# Connected App + password grant, or paste from Workbench / CLI.
-export SALESFORCE_TOKEN='00D…!…'
 ```
 
-Disable MFA on the sandbox user for UI auth. Prefer a pre-issued access token for API-only runs.
-
-## CLI
+## CLI (primary — Classic UI only)
 
 ```bash
-# 1) Auth (Classic UI session — skip if you only run the API workflow)
+# Switch to Classic in the browser once before capturing a session.
+
+# 1) Auth
 argus api auth-test "$ZYVOR_BASE_URL" \
   --login-url / \
   --username "$SALESFORCE_USER" --password "$SALESFORCE_PASS" \
   --protected /001/o
 
-# 2) UI journey (Classic Accounts tab)
+# 2) UI journey (Classic Accounts)
 argus flow run "$ZYVOR_BASE_URL" \
   --steps docs/assets/crm/salesforce-demo.steps \
   --session your-domain.my.salesforce.com --video
 
-# 3) REST Accounts (Bearer = access token)
-argus api test "$ZYVOR_BASE_URL" \
-  --workflow docs/assets/crm/salesforce-accounts.workflow.json \
-  --token "$SALESFORCE_TOKEN"
-
-# 4) Visual sweep — Classic tabs from salesforce-routes.txt
-#    (CLI has no --session; use Mission Control Route sweep when login is required)
-argus vision route-sweep "$ZYVOR_BASE_URL" \
-  --routes /home/home.jsp,/001/o,/003/o,/006/o,/00Q/o
+# 3) Route sweep — Classic tabs (Mission Control when session required)
+#    Paths: see salesforce-routes.txt
 ```
 
-Session file names follow the auth host (e.g. `your-domain.my.salesforce.com`). Adjust `--session` to match `reports/artifacts/auth/<host>.json`.
+Adjust `--session` to the basename under `reports/artifacts/auth/`.
 
 ## Mission Control
 
-1. **API** → **Auth & session** — My Domain URL, protected `/001/o` (Accounts). Switch the user to **Salesforce Classic** first.
-2. **Journeys** → **Flow test** — paste [`salesforce-demo.steps`](../assets/crm/salesforce-demo.steps), reuse the saved session, record video.
-3. **API** → **API contract** — base = instance URL, workflow [`salesforce-accounts.workflow.json`](../assets/crm/salesforce-accounts.workflow.json), bearer = `SALESFORCE_TOKEN`.
-4. **Visual** → **Route sweep** — routes from [`salesforce-routes.txt`](../assets/crm/salesforce-routes.txt).
+1. **Auth & session** — My Domain URL, login `/`, protected `/001/o`. Confirm Classic before starting.
+2. **Flow test** — [`salesforce-demo.steps`](../assets/crm/salesforce-demo.steps), reuse session, record video.
+3. **Route sweep** — [`salesforce-routes.txt`](../assets/crm/salesforce-routes.txt).
+
+## Lightning (codegen, not hand steps)
+
+1. Log into Lightning in a normal browser.
+2. Mission Control → **Import codegen** (or `node playwright/scripts/record-flow.mjs`) against `/lightning/o/Account/list`.
+3. Save the generated steps and run them with Flow test + the same session.
+   Do **not** expect [`salesforce-demo.steps`](../assets/crm/salesforce-demo.steps) to pass under Lightning.
 
 ## Assets
 
 | File | Role |
 |------|------|
-| [`salesforce-demo.steps`](../assets/crm/salesforce-demo.steps) | Classic Accounts list → open record |
-| [`salesforce-accounts.workflow.json`](../assets/crm/salesforce-accounts.workflow.json) | API versions + SOQL Accounts + read |
+| [`salesforce-demo.steps`](../assets/crm/salesforce-demo.steps) | Classic Accounts → open record |
 | [`salesforce-routes.txt`](../assets/crm/salesforce-routes.txt) | Classic tab paths |
+| [`salesforce-accounts.workflow.json`](../assets/crm/salesforce-accounts.workflow.json) | Optional API (see below) |
 | [`crm-salesforce.md`](../../prompts/examples/crm-salesforce.md) | Spec for `argus test generate` |
+
+## Optional (when you have a token)
+
+```bash
+export SALESFORCE_TOKEN='00D…!…'   # OAuth access token / session ID
+
+argus api test "$ZYVOR_BASE_URL" \
+  --workflow docs/assets/crm/salesforce-accounts.workflow.json \
+  --token "$SALESFORCE_TOKEN"
+```
+
+Bump `v59.0` in the workflow if `GET /services/data/` lists a different version.
 
 ## Notes
 
-- Bump `v59.0` in the workflow if your org’s available API versions differ (`GET /services/data/`).
-- Empty orgs: seed at least one Account before the “read account” step, or remove that step.
-- Lightning URLs (`/lightning/o/Account/list`) are unsupported in this pack’s `.steps` file.
-- Refresh OAuth tokens outside Argus; packs do not run the Salesforce OAuth / SAML dance.
+- Auth-probe prefers `#username` / `#password` / `#Login` on My Domain / login.salesforce.com.
+- SSO/SAML and MFA are out of scope for this pack.

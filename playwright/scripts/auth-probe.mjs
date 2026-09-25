@@ -17,6 +17,7 @@
 import { chromium } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
+import { driveFormLogin } from './lib/form-login.mjs';
 
 const cfgFile = process.argv[2];
 const outDir = process.argv[3];
@@ -62,17 +63,11 @@ async function main() {
       }
     } catch (e) { add('api login', false, String(e).slice(0, 120)); }
   } else if (cfg.login_url) {
-    // drive the login form in-browser
+    // drive the login form in-browser (Zoho two-step + Salesforce username fields)
     try {
       await page.goto(abs(cfg.login_url), { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await page.locator('input[type="email"], input[name*="user" i], input[name*="email" i], input[type="text"]').first().fill(cfg.username, { timeout: 8000 });
-      await page.locator('input[type="password"]').first().fill(cfg.password, { timeout: 8000 });
-      await Promise.all([
-        page.waitForLoadState('networkidle', { timeout: 12000 }).catch(() => {}),
-        page.locator('button[type="submit"], input[type="submit"], button:has-text("sign in"), button:has-text("log in")').first().click({ timeout: 8000 }),
-      ]);
-      const onLogin = page.url().includes(cfg.login_url) && (await page.locator('input[type="password"]').count()) > 0;
-      add('form login', !onLogin, onLogin ? 'still on login page' : `now at ${page.url()}`);
+      const result = await driveFormLogin(page, cfg.username, cfg.password);
+      add('form login', result.ok, result.detail);
     } catch (e) { add('form login', false, String(e).slice(0, 120)); }
   }
 
