@@ -1,7 +1,7 @@
 # Copyright 2026 Zyvor AI Labs · https://zyvor.dev
 # SPDX-License-Identifier: LicenseRef-Zyvor-Production-1.0
 # syntax=docker/dockerfile:1.7
-FROM node:20-bookworm-slim AS node-deps
+FROM node:25-bookworm-slim AS node-deps
 WORKDIR /app
 # Patches CVEs in npm's own bundled deps (tar, brace-expansion) before anything
 # under /usr/local/lib/node_modules gets copied into the final image. Pinned
