@@ -65,6 +65,7 @@ This is the user-facing onboarding guide — how to access the product, your fir
   1. Expect the **side rail**, **dark theme** (light toggle in header), and **status hero**; ⌘K or **Search** opens the palette; category panels hold action cards.
   1. Run any capability from a card; watch per-test ✓/✗ chips stream live, with a ⏹ Stop button and HTML/PDF/Markdown/CSV download row.
   1. Practice on the public site: watch the [committed demo GIF](../assets/zyvor-dev-mission-control-demo.gif) (or the [journey .webm](assets/zyvor-dev-mission-control-demo.webm)), then re-run — [Test zyvor.dev](user/test-zyvor-dev.md) / [Tutorial 13](tutorials/13-test-zyvor-dev-recording.md).
+  1. Point at your CRM sandbox (HubSpot, Pipedrive, Zoho, Salesforce): password login → flow video → route sweep — [Tutorial 19](tutorials/19-crm-golden-paths.md) / [CRM packs](crm/README.md). Zoho and Salesforce need no API token.
   1. Generate run history for the trends sparkline: `argus test run --source local` (each run appends to `reports/history/`).
   1. Turn any job into a recurring monitor from the Schedules panel (5 min – 6 h) — e.g. smoke every 15 min, TLS check daily.
   1. Point at a cluster (in-cluster SA or local kubeconfig) to activate the Pods/Workloads panels; set `DASHBOARD_PASSWORD` before exposing it since it reads pod logs.
@@ -96,6 +97,8 @@ _Drive real user journeys across browsers and devices, and catch visual regressi
 
 - **E2E Flow Tests** — Drives a multi-step journey — log in, navigate, fill a wizard, assert the outcome — as one continuous session recorded to a single video and Playwright trace. — _Watch the whole user journey succeed or fail, then time-travel debug it._
   - **How:** CLI: `argus flow run  --steps  | --describe "" [--video --username --password --insecure --session  --no-trace]`, or Mission Control's 🎬 Flow test card. Steps stream live; a `journey.webm` video and `trace.zip` land in `reports/jobs/-flow/`.
+- **CRM golden-path packs** — Ready-made auth + `.steps` + route lists for HubSpot, Pipedrive, Zoho CRM, and Salesforce Sales Cloud (Classic). Zoho and Salesforce are UI-first (username/password only; API optional). — _Smoke your CRM sandbox the same way you smoke zyvor.dev._
+  - **How:** [Tutorial 19](tutorials/19-crm-golden-paths.md) and [docs/crm/](crm/README.md). Auth with `argus api auth-test --login-url …`, then `argus flow run --steps docs/assets/crm/<pack>-demo.steps --session <host> --video`.
 - **HAR Record / Replay** — Captures network traffic as a HAR file, then drives the UI against that recording (offline-friendly contract for the page). — _Prove the UI still works when the backend is mocked from a real capture._
   - **How:** CLI: `argus api har-replay <url> --mode record|replay --har path [--routes /, /pricing]`, or the 📼 HAR card in Mission Control.
 - **Import Playwright Codegen** — Paste codegen JS/TS (or record locally with `node playwright/scripts/record-flow.mjs`) and convert it into runnable flow steps. — _Turn an interactive recording into a permanent journey without rewriting selectors by hand._

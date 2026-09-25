@@ -2,6 +2,8 @@
 
 Point Argus at a **Pipedrive company sandbox** you control.
 
+Hands-on walkthrough: [Tutorial 19 — Test a CRM](../tutorials/19-crm-golden-paths.md).
+
 ## Env
 
 ```bash

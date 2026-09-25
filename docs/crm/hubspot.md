@@ -2,6 +2,8 @@
 
 Point Argus at a **HubSpot sandbox / developer account** you control.
 
+Hands-on walkthrough: [Tutorial 19 — Test a CRM](../tutorials/19-crm-golden-paths.md).
+
 ## Env
 
 ```bash

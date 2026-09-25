@@ -22,6 +22,7 @@ Hands-on, step-by-step guides. Follow them in order the first time; each later t
 | 16 | [Slack slash-command gateway](16-slack-gateway.md) | Trigger and check on pipeline runs from chat with `/zyvor run <kind>` / `/zyvor status <job_id>` | ~10 min |
 | 17 | [Desktop app (macOS)](17-desktop-app.md) | Run Mission Control in a native window instead of a browser tab | ~10 min |
 | 18 | [Security testing](18-security-testing.md) | Engagements, misconfig/CVE recon, LLM red-teaming, CI security gate, sandboxed exploit PoC/attack-chain/credentialed pentesting | ~30 min |
+| 19 | [Test a CRM (UI-first)](19-crm-golden-paths.md) | HubSpot, Pipedrive, Zoho, Salesforce packs — password login → flow video → route sweep; Zoho/Salesforce need no API token | ~20 min |
 
 **DevOps / SRE:** operational runbooks (gates, secrets, specs, Mission Control, triage, pipeline tiers) → **[docs/devops/](../devops/README.md)**.
 

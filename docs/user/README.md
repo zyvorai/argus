@@ -9,6 +9,7 @@
 | Install and first smoke | [Getting Started](getting-started.md) |
 | Learn Mission Control | [Using the Dashboard](using-the-dashboard.md) |
 | Test zyvor.dev (video + HAR) | [Test zyvor.dev](test-zyvor-dev.md) |
+| Test a CRM (HubSpot / Pipedrive / Zoho / Salesforce) | [Tutorial 19](../tutorials/19-crm-golden-paths.md) · [packs](../crm/README.md) |
 | Ask Zyra knowledge Q&A | [Tutorial 14](../tutorials/14-ask-zyra-knowledge.md) |
 | Follow a card, step by step | [Page-by-page guides](pages/README.md) |
 | Multi-step jobs (flow, HAR, API…) | [Common workflows](workflows.md) |

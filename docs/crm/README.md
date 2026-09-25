@@ -47,6 +47,7 @@ Selectors and paths drift by portal version — expect a one-time tweak per tena
 
 ## Related
 
+- [Tutorial 19 — Test a CRM (UI-first)](../tutorials/19-crm-golden-paths.md) — hands-on walkthrough
 - [Common workflows](../user/workflows.md)
 - [Test zyvor.dev](../user/test-zyvor-dev.md) — same auth → flow pattern on a public site
 - [Auth & session](../user/pages/api/dashboard-actions-auth.md)

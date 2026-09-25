@@ -206,3 +206,9 @@ Relevant environment variables (see [configuration](../configuration.md)):
 | `DASHBOARD_SECRET` | explicit session-signing secret (else derived from credentials) |
 
 The flow trace is on by default; pass `--no-trace` to the CLI to skip it. Serve over HTTPS with `argus serve --tls` (self-signed) — see section 7.
+
+## Related
+
+- [Tutorial 19 — Test a CRM (UI-first)](19-crm-golden-paths.md) — apply the same flow + session pattern to HubSpot, Pipedrive, Zoho, Salesforce
+- [Tutorial 12 — API, Auth, Live-data](12-api-auth-realtime.md)
+- [Tutorial 13 — zyvor.dev recording](13-test-zyvor-dev-recording.md)

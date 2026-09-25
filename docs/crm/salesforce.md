@@ -3,6 +3,8 @@
 Point Argus at a **Salesforce Developer Edition / sandbox** with **username + password only**.
 No API token is required for the primary recipe.
 
+Hands-on walkthrough: [Tutorial 19 — Test a CRM](../tutorials/19-crm-golden-paths.md).
+
 **Classic** is the committed flow path (more Playwright-friendly). Lightning Experience uses shadow DOM — use Import codegen instead of the hand steps below.
 
 ## Will this run?

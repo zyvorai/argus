@@ -3,6 +3,8 @@
 Point Argus at a **Zoho CRM sandbox / trial** you control using **username + password only**.
 No API token is required for the primary recipe.
 
+Hands-on walkthrough: [Tutorial 19 — Test a CRM](../tutorials/19-crm-golden-paths.md).
+
 ## Will this run?
 
 1. Sandbox / trial user with **MFA off**
