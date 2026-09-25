@@ -11,21 +11,21 @@ readme = "README.md"
 license = "LicenseRef-Zyvor-Production-1.0"
 requires-python = ">=3.10"
 dependencies = [
-    "langgraph>=0.2",
-    "langchain>=0.3",
-    "langchain-core>=0.3",
-    "langchain-openai>=0.2",
-    "langchain-anthropic>=0.2",
-    "langchain-google-genai>=2.0",
-    "fastapi>=0.115",
-    "uvicorn[standard]>=0.32",
-    "typer>=0.12",
+    "langgraph>=1.2",
+    "langchain>=1.4",
+    "langchain-core>=1.6",
+    "langchain-openai>=1.6",
+    "langchain-anthropic>=1.4",
+    "langchain-google-genai>=4.2",
+    "fastapi>=0.141",
+    "uvicorn[standard]>=0.54",
+    "typer>=0.27",
     "rich>=13",
-    "pydantic>=2.9",
-    "pydantic-settings>=2.6",
-    "PyGithub>=2.4",
+    "pydantic>=2.13",
+    "pydantic-settings>=2.15",
+    "PyGithub>=2.10",
     "Jinja2>=3.1",
-    "python-dotenv>=1.0",
+    "python-dotenv>=1.2",
     "httpx>=0.27",
     "Pillow>=10.0",
     "PyYAML>=6.0",
@@ -33,19 +33,19 @@ dependencies = [
     # Transitive floors bumped past known CVEs (pip-audit/trivy): PYSEC-2026-3545/6/7,
     # PYSEC-2026-3552, GHSA-6v7p-g79w-8964 (msgpack, via langgraph-checkpoint).
     "aiohttp>=3.14.3",
-    "cryptography>=50.0.0",
-    "msgpack>=1.2.1",
+    "cryptography>=50.0.1",
+    "msgpack>=1.2.2",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
-    "ruff>=0.8",
+    "ruff>=0.16",
     "types-PyYAML",
 ]
 knowledge = [
-    "langchain==1.4.1",
-    "langchain-openai==1.6.2",
+    "langchain==1.4.2",
+    "langchain-openai==1.6.6",
     "langchain-qdrant[fastembed]==1.1.0",
     "langchain-text-splitters>=1.0.0,<2.0.0",
     "qdrant-client>=1.15.1,<2.0.0",
@@ -57,7 +57,7 @@ mcp = [
     # Pinned below 2.0 — that major restructured mcp.server.fastmcp (module
     # renamed, FastMCP not re-exported the same way) shortly before this was
     # written; stay on the stable, documented 1.x API until 2.x settles.
-    "mcp>=1.8,<3.0",
+    "mcp>=1.8,<2.0",
 ]
 # For multi-replica HA: set ZYVOR_STATE_DB to a postgresql://... URL and
 # install this extra. MissionControlStore's SQLite implementation stays the
