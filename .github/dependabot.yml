@@ -27,6 +27,10 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     labels: ["dependencies", "rust", "desktop"]
+    # GHSA-wrw7-89jp-8q8g needs glib >=0.20, but Tauri 2 pins gtk/webkit2gtk
+    # ^0.18 → glib ^0.18. Drop this ignore when Tauri bumps its GTK stack.
+    ignore:
+      - dependency-name: "glib"
 
   - package-ecosystem: "docker"
     directory: "/docker"
