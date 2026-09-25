@@ -1,0 +1,21 @@
+[
+  {
+    "name": "list deals",
+    "method": "GET",
+    "path": "/v1/deals?limit=5",
+    "expect": { "status": 200 },
+    "extract": { "first_deal": "data.0.id" }
+  },
+  {
+    "name": "list persons",
+    "method": "GET",
+    "path": "/v1/persons?limit=5",
+    "expect": { "status": 200 }
+  },
+  {
+    "name": "read first deal when present",
+    "method": "GET",
+    "path": "/v1/deals/{{first_deal}}",
+    "expect": { "status": 200 }
+  }
+]

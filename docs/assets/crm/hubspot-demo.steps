@@ -1,0 +1,15 @@
+# HubSpot — contacts list → open first record
+# Prereq: auth_test session for app.hubspot.com (see docs/crm/hubspot.md)
+goto /contacts
+wait until "Contacts" 30000ms
+assert "Contacts"
+wait 2000ms
+# Open the contacts index (CRM object 0-1). Adjust if your portal uses a different deep link.
+goto /contacts/objects/0-1
+wait until "Contacts" 30000ms
+assert "Contacts"
+wait 2500ms
+# Click the first data row when present — tweak the label to match your list UI.
+click "Name"
+wait 2000ms
+assert "Email"

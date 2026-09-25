@@ -1,0 +1,9 @@
+# Salesforce Classic — Accounts list → open first account
+# Prereq: auth_test session + user in Classic (see docs/crm/salesforce.md)
+goto /001/o
+wait until "Accounts" 30000ms
+assert "Accounts"
+wait 2500ms
+click "Account Name"
+wait 2000ms
+assert "Account"

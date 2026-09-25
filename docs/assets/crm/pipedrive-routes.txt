@@ -1,0 +1,7 @@
+# Comma-separated paths for Mission Control Route sweep.
+# Paste as: /pipeline,/deals/list,/persons/list,/activities/list,/settings
+/pipeline
+/deals/list
+/persons/list
+/activities/list
+/settings

@@ -1,0 +1,8 @@
+# Comma-separated Classic paths for Mission Control Route sweep.
+# Paste as: /home/home.jsp,/001/o,/003/o,/006/o,/00Q/o
+# 001=Accounts 003=Contacts 006=Opportunities 00Q=Leads
+/home/home.jsp
+/001/o
+/003/o
+/006/o
+/00Q/o

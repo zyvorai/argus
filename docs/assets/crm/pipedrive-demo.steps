@@ -1,0 +1,13 @@
+# Pipedrive — pipeline / deals → open first deal
+# Prereq: auth_test session (see docs/crm/pipedrive.md)
+goto /pipeline
+wait until "Pipeline" 30000ms
+assert "Pipeline"
+wait 2000ms
+goto /deals/list
+wait until "Deals" 30000ms
+assert "Deals"
+wait 2500ms
+click "Deal"
+wait 2000ms
+assert "Person"

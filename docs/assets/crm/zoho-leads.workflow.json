@@ -1,0 +1,15 @@
+[
+  {
+    "name": "list leads",
+    "method": "GET",
+    "path": "/crm/v2/Leads?per_page=5",
+    "expect": { "status": 200 },
+    "extract": { "first_lead": "data.0.id" }
+  },
+  {
+    "name": "read first lead when present",
+    "method": "GET",
+    "path": "/crm/v2/Leads/{{first_lead}}",
+    "expect": { "status": 200 }
+  }
+]

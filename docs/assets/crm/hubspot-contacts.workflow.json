@@ -1,0 +1,29 @@
+[
+  {
+    "name": "list contacts",
+    "method": "GET",
+    "path": "/crm/v3/objects/contacts?limit=5&properties=email,firstname,lastname",
+    "expect": { "status": 200 },
+    "extract": { "first_id": "results.0.id" }
+  },
+  {
+    "name": "read first contact when present",
+    "method": "GET",
+    "path": "/crm/v3/objects/contacts/{{first_id}}?properties=email,firstname,lastname",
+    "expect": { "status": 200 }
+  },
+  {
+    "name": "create sandbox contact",
+    "method": "POST",
+    "path": "/crm/v3/objects/contacts",
+    "body": {
+      "properties": {
+        "email": "argus-qa-sandbox@example.com",
+        "firstname": "Argus",
+        "lastname": "QA"
+      }
+    },
+    "expect": { "status": 201 },
+    "extract": { "created_id": "id" }
+  }
+]

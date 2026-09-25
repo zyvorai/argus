@@ -1,0 +1,21 @@
+[
+  {
+    "name": "api versions",
+    "method": "GET",
+    "path": "/services/data/",
+    "expect": { "status": 200 }
+  },
+  {
+    "name": "query accounts",
+    "method": "GET",
+    "path": "/services/data/v59.0/query?q=SELECT+Id,Name+FROM+Account+LIMIT+5",
+    "expect": { "status": 200 },
+    "extract": { "first_id": "records.0.Id" }
+  },
+  {
+    "name": "read account when present",
+    "method": "GET",
+    "path": "/services/data/v59.0/sobjects/Account/{{first_id}}",
+    "expect": { "status": 200 }
+  }
+]

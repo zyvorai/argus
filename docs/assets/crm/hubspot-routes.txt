@@ -1,0 +1,7 @@
+# Comma-separated paths for Mission Control Route sweep (or CLI --routes).
+# Paste as: /contacts,/contacts/objects/0-1,/deals,/companies,/settings
+/contacts
+/contacts/objects/0-1
+/deals
+/companies
+/settings

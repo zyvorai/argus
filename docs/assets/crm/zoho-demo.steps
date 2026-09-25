@@ -1,0 +1,9 @@
+# Zoho CRM — Leads list → open first lead
+# Prereq: auth_test session (see docs/crm/zoho.md). Adjust host/DC paths as needed.
+goto /crm/tab/Leads
+wait until "Leads" 30000ms
+assert "Leads"
+wait 2500ms
+click "Lead Name"
+wait 2000ms
+assert "Email"
