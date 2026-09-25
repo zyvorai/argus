@@ -41,13 +41,27 @@ def _open_redirect_check(url: str, *, insecure: bool, log: Log) -> list[dict[str
         "next", "url", "redirect", "redirect_uri", "return", "return_to", "continue", "dest", "destination",
     }] or ["next", "redirect", "url"]
     canary = "https://example.com/argus-open-redirect"
+    canary_host = "example.com"
+
+    def _redirects_to_canary(loc: str) -> bool:
+        if canary in loc:
+            return True
+        # Protocol-relative or absolute Location → compare hostname, not prefix.
+        candidate = loc
+        if loc.startswith("//"):
+            candidate = "https:" + loc
+        elif "://" not in loc:
+            return False
+        host = (urlparse(candidate).hostname or "").lower()
+        return host == canary_host
+
     with client(insecure=insecure) as c:
         for param in redirect_params[:4]:
             target = with_query(url, {param: canary})
             try:
                 r = c.get(target, follow_redirects=False)
                 loc = r.headers.get("location") or ""
-                if canary in loc or loc.startswith("//example.com"):
+                if _redirects_to_canary(loc):
                     findings.append({
                         "severity": "high",
                         "category": "open-redirect",

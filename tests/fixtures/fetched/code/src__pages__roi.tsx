@@ -303,7 +303,7 @@ export default function ROICalculator(): ReactNode {
 
         <div className={styles.gridCol4}>
           {cloudStorage.map((cs) => {
-            const monthlyCost = vmCount * avgSize * parseFloat(cs.cost.replace('$', '').replace('/GB', ''));
+            const monthlyCost = vmCount * avgSize * parseFloat(cs.cost.replace(/\$/g, '').replace(/\/GB/g, ''));
             return (
               <div key={cs.provider} className={styles.featureCard} style={{textAlign: 'center'}}>
                 <h3 className={styles.featureCardTitle}>{cs.provider}</h3>

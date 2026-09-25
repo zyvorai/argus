@@ -98,8 +98,10 @@ def _secret() -> bytes:
     explicit = os.environ.get("DASHBOARD_SECRET")
     if explicit:
         return explicit.encode()
-    seed = f"{username()}:{os.environ.get('DASHBOARD_PASSWORD', '')}"
-    return hashlib.sha256(seed.encode()).digest()
+    # Derive a signing key when no explicit secret is set. pbkdf2 (not a
+    # single SHA-256) so the password isn't used as a fast hash input.
+    seed = f"{username()}:{os.environ.get('DASHBOARD_PASSWORD', '')}".encode()
+    return hashlib.pbkdf2_hmac("sha256", seed, b"argus-dashboard-v1", 120_000)
 
 
 def verify_credentials(user: str, password: str) -> bool:

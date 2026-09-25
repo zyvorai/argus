@@ -37,7 +37,9 @@ _PROTOCOLS: tuple[tuple[str, ssl.TLSVersion | None], ...] = (
 
 
 def _try_connect(host: str, port: int, *, min_v: ssl.TLSVersion | None, max_v: ssl.TLSVersion | None) -> dict[str, Any]:
-    ctx = ssl.create_default_context()
+    # Intentional: this probe enumerates whether the target still offers legacy
+    # TLS (TLSv1/1.1). Restricting to TLSv1.2+ would defeat the check.
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)  # codeql[py/insecure-protocol]
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
     if min_v is not None:

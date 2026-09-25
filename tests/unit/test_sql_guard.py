@@ -37,6 +37,15 @@ def test_comment_only_query_rejected():
         validate_select_only("-- just a comment")
 
 
+def test_block_comment_only_query_rejected():
+    with pytest.raises(SqlGuardError, match="no statement"):
+        validate_select_only("/* blocked */")
+
+
+def test_block_comment_stripped_before_keyword_scan():
+    assert validate_select_only("SELECT /* note */ id FROM orders") == "SELECT /* note */ id FROM orders"
+
+
 @pytest.mark.parametrize("query", [
     "DROP TABLE orders",
     "INSERT INTO orders VALUES (1)",

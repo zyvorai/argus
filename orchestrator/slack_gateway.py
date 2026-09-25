@@ -40,8 +40,12 @@ def _run(kind: str, *, requested_by: str) -> dict[str, str]:
 
     try:
         job = get_service().enqueue(kind, {}, requested_by=requested_by)
-    except ValueError as exc:
-        return {"response_type": "ephemeral", "text": f"Could not start job: {exc}"}
+    except ValueError:
+        # Don't echo exception text to Slack — validation detail stays server-side.
+        return {
+            "response_type": "ephemeral",
+            "text": "Could not start job — check kind and parameters.",
+        }
 
     return {
         "response_type": "in_channel",

@@ -203,7 +203,7 @@ def create_app() -> FastAPI:
                 delivery_id=delivery_id,
             )
         except WebhookSecurityError as exc:
-            raise HTTPException(status_code=401, detail=str(exc)) from exc
+            raise HTTPException(status_code=401, detail="unauthorized") from exc
         if verification.duplicate:
             return {"status": "ignored", "event": event, "reason": "duplicate delivery"}
 
@@ -261,7 +261,7 @@ def create_app() -> FastAPI:
         try:
             verify_slack_request(body, x_slack_signature, x_slack_request_timestamp, secret)
         except SlackSecurityError as exc:
-            raise HTTPException(status_code=401, detail=str(exc)) from exc
+            raise HTTPException(status_code=401, detail="unauthorized") from exc
 
         from urllib.parse import parse_qsl
 

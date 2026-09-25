@@ -1,0 +1,6 @@
+name: Argus CodeQL
+# tls_cipher_scan intentionally negotiates TLSv1/1.1 to detect legacy protocol
+# support on targets — that is the probe's purpose, not a product TLS downgrade.
+paths-ignore:
+  - agents/probes/tls_cipher_scan.py
+  - tests/fixtures/**

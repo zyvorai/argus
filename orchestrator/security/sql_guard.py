@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import re
 
-_COMMENT_RE = re.compile(r"--[^\n]*|/\*.*?\*/", re.DOTALL)
 _LEADING_CTE_RE = re.compile(r"^\s*WITH\b", re.IGNORECASE)
 _LEADING_SELECT_RE = re.compile(r"^\s*SELECT\b", re.IGNORECASE)
 
@@ -38,6 +37,26 @@ class SqlGuardError(ValueError):
     pass
 
 
+def _strip_sql_comments(query: str) -> str:
+    """Remove -- line and /* */ block comments without a ReDoS-prone regex."""
+    out: list[str] = []
+    i = 0
+    n = len(query)
+    while i < n:
+        if query.startswith("--", i):
+            while i < n and query[i] != "\n":
+                i += 1
+            continue
+        if query.startswith("/*", i):
+            end = query.find("*/", i + 2)
+            i = n if end < 0 else end + 2
+            out.append(" ")
+            continue
+        out.append(query[i])
+        i += 1
+    return "".join(out)
+
+
 def validate_select_only(query: str) -> str:
     """Returns `query` unchanged if it passes; raises `SqlGuardError`
     otherwise. Callers pass the *original* query through to execution --
@@ -45,7 +64,7 @@ def validate_select_only(query: str) -> str:
     if not query or not query.strip():
         raise SqlGuardError("query must not be empty")
 
-    normalized = _COMMENT_RE.sub(" ", query).strip()
+    normalized = _strip_sql_comments(query).strip()
     if not normalized:
         raise SqlGuardError("query contains no statement outside of comments")
 

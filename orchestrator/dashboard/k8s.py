@@ -9,6 +9,7 @@ or with no cluster at all.
 
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +18,13 @@ from typing import Any, Optional
 NAMESPACE_FILE = Path("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 
 _client_cache: dict[str, Any] = {}
+_log = logging.getLogger(__name__)
+
+
+def _client_error(exc: BaseException) -> str:
+    """Log the real failure server-side; return a generic client-facing string."""
+    _log.warning("kubernetes client error: %s", exc)
+    return "cluster query failed"
 
 
 def _load_clients() -> Optional[dict[str, Any]]:
@@ -163,7 +171,7 @@ def list_pods() -> dict[str, Any]:
         )
         warnings = _recent_warning_events(clients, namespace)
     except Exception as exc:
-        return {"available": False, "namespace": namespace, "pods": [], "error": str(exc)}
+        return {"available": False, "namespace": namespace, "pods": [], "error": _client_error(exc)}
 
     metrics = _pod_metrics(clients, namespace)
 
@@ -266,7 +274,7 @@ def pod_logs(name: str, lines: int = 100, container: Optional[str] = None) -> di
             )
             raw = _normalize_log_text(raw)
         except Exception as exc:
-            last_error = str(exc)
+            last_error = _client_error(exc)
             if len(containers) > 1:
                 out.append(f"────── container: {cname} — logs unavailable ──────")
             continue
@@ -295,7 +303,7 @@ def delete_pod(name: str) -> dict[str, Any]:
     try:
         clients["core"].delete_namespaced_pod(name, namespace)
     except Exception as exc:
-        return {"ok": False, "error": str(exc)}
+        return {"ok": False, "error": _client_error(exc)}
     return {"ok": True, "name": name}
 
 
@@ -308,7 +316,7 @@ def recent_events(limit: int = 25) -> dict[str, Any]:
     try:
         result = clients["core"].list_namespaced_event(namespace)
     except Exception as exc:
-        return {"available": False, "events": [], "error": str(exc)}
+        return {"available": False, "events": [], "error": _client_error(exc)}
 
     events = []
     for ev in result.items:
@@ -365,7 +373,7 @@ def get_workloads() -> dict[str, Any]:
             "namespace": namespace,
             "deployments": deployments,
             "cronjobs": cronjobs,
-            "error": str(exc),
+            "error": _client_error(exc),
         }
 
     return {

@@ -53,7 +53,7 @@ def test_run_reports_enqueue_failure(monkeypatch):
 
     assert reply["response_type"] == "ephemeral"
     assert "Could not start job" in reply["text"]
-    assert "seat limit exceeded" in reply["text"]
+    assert "seat limit exceeded" not in reply["text"]
 
 
 def test_status_reports_known_job(monkeypatch):

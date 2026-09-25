@@ -207,8 +207,10 @@ def _safe_local_spec(spec: str) -> str:
     network-reachable and must not read arbitrary host files."""
     root = _repo_root().resolve()
     candidate = (root / spec).resolve() if not os.path.isabs(spec) else Path(spec).resolve()
-    if not str(candidate).startswith(str(root) + os.sep):
-        raise ValueError("spec path must be inside the repository")
+    try:
+        candidate.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("spec path must be inside the repository") from exc
     if not candidate.is_file():
         raise ValueError(f"spec not found: {spec}")
     return str(candidate)
@@ -1759,6 +1761,7 @@ def _job_tls(params: dict[str, Any]) -> dict[str, Any]:
     log_progress(f"{host} → {', '.join(ips)}")
 
     ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
     log_progress(f"TLS handshake with {host}:{port}…")
     with socket.create_connection((host, port), timeout=15) as sock:
         with ctx.wrap_socket(sock, server_hostname=host) as ssock:

@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from urllib.parse import urlparse
+
 import pytest
 
 from orchestrator.dashboard.jobs import VALID_KINDS, _redact_params, _safe_local_spec, _validate
@@ -469,7 +471,7 @@ def test_other_probe_kinds_require_url_scheme(kind):
     with pytest.raises(ValueError, match="http"):
         _validate(kind, {"url": "not-a-url"})
     clean = _validate(kind, {"url": "https://x.io"})
-    assert clean["url"].startswith("https://x.io")
+    assert urlparse(clean["url"]).hostname == "x.io"
 
 
 def test_api_check_extra_fields():
@@ -552,7 +554,7 @@ def test_misconfig_scan_clean_defaults(monkeypatch):
 def test_cve_lookup_clean_defaults(monkeypatch):
     _allow_engagement(monkeypatch)
     clean = _validate("cve_lookup", {"url": "https://x.io", "engagement_id": "eng-1"})
-    assert clean["url"].startswith("https://x.io")
+    assert urlparse(clean["url"]).hostname == "x.io"
 
 
 def test_contract_verify_requires_har(monkeypatch):
@@ -597,7 +599,7 @@ def test_sca_scan_local_checkout_only_mode_needs_no_engagement():
 def test_sca_scan_both_modes_together(monkeypatch):
     _allow_engagement(monkeypatch)
     clean = _validate("sca_scan", {"url": "https://x.io", "checkout_path": "/repo", "engagement_id": "eng-1"})
-    assert clean["url"].startswith("https://x.io")
+    assert urlparse(clean["url"]).hostname == "x.io"
     assert clean["checkout_path"] == "/repo"
 
 
@@ -721,7 +723,7 @@ def test_llm_redteam_v1_qa_valid_params(monkeypatch):
         {"target": "v1_qa", "base_url": "https://x.io", "api_key": "k", "engagement_id": "eng-1"},
     )
     assert clean["target"] == "v1_qa"
-    assert clean["url"].startswith("https://x.io")
+    assert urlparse(clean["url"]).hostname == "x.io"
     assert clean["api_key"] == "k"
 
 
@@ -799,7 +801,7 @@ def test_exploit_poc_happy_path_with_exploit_tier_engagement(monkeypatch):
             "engagement_id": "eng-1", "timeout_s": 99999,
         },
     )
-    assert clean["url"].startswith("https://x.io")
+    assert urlparse(clean["url"]).hostname == "x.io"
     assert clean["finding_description"] == "SQLi in ?id="
     assert clean["timeout_s"] == 300  # capped
     monkeypatch.delenv("ZYVOR_EXPLOIT_EXECUTION_ENABLED", raising=False)
@@ -1077,7 +1079,7 @@ def test_chaos_inject_clean_defaults(monkeypatch):
     clean = _validate("chaos_inject", _base_chaos_params(fault_type="latency"))
     assert clean["fault_type"] == "latency"
     assert clean["control_kind"] == "flow"
-    assert clean["control_params"]["url"].startswith("https://x.io")  # url injected into control_params
+    assert urlparse(clean["control_params"]["url"]).hostname == "x.io"  # url injected into control_params
     assert clean["error_rate_threshold_pct"] == 10.0
     assert clean["recovery_sla_s"] == 30.0
 
@@ -1124,7 +1126,7 @@ def test_port_scan_active_recon_happy(monkeypatch):
     _allow_engagement(monkeypatch, tier="active_recon")
     clean = _validate("port_scan", {"url": "https://x.io", "engagement_id": "eng-1", "ports": "22,80,443"})
     assert clean["ports"] == [22, 80, 443]
-    assert clean["url"].startswith("https://x.io")
+    assert urlparse(clean["url"]).hostname == "x.io"
 
 
 def test_port_scan_rejects_exploit_only_when_missing_engagement(monkeypatch):

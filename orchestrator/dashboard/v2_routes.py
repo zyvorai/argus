@@ -106,9 +106,16 @@ async def get_job_artifact(request: Request, job_id: str, href: str = Query(...)
     from orchestrator.dashboard.jobs import _repo_root
 
     reports_root = (_repo_root() / "reports").resolve()
-    file_path = (_repo_root() / href.lstrip("/")).resolve()
-    if reports_root not in file_path.parents:
-        raise HTTPException(status_code=400, detail="invalid artifact path")
+    # Join under reports/ only (href is already allow-listed against the job
+    # result above). relative_to() is the containment check CodeQL recognizes.
+    rel = href.lstrip("/")
+    if rel.startswith("reports/"):
+        rel = rel[len("reports/") :]
+    try:
+        file_path = (reports_root / rel).resolve().relative_to(reports_root)
+        file_path = reports_root / file_path
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="invalid artifact path") from exc
     if not file_path.is_file():
         raise HTTPException(status_code=404, detail="artifact file no longer on disk")
     return FileResponse(file_path)

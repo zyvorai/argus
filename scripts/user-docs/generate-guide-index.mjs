@@ -21,7 +21,7 @@ function summaryOf(file) {
   if (i === -1) return ''
   for (let j = i + 1; j < lines.length; j++) {
     const t = lines[j].trim()
-    if (t && !t.startsWith('#')) return t.replace(/\s+/g, ' ').replace(/\|/g, '\\|').replace(/\*\*/g, '')
+    if (t && !t.startsWith('#')) return t.replace(/\\/g, '\\\\').replace(/\s+/g, ' ').replace(/\|/g, '\\|').replace(/\*\*/g, '')
   }
   return ''
 }
