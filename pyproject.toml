@@ -57,7 +57,7 @@ mcp = [
     # Pinned below 2.0 — that major restructured mcp.server.fastmcp (module
     # renamed, FastMCP not re-exported the same way) shortly before this was
     # written; stay on the stable, documented 1.x API until 2.x settles.
-    "mcp>=1.8,<2.0",
+    "mcp>=1.8,<3.0",
 ]
 # For multi-replica HA: set ZYVOR_STATE_DB to a postgresql://... URL and
 # install this extra. MissionControlStore's SQLite implementation stays the
