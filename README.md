@@ -12,6 +12,9 @@
 
 ![Argus — Autonomous QA for the real world.](docs/social/argus-share-card.png)
 
+[![Book a demo](https://img.shields.io/badge/Book_a_demo-0071e3?style=for-the-badge)](https://zyvor.dev/schedule?utm_source=github&utm_medium=argus&utm_campaign=readme_hero)
+[![30-day PoC](https://img.shields.io/badge/30--day_PoC-1d1d1f?style=for-the-badge)](https://zyvor.dev/poc?utm_source=github&utm_medium=argus&utm_campaign=readme_hero)
+
 **Autonomous QA for the real world.** Argus reads your requirements, scores them, generates Playwright tests, runs them on every deploy, and shows what broke — in Mission Control, a live ops console.
 
 No LLM key required for smoke tests, rule-based parsing, and most dashboard actions. Add a provider when you want richer generation and analysis.
@@ -59,8 +62,8 @@ docker run --rm -p 8080:8080 --env-file .env ghcr.io/zyvorai/zyvor-argus:v0.9.2 
 | Track | Where |
 | --- | --- |
 | **Non-production use** (free under the Zyvor Production License) | This repo |
-| **Production / commercial license** | [https://zyvor.dev](https://zyvor.dev) |
-| **Docs** | [Tutorials](docs/tutorials/README.md) · [zyvor.dev/docs](https://zyvor.dev/docs) |
+| **Production / commercial license** | [https://zyvor.dev](https://zyvor.dev/?utm_source=github&utm_medium=argus&utm_campaign=readme_edition) |
+| **Docs** | [Tutorials](docs/tutorials/README.md) · [zyvor.dev/docs](https://zyvor.dev/docs?utm_source=github&utm_medium=argus&utm_campaign=readme_suite) |
 
 More: [user manual](docs/user/README.md) · [feature guide](docs/zyvor-argus-user-feature-guide.md) · [configuration](docs/configuration.md) · [remote deploy](docs/remote-deploy.md) · [enterprise overlay](docs/enterprise-v2.md).
 
@@ -147,7 +150,9 @@ Licensed under the **[Zyvor Production License v1.0](LICENSE)**.
 - **Free** for development, testing, evaluation, research, education, and non-production labs
 - **Paid commercial license required** for production, customer workloads, SaaS, managed services, OEM, redistribution, and other revenue-generating use
 
-Commercial terms are issued separately: [https://zyvor.dev](https://zyvor.dev).
+Commercial terms are issued separately: [https://zyvor.dev](https://zyvor.dev/?utm_source=github&utm_medium=argus&utm_campaign=readme_footer).
+
+Evaluate with the team: [Book a demo](https://zyvor.dev/schedule?utm_source=github&utm_medium=argus&utm_campaign=readme_footer) · [30-day PoC](https://zyvor.dev/poc?utm_source=github&utm_medium=argus&utm_campaign=readme_footer).
 
 See [docs/LICENSING.md](docs/LICENSING.md). Contributions: [CLA.md](CLA.md) + [DCO.md](DCO.md) (`git commit -s`),
 governed by our [Code of Conduct](CODE_OF_CONDUCT.md).
